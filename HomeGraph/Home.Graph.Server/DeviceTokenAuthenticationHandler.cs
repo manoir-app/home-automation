@@ -46,7 +46,7 @@ namespace Home.Graph.Server
                 {
                     switch (authHeader.Scheme.ToLowerInvariant())
                     {
-                        case "basic":
+                        case "bearer":
                             return AuthDevice(authHeader);
                         case "signature": // smartthings à priori
                             return AuthSignature(authHeader);

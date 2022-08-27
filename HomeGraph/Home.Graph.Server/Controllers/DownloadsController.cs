@@ -279,6 +279,24 @@ namespace Home.Graph.Server.Controllers
             return false;
         }
 
+        public class DirectDownloadRequest
+        {
+            public string Name { get; set; }
+            public string Url { get; set; }
+        }
+
+        [Route("direct/{protocol}")]
+        public bool StartDirectDownload(DirectDownloadRequest item)
+        {
+            return PostNewDownloads(new DownloadItem[] { new DownloadItem()
+            {
+                DateAdded = DateTime.Now,
+                SourceUrl = item.Url,
+                IsPrivate=true,
+                Title = item.Name,
+                Status = DownloadItemStatus.Queued
+            }});
+        }
 
         private static bool StartDownload(IMongoCollection<DownloadItem> collection, DownloadItem item)
         {
