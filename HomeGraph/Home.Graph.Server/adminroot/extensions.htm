@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html ng-app="ExtensionsApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="admin.js"></script>
+    <script src="extensions.js"></script>
+    <manoir-head></manoir-head>
+    <link rel="stylesheet" href="extensions.css" />
+
+    <title>Administration - Extensions</title>
+</head>
+<body ng-controller="ExtensionsController">
+
+    <div class="main-wrapper">
+
+        <manoir-user-menubar></manoir-user-menubar>
+
+        <div class="page-wrapper">
+
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+                <nav class="page-breadcrumb">
+                    <ol class="breadcrumb  breadcrumb-arrow">
+                        <li class="breadcrumb-item"><a href="/admin/">Administration</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Extensions</li>
+                    </ol>
+                </nav>
+
+                <div class="row">
+
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='extensions-list'">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Extensions</h4>
+                                <div class="table-responsive">
+                                    <table class="table .table-hover table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>NAME</th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <tr ng-repeat="ag in Extensions">
+                                                <td class="title"><span ng-bind="ag.title"></span></td>
+                                                <td class="restart">
+                                                    <button ng-if="ag.isInstalled" class="btn btn-outline-dark mr-1 mb-1" ng-click="events.restartExtension(ag)">Restart</button>
+                                                    <button ng-if="!ag.isInstalled" class="btn btn-outline-dark mr-1 mb-1" ng-click="events.installExtension(ag)">Install</button>
+                                                </td>
+                                                <td class="suppr">
+                                                    <button ng-if="ag.isInstalled" class="btn btn-primary mr-1 mb-1" ng-click="events.uninstallExtension(ag)">Uninstall</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+﻿td.status {
+    width:55%;
+}
+
+td.title span.name {
+    font-weight:600;
+}
+
+td.title span.badge {
+    margin-right:4px;
+}

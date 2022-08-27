@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html ng-app="ProductPageApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="products.js"></script>
+
+    <manoir-head></manoir-head>
+
+    <link rel="stylesheet" href="products.css" />
+
+    <title>Products</title>
+
+
+</head>
+<body ng-controller="ProductPageController">
+    <manoir-head></manoir-head>
+
+    <div class="main-wrapper">
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+
+
+            <manoir-user-header></manoir-user-header>
+
+
+            <div class="page-content">
+
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                    <div>
+                        <h4 class="mb-3 mb-md-0">Products</h4>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap text-nowrap">
+                        <!--<div class="input-group date datepicker wd-200 me-2 mb-2 mb-md-0" id="dashboardDate">
+                            <span class="input-group-text input-group-addon bg-transparent border-primary"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar  text-primary"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+                            <input type="text" class="form-control border-primary bg-transparent">
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-printer btn-icon-prepend"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            Print
+                        </button>-->
+                        <button class="btn btn-outline-primary mb-2 mb-md-0" ng-click="events.switchToNew();">New product</button>
+                    </div>
+                </div>
+                <nav class="page-breadcrumb">
+                    <ol class="breadcrumb  breadcrumb-arrow">
+                        <li class="breadcrumb-item">Products</li>
+                        <li class="breadcrumb-item active" aria-current="page">List</li>
+                    </ol>
+                </nav>
+                <div class="row" ng-if="view == 'products-list'">
+                    <div class="col-2">
+                        <ul class="list-unstyled">
+                            <li><button class="mb-1 btn btn-xs" ng-class="events.isCurrentCategory('') ? 'btn-dark':'btn-outline-dark'" ng-click="events.selectCategory('')">Tous les articles</button></li>
+                            <li ng-repeat="niv1 in categories">
+                                <button class="mb-1 btn btn-xs" ng-class="events.isCurrentCategory(niv1.id) ? 'btn-primary':'btn-outline-primary'" ng-click="events.selectCategory(niv1.id)">{{niv1.label}}</button>
+                                <ul class="list-unstyled ms-2" ng-if="niv1.subcategories!=null && niv1.subcategories.length>0">
+                                    <li ng-repeat="niv2 in niv1.subcategories">
+                                        <button class="mb-1 btn btn-xs" ng-class="events.isCurrentCategory(niv2.id) ? 'btn-primary':'btn-outline-primary'" ng-click="events.selectCategory(niv2.id)">{{niv2.label}}</button>
+                                        <ul class="list-unstyled ms-2" ng-if="niv2.subcategories!=null && niv2.subcategories.length>0">
+                                            <li ng-repeat="niv3 in niv2.subcategories">
+                                                <button class="mb-1 btn btn-xs" ng-class="events.isCurrentCategory(niv3.id) ? 'btn-primary':'btn-outline-primary'" ng-click="events.selectCategory(niv3.id)">{{niv3.label}}</button>
+                                                <ul class="list-unstyled ms-2" ng-if="niv3.subcategories!=null && niv3.subcategories.length>0">
+                                                    <li ng-repeat="niv4 in niv3.subcategories">
+                                                        <button class="mb-1 btn btn-xs" ng-class="events.isCurrentCategory(niv4.id) ? 'btn-primary':'btn-outline-primary'" ng-click="events.selectCategory(niv4.id)">{{niv4.label}}</button>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-10 grid-margin grid-margin-md-0">
+                        <nav ng-if="pages!=null && pages.length>0" aria-label="Page navigation">
+                            <ul class="pagination pagination-sm justify-content-end">
+                                <li ng-repeat="pg in pages" class="page-item" ng-class="events.isCurrentPage(pg)"><button class="page-link" ng-click="events.setCurrentPage(pg)">{{pg}}</button></li>
+                            </ul>
+                        </nav>
+                        <section class="row">
+                            <div ng-repeat="prd in products" class="col-12 col-sm-6 col-md-4 col-xl-3 grid-margin grid-margin-md-20 mb-4">
+
+                                <div class="card">
+                                    <a data-bs-toggle="modal" data-bs-target="#modalProduct" ng-click="events.showProduct(prd)">
+                                        <div class="card-img-top manoir-product-image" ng-style="{'background-image': 'url(' + events.getImage(prd) + ')'}"></div>
+                                    </a>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center flex-nowrap grid-margin mb-0">
+                                            <a data-bs-toggle="modal" data-bs-target="#modalProduct" ng-click="events.showProduct(prd)">
+                                                <p>{{prd.label}}</p>
+                                            </a>
+                                            <button class="btn btn-xs btn-outline-secondary" ng-click="events.editProduct(prd)">Edit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                </div>
+
+                <div class="col-md-12 grid-margin stretch-card" ng-if="view=='product-edit'">
+                    <form class="row">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                    <div>
+                                        <h4 class="card-title">Edit Product</h4>
+                                    </div>
+                                    <div ng-if="isSaving" class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div ng-if="!isSaving" class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                        <button type="submit" class="btn btn-primary me-2" ng-click="events.saveProduct();" tabindex="25">Save</button>
+                                        <button class="btn btn-secondary" ng-click="events.switchBackToMain();" tabindex="25">Back</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content" ng-show="currentProduct!=null">
+                                <div class="card-body">
+                                    <div class="form-row row mb-2">
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-name">Name</label>
+                                                <input type="text" id="product-name" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="Name" ng-model="currentProduct.label" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-generic-name">Generic Name</label>
+                                                <input type="text" id="product-generic-name" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="Name" ng-model="currentProduct.genericName" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-type">Product Type</label>
+                                                <select id="product-type" class="form-select" ng-model="currentProduct.productTypeId" data-placeholder="Choose product type">
+                                                    <option ng-repeat="type in types" value="{{type.id}}">{{type.label}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-category">Product Category</label>
+                                                <select id="product-category" class="form-select" ng-model="currentProduct.mainCategoryId">
+                                                    <optgroup ng-repeat="cat in categories" label="{{cat.label}}">
+                                                        <option ng-repeat="cat2 in cat.subcategories" value="{{cat2.id}}">{{cat2.label}}</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-unit">Product Unit</label>
+                                                <select id="product-unit" class="form-select" ng-model="currentProduct.unitId" data-placeholder="Choose product unit">
+                                                    <option ng-repeat="unit in units" value="{{unit.id}}">{{unit.label}} ({{unit.symbol}})</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-unit-desc">Unit details </label>
+                                                <input type="text" id="product-unit-desc" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="(ex : 1 serving = 2 cookies)" ng-model="currentProduct.unitExplanation" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row row mb-2 mt-4">
+                                        <h5>Storage Info</h5>
+                                    </div>
+                                    <div class="form-row row mb-2">
+                                        <div class="col-3 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-duration">Standard duration (in days)</label>
+                                                <input type="number" min="0" max="10000" id="product-name" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="duration" placeholder="Duration" ng-model="currentProduct.storageInfo.standardExpirationDuration" />
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-duration">Tolerance</label>
+                                                <input type="number" min="0" max="10000" id="product-name" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="duration" placeholder="Duration" ng-model="currentProduct.storageInfo.standardExpirationTolerance" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row row mb-2">
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-category">Default storage (new)</label>
+                                                <select id="product-category" class="form-select" ng-model="currentProduct.storageInfo.defaultStorageSubElementIdWhenNew" data-placeholder="Choose storage unit when new">
+                                                    <option value="">Undefined</option>
+                                                    <optgroup ng-repeat="su in storageUnits" label="{{su.label}}">
+                                                        <option ng-if="su.subElements==null || su.subElements.length==0" value="{{su.id}}">{{su.label}}</option>
+                                                        <option ng-repeat="susub in su.subElements" value="{{susub.id}}">{{susub.label}}</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-unit-desc">Default Storage (new) comment </label>
+                                                <input type="text" id="product-unit-desc" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="ex: 2nd box to the left" ng-model="currentProduct.storageInfo.defaultStorageCommentWhenNew" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-category">Default storage (opened)</label>
+                                                <select id="product-category" class="form-select" ng-model="currentProduct.storageInfo.defaultStorageSubElementIdWhenOpened" data-placeholder="Choose storage unit when new">
+                                                    <option value="">Undefined</option>
+                                                    <optgroup ng-repeat="su in storageUnits" label="{{su.label}}">
+                                                        <option ng-if="su.subElements==null || su.subElements.length==0" value="{{su.id}}">{{su.label}}</option>
+                                                        <option ng-repeat="susub in su.subElements" value="{{susub.id}}">{{susub.label}}</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-group">
+                                                <label for="product-unit-desc">Default Storage (opened) comment </label>
+                                                <input type="text" id="product-unit-desc" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="ex: 2nd box to the left" ng-model="currentProduct.storageInfo.defaultStorageCommentWhenOpened" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row row mb-2 mt-4">
+                                        <h5>Packagings/Variations</h5>
+                                    </div>
+                                    <div class="form-row row mb-2">
+                                        <div class="list-group">
+
+                                            <div class="list-group-item" ng-repeat="var in currentProduct.packagings">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <input type="text" class="form-control" autocomplete="off" tabindex="1"
+                                                               name="name" placeholder="Variation name" ng-model="var.label" />
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" autocomplete="off" tabindex="1"
+                                                               name="name" placeholder="Ean" ng-model="var.ean" />
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="number" class="form-control" autocomplete="off" tabindex="1"
+                                                               name="name" placeholder="Qty in pack" ng-model="var.packQuantity" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                        <button ng-click="events.newPackaging(currentProduct)" class="btn btn-secondary">Add variation</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+    <div class="modal fade" id="modalProduct" tabindex="-1" aria-labelledby="modalProductLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalProductLabel" ng-bind="productInModal.label"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{productInModal.label}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+﻿
+
+main p {
+    font-size: 60px;
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    max-width: 50%;
+}
+
+
+ul.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    height: calc(100% - 200px);
+    gap: 30px;
+}
+
+    ul.menu li {
+        display: block;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        border-radius: 20px;
+        background-size: cover;
+    }
+
+        ul.menu li.home-app {
+            background-image: url(/sampleimages/home-app.jpg);
+        }
+
+        ul.menu li.device-app {
+            background-image: url(/sampleimages/device-app.jpg);
+        }
+
+        ul.menu li.admin-app {
+            background-image: url(/sampleimages/admin-app.jpg);
+        }
+
+a.main-button {
+    background-size: cover;
+    border-radius: 20px;
+    display: block;
+    height: 100%;
+    width: 100%;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    position: relative;
+    text-decoration: none;
+}
+
+    a.main-button:hover {
+        /* From https://css.glass */
+        /*background: rgba(255, 255, 255, 0.19);*/
+        border-radius: 16px;
+        backdrop-filter: blur(0.6px);
+        -webkit-backdrop-filter: blur(0.6px);
+        background:rgba(19,19,19,0.3);
+    }
+
+    a.main-button h2 {
+        display: block;
+        padding: 10px;
+        margin: 0 40px;
+        position: absolute;
+        top: 85%;
+        width: calc(100% - 100px);
+        text-align: center;
+        border: solid 1px #efefef;
+        font-weight: 100;
+        color: #ffffff;
+        text-transform: lowercase;
+    }

@@ -1,0 +1,17 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "ES2015"
+  },
+  "exclude": [
+    "bin",
+    "obj",
+    "node_modules",
+    "wwwroot/scripts/typings",
+    "**/typings/*"
+  ]
+}

@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Devices\Tuya\**" />
+    <EmbeddedResource Remove="Devices\Tuya\**" />
+    <None Remove="Devices\Tuya\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AdaptiveCards" Version="2.7.3" />
+    <PackageReference Include="MediaBrowser.ApiClient" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.0.0" />
+    <PackageReference Include="MQTTnet" Version="3.0.13" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.13" />
+    <PackageReference Include="NATS.Client" Version="0.11.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Plex.Api" Version="1.0.112" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Home.Common\Home.Common.csproj" />
+    <ProjectReference Include="..\..\HomeGraph\Home.Graph.Common\Home.Graph.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="build-docker.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;cd $(TargetDir)&#xD;&#xA;powershell -File .\build-docker.ps1&#xD;&#xA;)" />
+  </Target>-->
+
+</Project>

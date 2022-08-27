@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Home.Agents.Gaia": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MOSQUITTO_SERVICE_HOST": "192.168.2.184"
+      }
+    }
+  }
+}

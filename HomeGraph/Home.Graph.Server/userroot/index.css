@@ -1,0 +1,9 @@
+﻿.user-present {
+    display: inline-block;
+    margin-right: 2px;
+}
+
+    .user-present img {
+        height: 40px;
+        width: 40px;
+    }

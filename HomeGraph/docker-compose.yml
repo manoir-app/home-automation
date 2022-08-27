@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  Home.Graph.server:
+    image: ${DOCKER_REGISTRY-}homegraphserver
+    build:
+      context: .
+      dockerfile: Home.Graph.Server/Dockerfile

@@ -1,0 +1,15 @@
+﻿td.img img {
+    height: 24px;
+    width: 24px;
+    border-radius:0;
+    display: inline-block;
+    margin: 3px 5px;
+}
+
+td.img {
+    width:40px;
+}
+
+td.message {
+    width:75%;
+}

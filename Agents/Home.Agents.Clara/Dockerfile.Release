@@ -1,0 +1,4 @@
+FROM mcr.microsoft.com/playwright/dotnet:v1.22.0-focal AS base
+WORKDIR /app
+COPY "./" /app/
+ENTRYPOINT ["dotnet", "Home.Agents.Clara.dll"]

@@ -1,0 +1,16 @@
+﻿td.title span.badge {
+    margin-right: 4px;
+}
+
+td.title span.name {
+    font-weight: 600;
+    display: inline-block;
+    max-width: 350px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+td.status {
+    width: 55%;
+}

@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Bienvenue !</title>
+
+    <script src="/scripts/jquery-2.0.2.js"></script>
+    <script src="/me/scripts/user-menu.js"></script>
+    <manoir-head></manoir-head>
+
+</head>
+<body>
+    <div class="main-wrapper">
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+
+            <manoir-user-header></manoir-user-header>
+
+            <h1>User Page !</h1>
+
+
+            <h2>Oauth</h2>
+
+            <ul>
+                <li id="liTwitch" style="display:none"><a href="#">Connect with twitch</a></li>
+                <li id="liMS" style="display:none"><a href="#">Connect with microsoft (outlook, todo, azure...)</a></li>
+                <li id="liAzureMgmt" style="display:none"><a href="#">Connect to azure management</a></li>
+                <li id="liSpotify" style="display:none"><a href="#">Connect with Spotify</a></li>
+                <li id="liSonos" style="display:none"><a href="#">Connect with Sonos</a></li>
+            </ul>
+
+            <script type="text/javascript">
+                fetch('/oauth/twitch/geturl').then(function (response) { return response.text(); }).then(function (url) {
+                    var li = document.getElementById("liTwitch");
+                    var [a] = li.getElementsByTagName("a");
+
+                    li.style.display = "block";
+                    a.href = url;
+                });
+
+                fetch('/oauth/microsoft/geturl').then(function (response) { return response.text(); }).then(function (url) {
+                    var li = document.getElementById("liMS");
+                    var [a] = li.getElementsByTagName("a");
+
+                    li.style.display = "block";
+                    a.href = url;
+                });
+
+                fetch('/oauth/microsoft/geturl?resource=azuremgmt').then(function (response) { return response.text(); }).then(function (url) {
+                    var li = document.getElementById("liAzureMgmt");
+                    var [a] = li.getElementsByTagName("a");
+
+                    li.style.display = "block";
+                    a.href = url;
+                });
+
+                fetch('/oauth/spotify/geturl').then(function (response) { return response.text(); }).then(function (url) {
+                    var li = document.getElementById("liSpotify");
+                    var [a] = li.getElementsByTagName("a");
+
+                    li.style.display = "block";
+                    a.href = url;
+                });
+
+                fetch('/oauth/sonos/geturl').then(function (response) { return response.text(); }).then(function (url) {
+                    var li = document.getElementById("liSonos");
+                    var [a] = li.getElementsByTagName("a");
+
+                    li.style.display = "block";
+                    a.href = url;
+                });
+            </script>
+
+
+
+        </div>
+
+
+
+    </div>
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+</body>
+</html>

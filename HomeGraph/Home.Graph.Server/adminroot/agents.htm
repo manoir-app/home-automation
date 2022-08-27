@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html ng-app="AgentApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="admin.js"></script>
+    <script src="agents.js"></script>
+    <manoir-head></manoir-head>
+    <link rel="stylesheet" href="agents.css" />
+    
+    <title>Administration - Agents</title>
+</head>
+<body ng-controller="AgentsController">
+
+    <div class="main-wrapper">
+
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+                <div class="d-flex">
+                    <nav class="page-breadcrumb">
+                        <ol class="breadcrumb  breadcrumb-arrow">
+                            <li class="breadcrumb-item"><a href="/admin/">Administration</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Agents</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='agents-config'">
+                        <div class="card">
+                            <div class="card-header">
+                                <button class="btn btn-primary" ng-click="events.saveConfig(currentAgent,currentConfig)" style="float:right">Save</button>
+                                <h4 class="card-title" ng-bind="currentAgent"></h4>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <textarea class="form-control" rows="15" ng-model="currentConfig" style="width:95%;min-height:60%"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='agents-list'">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table .table-hover table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>AGENT</th>
+
+                                                <th>STATUS</th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <tr ng-repeat="ag in agents">
+                                                <td class="title">
+                                                    <span class='name' ng-bind="ag.agentName"></span><br />
+                                                    <span class="badge bg-primary" ng-repeat="role in ag.roles">{{role}}</span>
+                                                </td>
+                                                <td class="status">
+                                                    <span ng-bind="ag.message"></span><br />
+                                                    <span class="date" style="font-size:xx-small;color:#999999">{{ag.messageDate}}</span>
+                                                </td>
+                                                <td class="restart"><button ng-if="ag.canRestart" class="btn btn-outline-dark mr-1 mb-1" ng-click="events.restart(ag)">Restart</button></td>
+                                                <td class="config"><button class="btn btn-primary mr-1 mb-1" ng-click="events.switchToConfigPage(ag)">Config</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+</body>
+</html>

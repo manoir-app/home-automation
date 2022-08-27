@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Home.Agents.Erza": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "APPCONFIG_CNSTRING": "---"
+      }
+    }
+  }
+}

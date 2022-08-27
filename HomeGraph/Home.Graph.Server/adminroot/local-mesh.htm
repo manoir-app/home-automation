@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html ng-app="LocalMeshApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="admin.js"></script>
+    <script src="local-mesh.js"></script>
+    <manoir-head></manoir-head>
+    <link rel="stylesheet" href="local-mesh.css" />
+
+    <title>Administration - Local Mesh settings</title>
+</head>
+<body ng-controller="LocalMeshController">
+
+
+    <div class="main-wrapper">
+
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+                <nav class="page-breadcrumb">
+                    <ol class="breadcrumb  breadcrumb-arrow">
+                        <li class="breadcrumb-item"><a href="/admin/">Administration</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Local Mesh</li>
+                    </ol>
+                </nav>
+
+                <div class="row">
+
+                    <div class="col-md-8 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body pb-3">
+                                <div class="d-flex align-items-center flex-wrap text-nowrap mb-2">
+                                    <h4 class="card-title first-bloc-title col-md-10">Local mesh</h4>
+                                    <button class="btn btn-xs col-md-2 btn-outline-primary">Edit settings</button>
+                                </div>
+                                <div class="form-row">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <tr>
+                                                <th>Timezone</th>
+                                                <td>{{LocalMesh.timeZoneId == null ? 'N/R' : LocalMesh.timeZoneId }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Country</th>
+                                                <td>{{LocalMesh.countryId == null ? 'N/R' : LocalMesh.countryId }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Language</th>
+                                                <td>{{LocalMesh.languageId == null ? 'N/R' : LocalMesh.languageId }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer row">
+                                <div class="col-md-12">
+                                    <p>
+                                        <a href="locations.htm?#{{AssociatedLocation.id}}">
+                                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                            <span ng-bind="AssociatedLocation.name"></span>
+                                            :
+                                            <span ng-bind="AssociatedLocation.coordinates.latitude"></span>,
+                                            <span ng-bind="AssociatedLocation.coordinates.longitude"></span>
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4 grid-margin stretch-card">
+                        <div class="card text-white bg-danger">
+                            <div class="card-body">
+                                <h4 class="card-title">Restart</h4>
+                                <div class="form-row" ng-if="!restarting">
+
+                                    <p class="mb-3 mt-4">If you need to apply a new version of the back-office, please click on this button.</p>
+
+                                    <div class="d-grid gap-2">
+                                        <button ng-if="!restarting" class="btn btn-light" ng-click="events.restartHomeGraph();" tabindex="25">Restart Graph</button>
+                                    </div>
+
+                                    <p ng-if="!restarting" class="mb-3 mt-3">You may also want to restart the public proxy :</p>
+
+                                    <div class="d-grid gap-2 ">
+                                        <button ng-if="!restarting && !restartingPublic" class="btn btn-outline-light" ng-click="events.restartPublicProxy();" tabindex="25">Restart public proxy</button>
+                                        <p ng-if="restartingPublic">Restart in progress</p>
+                                    </div>
+
+                                </div>
+                                <div class="form-row" ng-if="restarting">
+                                    <div class="spinner-border text-light" role="status">
+                                        <span class="visually-hidden">Restarting...</span>
+                                    </div>
+                                    <p>Restart in progress</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+
+</body>
+</html>

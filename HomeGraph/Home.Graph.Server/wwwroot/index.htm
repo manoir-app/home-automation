@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="scripts/jquery-3.5.1.min.js"></script>
+    <script src="common/manoir.js"></script>
+    <script src="https://unpkg.com/adaptivecards/dist/adaptivecards.js"></script>
+    <meta name="viewport" content="initial-scale=1.0" />
+    <link rel="stylesheet" href="common/manoir.css" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="index.css" />
+
+    <title></title>
+</head>
+<body>
+    <main class="full-background">
+        <manoir-header></manoir-header>
+        <article>
+            <ul class="menu">
+                <li class="home-app"><a class="main-button" href="/me/"><h2>Home</h2></a></li>
+                <!--<li class="admin-app"><a class="main-button" href="login.html"><h2>Admin</h2></a></li>-->
+                <li class="device-app"><a class="main-button" href="/app/devicehome/"><h2>Connexion device</h2></a></li>
+            </ul>
+        </article>
+        <aside>
+            <svg xmlns="http://www.w3.org/2000/svg" width="152.373" height="46" viewBox="0 0 152.373 46">
+                <g id="Groupe_19" data-name="Groupe 19" transform="translate(-519.097 -482.5)">
+                    <text id="maNOIR" transform="translate(578.097 517.5)" fill="#dcdef8" font-size="35" font-family="Exo-Light, Exo" font-weight="300"><tspan x="-58.005" y="0">ma</tspan><tspan y="0" font-size="30" font-family="Exo-Bold, Exo" font-weight="700">NOIR</tspan></text>
+                    <g id="Groupe_6" data-name="Groupe 6" transform="translate(649.596 485.082)">
+                        <path id="Soustraction_1" data-name="Soustraction 1" d="M5.514,42.938a6.782,6.782,0,0,1-5.483-2.8L0,40.178V3.672l.006.012,0,.01.02.039A6.743,6.743,0,0,1,5.679,0a5.716,5.716,0,0,1,5.645,5.86,7.437,7.437,0,0,1,6.784,7.48,7.752,7.752,0,0,1-.2,1.681,7.579,7.579,0,0,1,0,12.893,7.731,7.731,0,0,1,.2,1.679,7.437,7.437,0,0,1-6.784,7.484,5.716,5.716,0,0,1-5.645,5.86C5.624,42.938,5.57,42.938,5.514,42.938Z" transform="translate(0 0)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_176" data-name="Tracé 176" d="M350,139.367a1.867,1.867,0,1,0,1.867-1.867A1.867,1.867,0,0,0,350,139.367Z" transform="translate(-346.236 -128.167)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_177" data-name="Tracé 177" d="M437.5,239.367a1.867,1.867,0,1,0,1.867-1.867A1.867,1.867,0,0,0,437.5,239.367Z" transform="translate(-427.202 -220.699)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_178" data-name="Tracé 178" d="M350,326.867A1.867,1.867,0,1,0,351.867,325,1.867,1.867,0,0,0,350,326.867Z" transform="translate(-346.236 -301.665)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_179" data-name="Tracé 179" d="M405.493,141.575l-5.177,2.591a5.491,5.491,0,0,1-4.816.049" transform="translate(-388.338 -131.937)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_180" data-name="Tracé 180" d="M375,267.167a6.312,6.312,0,0,1,4.667-4.667" transform="translate(-369.369 -243.832)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_181" data-name="Tracé 181" d="M415.393,465.974c-.515-1.794-1.394-3.174-2.893-3.474" transform="translate(-404.069 -428.898)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                        <path id="Tracé_182" data-name="Tracé 182" d="M362.5,439.367a1.867,1.867,0,1,0,1.867-1.867A1.867,1.867,0,0,0,362.5,439.367Z" transform="translate(-357.803 -405.765)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" />
+                    </g>
+                </g>
+            </svg>
+
+            <p class="version">version : <span id="version"></span></p>
+        </aside>
+    </main>
+
+    <script type="text/javascript">
+        fetch('/v1.0/system/mesh/local/graph/version').then(function (response) { return response.text(); }).then(function (version) {
+            document.getElementById("version").textContent = version;
+        });
+    </script>
+
+</body>
+</html>

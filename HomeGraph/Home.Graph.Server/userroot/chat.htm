@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html ng-app="ChatPageApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="chat.js"></script>
+
+    <manoir-head></manoir-head>
+
+    <link rel="stylesheet" href="chat.css" />
+
+    <title>Chat</title>
+
+
+</head>
+<body ng-controller="ChatPageController">
+    <manoir-head></manoir-head>
+
+    <div class="main-wrapper">
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+
+
+            <manoir-user-header></manoir-user-header>
+
+
+            <div class="page-content">
+
+                <div class="row chat-wrapper">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row position-relative">
+                                    <div class="col-lg-4 chat-aside border-end-lg">
+                                        <div class="aside-content">
+                                            <div class="aside-body">
+                                                <div class="tab-content mt-3">
+                                                    <div class="tab-pane fade show active ps" id="chats" role="tabpanel" aria-labelledby="chats-tab">
+                                                        <div>
+                                                            <ul class="list-unstyled chat-list px-1">
+                                                                <li class="chat-item pe-1" ng-repeat="ch in channels">
+                                                                    <a ng-click="events.setCurrentChannel(ch)" class="d-flex align-items-center">
+
+                                                                        <div class="d-flex justify-content-between flex-grow-1 border-bottom">
+                                                                            <div>
+                                                                                <p class="text-body fw-bolder">{{ch.name}}</p>
+                                                                                <p class="text-muted tx-13">{{ch.lastMessage}}</p>
+                                                                            </div>
+                                                                            <div class="d-flex flex-column align-items-end">
+                                                                                <p class="text-muted tx-13 mb-1"></p>
+                                                                                <div class="badge rounded-pill bg-primary ms-auto" ng-if="ch.nbUnread > 0">{{ch.nbUnread}}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; height: 215px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 chat-content">
+                                        <div class="chat-header border-bottom pb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="d-flex align-items-center">
+                                                    <div ng-if="currentChannel!=null">
+                                                        <p>{{currentChannel.name}}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="chat-body ps ps--active-y">
+                                            <ul class="messages" ng-repeat="msg in currentChatMessages">
+                                                <li class="message-item" ng-class="msg.fromMe?'me':'friend'">
+                                                    <img ng-src="{{events.getImageForUser(msg.fromUserId)}}" class="img-xs" alt="avatar">
+                                                    <div class="content">
+                                                        <div class="message">
+                                                            <div class="bubble">
+                                                                <p>{{msg.messageContent}}</p>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                </li>
+
+                                            </ul>
+                                            <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; height: 212px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 46px;"></div></div>
+                                        </div>
+                                        <form class="chat-footer d-flex">
+                                            <!--<div>
+                                                <button type="button" class="btn border btn-icon rounded-circle me-2" data-bs-toggle="tooltip" title="" data-bs-original-title="Emoji">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smile text-muted"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                                                </button>
+                                            </div>
+                                            <div class="d-none d-md-block">
+                                                <button type="button" class="btn border btn-icon rounded-circle me-2" data-bs-toggle="tooltip" title="" data-bs-original-title="Attatch files">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip text-muted"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                                </button>
+                                            </div>
+                                            <div class="d-none d-md-block">
+                                                <button type="button" class="btn border btn-icon rounded-circle me-2" data-bs-toggle="tooltip" title="" data-bs-original-title="Record you voice">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mic text-muted"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                                                </button>
+                                            </div>-->
+                                            <div class="search-form flex-grow-1 me-2">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control rounded-pill" id="chatForm" placeholder="Type a message" ng-model="input">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button type="submit" class="btn btn-primary btn-icon rounded-circle" ng-click="events.sendMessage()">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+    <script src="chat-from-template.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+﻿oxtorrent.com;ignorable
+french;language
+vostfr;language

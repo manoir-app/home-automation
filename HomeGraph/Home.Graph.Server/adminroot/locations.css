@@ -1,0 +1,16 @@
+﻿td.title span {
+    font-weight:600;
+}
+
+td.edit {
+    width:70px;
+    text-align:right;
+}
+
+.plan {
+    text-align:center;
+}
+
+.plan img {
+    height: 400px;
+}

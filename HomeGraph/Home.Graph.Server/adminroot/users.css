@@ -1,0 +1,19 @@
+﻿td.status {
+    width:55%;
+}
+
+td.roles{
+    width: 25%;
+}
+
+td.title span {
+    font-weight:600;
+}
+
+td.id img {
+    height: 40px;
+    width: 40px;
+    display: inline-block;
+    margin-right: 5px;
+    border-radius: 0;
+}

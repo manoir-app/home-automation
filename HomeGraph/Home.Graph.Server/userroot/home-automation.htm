@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Bienvenue !</title>
+    <script src="/scripts/jquery-2.0.2.js"></script>
+    <script src="/me/scripts/user-menu.js"></script>
+    <manoir-head></manoir-head>
+
+    <title>Home Automation</title>
+</head>
+<body>
+    <div class="main-wrapper">
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+                <div class="row">
+
+                    <div class="col-md-8 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">By room</h4>
+
+                                <div class="row">
+                                    <h5>Salon</h5>
+                                    <div class="row mb-1 mt-1 border-bottom pb-2">
+                                        <div class="col-md-6 pt-2">
+                                            <p>Lampadaire</p>
+                                        </div>
+                                        <div class="col-md-5 ">
+                                            <div class="row">
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-outline-primary btn-sm  align-middle">OFF</button>
+                                                </div>
+                                                <div class="col-md-8 pt-2">
+                                                    <input type="range" class="form-range"  min="0" max="100" value="100" />
+                                                </div>
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-primary btn-sm align-middle">ON</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 text-end ">
+                                            <button class="btn btn-light btn-sm">...</button>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-1 mt-1 border-bottom pb-2">
+                                        <div class="col-md-6 pt-2">
+                                            <p>Secondaire fenetre</p>
+                                        </div>
+                                        <div class="col-md-5 ">
+                                            <div class="row">
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-outline-primary btn-sm  align-middle">OFF</button>
+                                                </div>
+                                                <div class="col-md-8 pt-2">
+                                                    <input type="range" class="form-range" min="0" max="100" value="100" />
+                                                </div>
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-primary btn-sm align-middle">ON</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 text-end ">
+                                            <button class="btn btn-light btn-sm">...</button>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-1 mt-1 border-bottom pb-2">
+                                        <div class="col-md-6 pt-2">
+                                            <p>Eclairage principal</p>
+                                        </div>
+                                        <div class="col-md-5 ">
+                                            <div class="row">
+                                                <div class="col-md-2 ">
+                                                    <button class="btn  btn-primary btn-sm  align-middle">OFF</button>
+                                                </div>
+                                                <div class="col-md-8 pt-2">
+                                                    <input type="range" class="form-range" min="0" max="100" value="0" />
+                                                </div>
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-outline-primary btn-sm align-middle">ON</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 text-end ">
+                                            <button class="btn btn-light btn-sm">...</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Direct Control</h4>
+                                <div class="table-responsive">
+                                    <table class="table .table-hover table-striped">
+                                        <tr>
+                                            <td><a href="http://192.168.2.47/" target="shelly">Main bedroom shutters</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="http://192.168.2.226/" target="shelly">2nd Floor bathroom shutters</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="http://192.168.2.36/" target="shelly">Office shutters</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="http://192.168.2.46/" target="shelly">Kitchen shutters</a></td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+
+</body>
+</html>

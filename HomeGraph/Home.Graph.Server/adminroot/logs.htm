@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html ng-app="LogsApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="admin.js"></script>
+    <script src="logs.js"></script>
+    <manoir-head></manoir-head>
+    <link rel="stylesheet" href="logs.css" />
+
+    <title>Administration - Logs</title>
+</head>
+<body ng-controller="LogsController">
+
+    <div class="main-wrapper">
+
+        <manoir-user-menubar></manoir-user-menubar>
+
+        <div class="page-wrapper">
+
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+                <nav class="page-breadcrumb">
+                    <ol class="breadcrumb  breadcrumb-arrow">
+                        <li class="breadcrumb-item"><a href="/admin/">Administration</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Logs</li>
+                    </ol>
+                </nav>
+
+                <div class="row">
+
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='Logs-list'">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Logs</h4>
+                                <div class="table-responsive">
+                                    <table class="table .table-hover table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th colspan="2">FROM</th>
+                                                <th></th>
+                                                <th>MESSAGE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <tr ng-repeat="ag in Logs">
+                                                <td class="img"><img ng-src="{{ag.imageUrl}}"></td>
+                                                <td class="source"><span ng-bind="ag.source"></span></td>
+                                                <td class="sourceId"><span ng-bind="ag.sourceId"></span></td>
+                                                <td class="message"><span ng-bind="ag.message"></span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+
+
+
+</body>
+</html>
