@@ -312,7 +312,7 @@ namespace Home.Agents.Erza
             {
                 Console.WriteLine($"creating new account for Let's Encrypt");
                 acme = new AcmeContext(uri);
-                account = acme.NewAccount("application@manoir.app", true).Result;
+                account = acme.NewAccount("michael@manoir.app", true).Result;
                 File.WriteAllText(pemAccountFile, acme.AccountKey.ToPem());
                 Console.WriteLine($"created new account for Let's Encrypt");
             }

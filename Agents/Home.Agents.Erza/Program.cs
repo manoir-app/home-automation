@@ -44,7 +44,7 @@ namespace Home.Agents.Erza
             AgentHelper.SetupLocaleFromServer("erza");
             AgentHelper.ReportStart("erza", "monitoring", "security");
 
-            ErzaIntegrationsProvider.InitIntegrations();
+            InitIntegrations();
 
             ErzaMessageHandler.Start();
             WeatherChecker.Start();

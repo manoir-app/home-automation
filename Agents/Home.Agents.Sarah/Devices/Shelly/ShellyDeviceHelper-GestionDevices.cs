@@ -88,6 +88,8 @@ namespace Home.Agents.Sarah.Devices.Shelly
                 }
                 else
                 {
+
+
                     if (already.IpV4 != r.IpV4)
                     {
                         already.IpV4 = r.IpV4;

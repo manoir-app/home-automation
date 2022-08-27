@@ -1,5 +1,5 @@
 ﻿using Home.Agents.Clara;
-using Home.Agents.Clara.HomeServices.Providers.HouseKeeping;
+using Home.Agents.Clara.HomeServices.Integrations.HouseKeeping;
 using Home.Common;
 using Home.Graph.Common;
 using System;

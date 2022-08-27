@@ -160,6 +160,13 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
         }
 
+        public override List<string> GetRoles()
+        {
+            var ret = base.GetRoles();
+            ret.Add(Device.HomeAutomationMainRoleShutterSwitch);
+            return ret;
+        }
+
         public DeviceData ChangeSwitchValue(string switchName, string switchNewValue)
         {
             if (string.IsNullOrEmpty(switchNewValue))

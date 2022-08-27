@@ -54,7 +54,7 @@
                                         </thead>
                                         <tbody>
 
-                                            <tr ng-repeat="ag in Logs">
+                                            <tr ng-repeat="ag in Logs track by ag.id">
                                                 <td class="img"><img ng-src="{{ag.imageUrl}}"></td>
                                                 <td class="source"><span ng-bind="ag.source"></span></td>
                                                 <td class="sourceId"><span ng-bind="ag.sourceId"></span></td>

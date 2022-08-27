@@ -104,7 +104,7 @@ namespace Home.Agents.Sarah.Devices.Hue
         {
             var devreg = new Device(r);
             devreg.DeviceRoles.Add("hue");
-            devreg.DeviceRoles.Add("light");
+            devreg.DeviceRoles.Add(Device.HomeAutomationMainRoleLight);
             devreg.DeviceGivenName = r._light.name;
             toRegister.Add(devreg);
         }

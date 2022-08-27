@@ -34,8 +34,11 @@ namespace Home.Common.Model
         public const string DeviceKindNetwork = "network";
         public const string DeviceKindMobileDevice = "mobiledevice";
 
-        public const string HomeAutomationRoleBridge = "bridge";
-        public const string HomeAutomationRoleLight = "light";
+        public const string HomeAutomationMainRoleBridge = "main:bridge";
+        public const string HomeAutomationMainRoleLight = "main:light";
+        public const string HomeAutomationMainRoleShutterSwitch = "main:shutters";
+        public const string HomeAutomationMainRoleSensors = "main:sensors";
+
         public const string HomeAutomationRoleSwitch = "switch";
         public const string HomeAutomationRoleColorBound = "color-bound";
         public const string HomeAutomationRoleDimmer = "dimmer";

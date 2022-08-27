@@ -93,6 +93,7 @@ namespace Home.Agents.Sarah.Devices.Hue
                         };
                         device.DeviceGivenName = "Hue Bridge";
                         device.DeviceRoles.Add("hue-bridge");
+                        device.DeviceRoles.Add(Device.HomeAutomationMainRoleBridge);
                         device.DeviceAddresses.Add(dev.IpV4);
                         device.MeshId = "local";
                         RegisterBridgeDevice(device);

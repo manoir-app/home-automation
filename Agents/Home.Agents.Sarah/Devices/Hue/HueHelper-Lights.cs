@@ -98,7 +98,7 @@ namespace Home.Agents.Sarah.Devices.Hue
         {
             var device = new Device(baseDevice);
             device.DeviceRoles.Add("hue-light");
-            device.DeviceRoles.Add(Device.HomeAutomationRoleLight);
+            device.DeviceRoles.Add(Device.HomeAutomationMainRoleLight);
             device.MeshId = "local";
             RegisterHueDevice(device);
         }

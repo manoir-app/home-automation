@@ -9,5 +9,12 @@ namespace Home.Agents.Sarah.Devices.Shelly
         public UnknowShellyDevice(string ipv4, string deviceId) : base(ipv4, deviceId)
         {
         }
+
+        public override List<string> GetRoles()
+        {
+            var ret = base.GetRoles();
+            ret.Add("unknown");
+            return ret;
+        }
     }
 }
