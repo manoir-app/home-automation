@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Home.Common\Home.Common.csproj" />
-    <ProjectReference Include="..\..\HomeGraph\Home.Graph.Common\Home.Graph.Common.csproj" />
+    <ProjectReference Include="..\..\Common\Home.Graph.Common\Home.Graph.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
