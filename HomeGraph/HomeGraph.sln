@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Graph.Server", "Home.Graph.Server\Home.Graph.Server.csproj", "{A1601005-C920-4F64-B99E-5C38FEBAA182}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Graph.Common", "Home.Graph.Common\Home.Graph.Common.csproj", "{28E35CB1-CEB2-4B0A-9DFC-50DB3DD4E249}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Graph.Common", "..\Common\Home.Graph.Common\Home.Graph.Common.csproj", "{28E35CB1-CEB2-4B0A-9DFC-50DB3DD4E249}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Common", "..\Common\Home.Common\Home.Common.csproj", "{F29D6E51-0A07-4FDB-ABA2-B3E355652364}"
 EndProject
