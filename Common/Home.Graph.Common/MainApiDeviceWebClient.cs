@@ -10,11 +10,11 @@ namespace Home.Graph.Common
         public MainApiDeviceWebClient(string deviceId)
         {
 
-            var tmp = HomeServerHelper.GetLocalIP();
-            this.BaseAddress = "http://" + tmp;
+            string srv = LocalDebugHelper.GetLocalGraphHost();
+            this.BaseAddress = "http://" + srv;
 
 
-            var passwordToGet = Environment.GetEnvironmentVariable("HOMEAUTOMATION_APIKEY");
+            var passwordToGet = LocalDebugHelper.GetApiKey();
             var pwd = deviceId + ":" + passwordToGet;
             pwd = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(pwd));
             this.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + pwd);

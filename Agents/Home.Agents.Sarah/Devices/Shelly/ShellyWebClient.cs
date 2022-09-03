@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Home.Graph.Common;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
         {
             var rq = base.GetWebRequest(address);
 
-            string passwordToGet = Program.GetPassword(); 
+            string passwordToGet = LocalDebugHelper.GetApiKey(); 
             
             if (!string.IsNullOrEmpty(passwordToGet))
             {

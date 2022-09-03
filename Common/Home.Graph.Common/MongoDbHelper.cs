@@ -48,18 +48,23 @@ namespace Home.Graph.Common
 
         public static MongoClient GetRootMongoClient()
         {
-            var srv = "localhost";
-            var port = 37017;
+            string srv = null;
+            var port = 27017;
 
             var tmp = Environment.GetEnvironmentVariable("MONGODB_SERVICE_HOST");
             if (!string.IsNullOrEmpty(tmp))
                 srv = tmp;
 
+            tmp = LocalDebugHelper.GetLocalServiceHost();
+            if (!string.IsNullOrEmpty(tmp))
+                srv = tmp;
+
+
             tmp = Environment.GetEnvironmentVariable("MONGODB_SERVICE_PORT");
             if (!string.IsNullOrEmpty(tmp))
             {
                 if (!int.TryParse(tmp, out port))
-                    port = 37017;
+                    port = 27017;
             }
 
             var client = new MongoClient($"mongodb://{srv}:{port}");

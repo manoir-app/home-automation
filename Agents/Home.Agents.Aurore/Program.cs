@@ -13,11 +13,6 @@ namespace Home.Agents.Aurore
 
         static void Main(string[] args)
         {
-
-            //Test().Wait();
-
-
-
             Console.WriteLine("Starting Aurore");
             string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
 

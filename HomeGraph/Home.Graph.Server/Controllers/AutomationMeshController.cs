@@ -56,7 +56,7 @@ namespace Home.Graph.Server.Controllers
 
             string url = $"https://home.{prefix}.manoir.app/";
 
-            collection.UpdateOne(x => x.Id == "local", 
+            collection.UpdateOne(x => x.Id == "local",
                 Builders<AutomationMesh>.Update
                 .Set("ManoirAppAccount", account)
                 .Set("MainServer.MainRole.Uri", url));
@@ -79,7 +79,7 @@ namespace Home.Graph.Server.Controllers
             return response;
         }
 
-        
+
 
         [Route("{name}"), HttpGet(), Authorize(Roles = "Agent,Admin,Device")]
         public AutomationMesh Get(string name)
@@ -93,7 +93,7 @@ namespace Home.Graph.Server.Controllers
 
             var collection = MongoDbHelper.GetClient<AutomationMesh>();
             var lst = collection.Find(x => x.Id == name).FirstOrDefault();
-            if(lst!=null && lst.PublicId==null && name.Equals("local", StringComparison.InvariantCultureIgnoreCase))
+            if (lst != null && lst.PublicId == null && name.Equals("local", StringComparison.InvariantCultureIgnoreCase))
             {
                 lst.PublicId = Guid.NewGuid().ToString("D").ToLowerInvariant();
                 var up = Builders<AutomationMesh>.Update.Set("PublicId", lst.PublicId);
@@ -122,7 +122,7 @@ namespace Home.Graph.Server.Controllers
                 lst = collection.Find(x => x.Id.Equals(name)).FirstOrDefault();
             }
 
-            if(name.Equals("local"))
+            if (name.Equals("local"))
             {
                 HomeServerHelper._cache = lst;
             }
@@ -150,10 +150,10 @@ namespace Home.Graph.Server.Controllers
             var username = credentials[0];
             var password = credentials[1];
 
-            var passwordToGet = Environment.GetEnvironmentVariable("HOMEAUTOMATION_APIKEY");
-#if DEBUG
-                passwordToGet = "12345678";
-#endif
+            var passwordToGet = LocalDebugHelper.GetApiKey();
+            if (passwordToGet == null)
+                throw new InvalidOperationException("Api key not set");
+
             if (!password.Equals(passwordToGet))
                 return null;
 
