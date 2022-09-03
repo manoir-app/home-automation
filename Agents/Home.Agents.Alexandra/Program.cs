@@ -56,6 +56,7 @@ namespace Home.Agents.Alexandra
                 Thread.Sleep(500);
                 AgentHelper.Ping("alexandra");
             }
+
             AlexandraMessageHandler.Stop();
             NewsBriefingService.Stop();
             StopWebThread();

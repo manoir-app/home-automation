@@ -14,8 +14,6 @@ namespace Home.Agents.Alexandra
 {
     public class NewsBriefingService
     {
-        // temporaire
-        private static string _urlFeed = "https://carbenayhomeautomation.blob.core.windows.net/alexa/news/homebrief.json";
 
         public static void Start()
         {
@@ -93,7 +91,7 @@ namespace Home.Agents.Alexandra
                 updateDate = DateTimeOffset.Now.ToUniversalTime(),
                 mainText = blr.ToString(),
                 titleText = msgs.Items.Count == 0 ? "Aucune news" : $"{msgs.Items.Count} infos",
-                redirectionUrl = "http://home.anzin.carbenay.me/"
+                redirectionUrl = "https://public.anzin.carbenay.manoir.app/"
             });
 
             if(items.Count>0)
@@ -102,20 +100,9 @@ namespace Home.Agents.Alexandra
 
         private static string UploadFile(string content)
         {
-            string blobConnectionString = ConfigurationSettingsHelper.GetAzureStorageConnectionString();
-            Azure.Storage.Blobs.BlobContainerClient containerClient = new Azure.Storage.Blobs.BlobContainerClient(blobConnectionString, "alexa");
-            var cnt = containerClient.CreateIfNotExists(Azure.Storage.Blobs.Models.PublicAccessType.Blob);
-
-            Azure.Storage.Blobs.BlobClient client = new Azure.Storage.Blobs.BlobClient(blobConnectionString, "alexa", "news/homebrief.json");
-            using (var stm = new MemoryStream(Encoding.UTF8.GetBytes(content)))
-            {
-                var blob = client.Upload(stm,
-                 new Azure.Storage.Blobs.Models.BlobHttpHeaders { ContentType = "application/json" });
-            }
-
-            _lastUpload = DateTime.Now;
-            var url = client.Uri.ToString();
-            return url;
+            var file = FileCacheHelper.GetLocalFilename("proxy", "alexa/news-briefing", "home.json");
+            File.WriteAllText(file, content);
+            return file;
         }
 
 
@@ -133,18 +120,22 @@ namespace Home.Agents.Alexandra
         {
             try
             {
-                using (var cli = new WebClient())
+                var file = FileCacheHelper.GetLocalFilename("proxy", "alexa/news-briefing", "home.json");
+                if (File.Exists(file))
                 {
-                    string s = cli.DownloadString(_urlFeed);
-                    if(!string.IsNullOrEmpty(s))
+                    string s = File.ReadAllText(file);
+                    if (!string.IsNullOrEmpty(s))
                     {
                         var obj = JsonConvert.DeserializeObject<NewsItem[]>(s);
                         var max = (from z in obj orderby z.updateDate descending select z).FirstOrDefault();
                         if (max != null)
                             _lastUpdate = max.updateDate;
                         else
-                            _lastUpdate = DateTime.Now;
+                            _lastUpdate = DateTimeOffset.Now;
                     }
+                    else
+                        _lastUpdate = DateTimeOffset.Now;
+
                 }
             }
             catch
