@@ -22,6 +22,6 @@ jobs:
     - name: Build HomeGraph
       run: dotnet build  HomeGraph/HomeGraph.sln --no-restore
     - name: Restore dependencies Agents
-      run: dotnet restore HomeGraph/Agents.sln
+      run: dotnet restore Agents/Agents.sln
     - name: Build Agents
       run: dotnet build  Agents/Agents.sln --no-restore
