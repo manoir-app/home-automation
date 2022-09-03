@@ -91,7 +91,7 @@ namespace Home.Agents.Alexandra
                 updateDate = DateTimeOffset.Now.ToUniversalTime(),
                 mainText = blr.ToString(),
                 titleText = msgs.Items.Count == 0 ? "Aucune news" : $"{msgs.Items.Count} infos",
-                redirectionUrl = "https://public.anzin.carbenay.manoir.app/"
+                redirectionUrl = HomeServerHelper.GetPublicGraphUrl()
             });
 
             if(items.Count>0)

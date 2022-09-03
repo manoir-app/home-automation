@@ -128,7 +128,7 @@ namespace Home.Agents.Aurore.UserNotifications
                 path = "/" + path;
 
             // pour l'instant, on met l'url public en dur, pour les tests
-            path = "https://public.anzin.carbenay.manoir.app/v1.0/services/files" + path;
+            path = HomeServerHelper.GetPublicGraphUrl("/v1.0/services/files" + path);
 
             return path;
         }
