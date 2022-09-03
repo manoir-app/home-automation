@@ -19,12 +19,6 @@ namespace Home.Agents.Sarah
         static void Main(string[] args)
         {
             Console.WriteLine("Starting Sarah");
-
-#if DEBUG
-            var t = ScriptingHelper.Execute(@"var t = Devices[""pouet""];
-                return t.On;", "sarah");
-#endif
-            Console.WriteLine("Starting Sarah");
             string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
 
             AgentHelper.SetupLocaleFromServer("sarah");

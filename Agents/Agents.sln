@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Gaia", "Home.Ag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Freeia", "Home.Agents.Freeia\Home.Agents.Freeia.csproj", "{105EA899-70CA-491C-8BFE-CCA6CD138301}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Graph.Common", "..\HomeGraph\Home.Graph.Common\Home.Graph.Common.csproj", "{6F2E15E1-6158-4C95-9960-09F5CC4047A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Graph.Common", "..\Common\Home.Graph.Common\Home.Graph.Common.csproj", "{6F2E15E1-6158-4C95-9960-09F5CC4047A9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Clara", "Home.Agents.Clara\Home.Agents.Clara.csproj", "{794145A6-5BB6-4B4C-B210-174D38CD68DA}"
 EndProject

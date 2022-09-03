@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Home.Common\Home.Common.csproj" />
-    <ProjectReference Include="..\..\HomeGraph\Home.Graph.Common\Home.Graph.Common.csproj" />
+    <ProjectReference Include="..\..\Common\Home.Graph.Common\Home.Graph.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,8 +24,8 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="if $(ConfigurationName) == Release (&#xD;&#xA;cd $(TargetDir)&#xD;&#xA;powershell -File .\build-docker.ps1&#xD;&#xA;)" />
-  </Target>
+  </Target>-->
 
 </Project>

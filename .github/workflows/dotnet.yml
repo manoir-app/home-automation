@@ -1,0 +1,27 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies HomeGraph
+      run: dotnet restore HomeGraph/HomeGraph.sln
+    - name: Build HomeGraph
+      run: dotnet build  HomeGraph/HomeGraph.sln --no-restore
+    - name: Restore dependencies Agents
+      run: dotnet restore Agents/Agents.sln
+    - name: Build Agents
+      run: dotnet build  Agents/Agents.sln --no-restore
