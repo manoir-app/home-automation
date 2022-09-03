@@ -2,9 +2,11 @@
 using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
+using Home.Graph.Server.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,14 @@ namespace Home.Graph.Server.Controllers
     [ApiController]
     public class DownloadsController : ControllerBase
     {
+
+        private readonly IHubContext<UsersHub> _usersContext = null;
+        public DownloadsController(IHubContext<UsersHub> usersContext)
+        {
+            _usersContext = usersContext;
+
+        }
+
         [HttpPost]
         public bool PostNewDownloads(DownloadItem[] items)
         {
@@ -221,7 +231,7 @@ namespace Home.Graph.Server.Controllers
             return false;
         }
 
-        private static void NotifyUsers(DownloadItem exists)
+        private void NotifyUsers(DownloadItem exists)
         {
             // on notifie tous les mains du téléchargement
             var usrctl = MongoDbHelper.GetClient<User>();
@@ -231,7 +241,7 @@ namespace Home.Graph.Server.Controllers
             {
                 try
                 {
-                    new UsersController(null, null).NotifyUser(user.Id, new UserNotification()
+                    new UsersController(null, null, _usersContext).NotifyUser(user.Id, new UserNotification()
                     {
                         Category = "downloads",
                         Date = DateTime.Now,

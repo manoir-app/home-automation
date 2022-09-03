@@ -181,6 +181,7 @@ namespace Home.Graph.Server
                 endpoints.MapHub<Hubs.SystemHub>("/hubs/1.0/system");
                 endpoints.MapHub<Hubs.AppAndDeviceHub>("/hubs/1.0/appanddevices");
                 endpoints.MapHub<Hubs.AdminToolsHub>("/hubs/1.0/admin");
+                endpoints.MapHub<Hubs.UsersHub>("/hubs/1.0/users");
             });
         }
     }

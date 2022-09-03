@@ -16,11 +16,13 @@ namespace Home.Graph.Server.Controllers
     {
         private readonly IHubContext<AdminToolsHub> _hubContext;
         private readonly IHubContext<AppAndDeviceHub> _appContext;
+        private readonly IHubContext<UsersHub> _usersContext;
 
-        public TodosController(IHubContext<AdminToolsHub> hubContext, IHubContext<AppAndDeviceHub> appContext)
+        public TodosController(IHubContext<AdminToolsHub> hubContext, IHubContext<AppAndDeviceHub> appContext, IHubContext<UsersHub> usersContext)
         {
             _hubContext = hubContext;
             _appContext = appContext;
+            _usersContext = usersContext;
         }
     }
 }

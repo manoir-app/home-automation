@@ -66,7 +66,7 @@ namespace Home.Graph.Server.Controllers
             if (!string.IsNullOrEmpty(item.ScenarioOnStart))
                 ActivateScene(item.ScenarioOnStart);
 
-            var usrCtl = new UsersController(_hubContext, _appContext);
+            var usrCtl = new UsersController(_hubContext, _appContext, _usersContext);
 
             if (item.AssociatedUsers != null)
             {
@@ -166,7 +166,7 @@ namespace Home.Graph.Server.Controllers
                 if (!string.IsNullOrEmpty(item.ScenarioOnEnd))
                     ActivateScene(item.ScenarioOnEnd);
 
-                var usrCtl = new UsersController(_hubContext, _appContext);
+                var usrCtl = new UsersController(_hubContext, _appContext, _usersContext);
 
                 if (item.AssociatedUsers != null)
                 {

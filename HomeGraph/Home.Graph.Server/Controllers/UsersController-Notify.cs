@@ -1,6 +1,7 @@
 ﻿using Home.Common;
 using Home.Common.Model;
 using Home.Graph.Common;
+using Home.Graph.Server.Hubs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -149,6 +150,9 @@ namespace Home.Graph.Server.Controllers
                 if (mesh!=null)
                     MessagingHelper.PushToMobileApp(user, mesh, notif);
             }
+
+            if (_usersContext != null)
+                UsersHub.SendNewNotification(_usersContext, user, notif);
 
             return true;
         }

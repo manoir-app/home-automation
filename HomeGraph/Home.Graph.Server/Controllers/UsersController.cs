@@ -19,6 +19,18 @@ namespace Home.Graph.Server.Controllers
     [ApiController]
     public partial class UsersController : ControllerBase
     {
+        private readonly IHubContext<UsersHub> _usersContext = null;
+        private readonly IHubContext<AdminToolsHub> _hubContext;
+        private readonly IHubContext<AppAndDeviceHub> _appContext;
+
+        public UsersController(IHubContext<AdminToolsHub> hubContext, IHubContext<AppAndDeviceHub> appContext, IHubContext<UsersHub> usersContext)
+        {
+            _hubContext = hubContext;
+            _appContext = appContext;
+            _usersContext = usersContext;
+
+        }
+
         private string GetCurrentUserId()
         {
             var userFromContext = User;
@@ -48,14 +60,7 @@ namespace Home.Graph.Server.Controllers
             return null;
         }
 
-        private readonly IHubContext<AdminToolsHub> _hubContext;
-        private readonly IHubContext<AppAndDeviceHub> _appContext;
 
-        public UsersController(IHubContext<AdminToolsHub> hubContext, IHubContext<AppAndDeviceHub> appContext)
-        {
-            _hubContext = hubContext;
-            _appContext = appContext;
-        }
 
         [Route("main"), HttpGet]
         public List<User> GetMainUsers()
