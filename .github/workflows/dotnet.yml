@@ -17,9 +17,11 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Restore dependencies HomeGraph
+      run: dotnet restore HomeGraph/HomeGraph.sln
     - name: Build HomeGraph
       run: dotnet build  HomeGraph/HomeGraph.sln --no-restore
+    - name: Restore dependencies Agents
+      run: dotnet restore HomeGraph/Agents.sln
     - name: Build Agents
       run: dotnet build  Agents/Agents.sln --no-restore
