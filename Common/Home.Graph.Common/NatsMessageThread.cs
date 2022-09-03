@@ -1,4 +1,5 @@
 ﻿using Home.Common.Messages;
+using Home.Graph.Common;
 using NATS.Client;
 using Newtonsoft.Json;
 using System;
@@ -183,6 +184,11 @@ namespace Home.Common
             var tmp = Environment.GetEnvironmentVariable("NATS_SERVICE_HOST");
             if (!string.IsNullOrEmpty(tmp))
                 srv = tmp;
+
+            tmp = LocalDebugHelper.GetLocalServiceHost();
+            if (!string.IsNullOrEmpty(tmp))
+                srv = tmp;
+
 
             tmp = Environment.GetEnvironmentVariable("NATS_SERVICE_PORT");
             if (string.IsNullOrEmpty(tmp))

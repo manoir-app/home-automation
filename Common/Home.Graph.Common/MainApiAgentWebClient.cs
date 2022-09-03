@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Home.Graph.Common;
+using Newtonsoft.Json;
+using SharpCompress.Common.Rar;
 using System;
 using System.Net;
 
@@ -8,11 +10,11 @@ namespace Home.Common
     {
         public MainApiAgentWebClient(string agentName)
         {
-            var tmp = HomeServerHelper.GetLocalIP();
-            this.BaseAddress = "http://" + tmp;
+            var srv = LocalDebugHelper.GetLocalGraphHost();
+            this.BaseAddress = "http://" + srv;
 
 
-            var passwordToGet = Environment.GetEnvironmentVariable("HOMEAUTOMATION_APIKEY");
+            var passwordToGet = LocalDebugHelper.GetApiKey(); 
             var pwd = agentName + ":" + passwordToGet;
             pwd = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(pwd));
             this.Headers.Add(HttpRequestHeader.Authorization, "Basic " + pwd);

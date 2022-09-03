@@ -15,7 +15,9 @@ namespace Home.Graph.Common
 
         public static void Start()
         {
-            string server = HomeServerHelper.GetLocalIP();
+            string server = LocalDebugHelper.GetLocalServiceHost();
+            if (server == null)
+                server = HomeServerHelper.GetLocalIP();
             if (server == null)
                 return;
 

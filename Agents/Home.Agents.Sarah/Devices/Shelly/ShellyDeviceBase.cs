@@ -1,6 +1,7 @@
 ﻿using Home.Common;
 using Home.Common.HomeAutomation;
 using Home.Common.Model;
+using Home.Graph.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -123,7 +124,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
         private ShellyDeviceHelper.GetLoginSettingsResponse SetLoginSettings()
         {
-            string passwordToGet = Program.GetPassword();
+            string passwordToGet = LocalDebugHelper.GetApiKey();
             string url = $"http://{IpV4}/settings/login?enabled=true&username=sarah&password=" + passwordToGet;
             using (var cli = new ShellyWebClient())
             {
@@ -142,7 +143,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
         private ShellyDeviceHelper.GetSettingsResponse SetMqtt()
         {
-            string homeIp = HomeServerHelper.GetLocalIP();
+            string homeIp = LocalDebugHelper.GetLocalServiceHost();
             string url = $"http://{IpV4}/settings?mqtt_enable=true&mqtt_server={homeIp}:1883" ;
             using (var cli = new ShellyWebClient())
             {

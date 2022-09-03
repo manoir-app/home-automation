@@ -80,10 +80,10 @@ namespace Home.Graph.Server
             var username = credentials[0];
             var password = credentials[1];
 
-            var passwordToGet = Environment.GetEnvironmentVariable("HOMEAUTOMATION_APIKEY");
-#if DEBUG
-                passwordToGet = "12345678";
-#endif
+            var passwordToGet = LocalDebugHelper.GetApiKey();
+            if (passwordToGet == null)
+                return Task.FromResult(AuthenticateResult.Fail("Error Occured.Authorization failed - NO API KEY."));
+
             if (!password.Equals(passwordToGet))
                 return Task.FromResult(AuthenticateResult.Fail("Error Occured.Authorization failed."));
 

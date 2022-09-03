@@ -164,10 +164,10 @@ namespace Home.Graph.Server.Controllers
                 }
             }
 
-            var passwordToGet = Environment.GetEnvironmentVariable("HOMEAUTOMATION_APIKEY");
-#if DEBUG
-                passwordToGet = "12345678";
-#endif
+            var passwordToGet = LocalDebugHelper.GetApiKey();
+            if (passwordToGet == null)
+                throw new InvalidOperationException("Api key not set");
+
             MqttHelper.PublishUserLogin(usr, "device/" + ret.Device.DeviceInternalName);
 
             string tmp = ret.Device.Id + ":" + passwordToGet;

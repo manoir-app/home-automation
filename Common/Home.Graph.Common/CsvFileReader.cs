@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace Home.Graph.Common
 {
+    // From https://github.com/floatinghotpot/LiteCsvParser
+
+
+
     /// <summary>
     /// Determines how empty lines are interpreted when reading CSV files.
     /// These values do not affect empty lines that occur within quoted fields

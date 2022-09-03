@@ -9,6 +9,7 @@ using System.Threading;
 using Home.Common.Messages;
 using Home.Graph.Common.Scripting;
 using System.Diagnostics;
+using Home.Graph.Common;
 
 namespace Home.Agents.Sarah
 {
@@ -111,17 +112,7 @@ namespace Home.Agents.Sarah
                 return true;
 
             return data.DeviceFamilies.Contains(family);
-        }
-
-        internal static string GetPassword()
-        {
-            var passwordToGet = Environment.GetEnvironmentVariable("HOMEAUTOMATION_APIKEY");
-            return passwordToGet;
-        }
-
-
-
-        
+        }        
 
     }
 }
