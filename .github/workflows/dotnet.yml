@@ -19,5 +19,7 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+    - name: Build HomeGraph
+      run: dotnet build  HomeGraph/HomeGraph.sln --no-restore
+    - name: Build Agents
+      run: dotnet build  Agents/Agents.sln --no-restore
