@@ -32,9 +32,7 @@
 
 
 	<ItemGroup>
-		<Compile Update="MainApiAgentWebClient.cs">
-			<SubType>Component</SubType>
-		</Compile>
+		<Compile Update="MainApiAgentWebClient.cs" />
 	</ItemGroup>
 
 </Project>

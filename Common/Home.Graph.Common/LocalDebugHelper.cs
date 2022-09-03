@@ -44,8 +44,6 @@ namespace Home.Graph.Common
 
         public static string GetLocalServiceHost()
         {
-            if (_serviceHost == null)
-                return HomeServerHelper.GetLocalIP();
             return _serviceHost;
         }
 
