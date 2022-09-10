@@ -47,6 +47,8 @@ namespace Home.Common.Model
 
         public string ReservationId { get; set; }
         public string AssociatedId { get; set; }
+
+        public decimal Quantity { get; set; }
     }
 
 
