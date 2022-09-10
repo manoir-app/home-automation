@@ -122,6 +122,7 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<TodoItem>();
                 MongoDbHelper.CreateCollection<TodoList>();
                 MongoDbHelper.CreateCollection<ProductCategory>();
+                MongoDbHelper.CreateCollection<ProductType>();
                 MongoDbHelper.CreateCollection<Product>();
                 MongoDbHelper.CreateCollection<ChatChannel>();
                 MongoDbHelper.CreateCollection<ChatMessage>();
