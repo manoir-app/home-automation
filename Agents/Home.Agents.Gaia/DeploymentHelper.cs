@@ -10,11 +10,24 @@ using System.Text;
 //using Microsoft.AspNetCore.JsonPatch;
 using k8s.Autorest;
 using Home.Graph.Common;
+using MongoDB.Driver;
 
 namespace Home.Agents.Gaia
 {
     public static class DeploymentHelper
     {
+        private static string _tag = null;
+        public static string GetImageTag()
+        {
+            if(_tag==null)
+            {
+                _tag = Environment.GetEnvironmentVariable("IMAGE_TAG");
+                if (_tag == null)
+                    _tag = "latest";
+            }
+
+            return _tag;
+        }
 
         internal static DateTime _lastDeploy = DateTime.MinValue;
 
@@ -444,7 +457,7 @@ namespace Home.Agents.Gaia
             var cnts = new List<V1Container>();
             cnts.Add(new V1Container()
             {
-                Image = url + "/" + extension.DockerImageName + ":latest",
+                Image = url + "/" + extension.DockerImageName + ":" + GetImageTag(),
                 ImagePullPolicy = "Always",
                 Name = deploymentName,
                 Env = env,
@@ -736,7 +749,7 @@ namespace Home.Agents.Gaia
             var cnts = new List<V1Container>();
             cnts.Add(new V1Container()
             {
-                Image = url + "/" + extension.DockerImageName + ":latest",
+                Image = url + "/" + extension.DockerImageName + ":" + GetImageTag(),
                 Name = deploymentName,
                 Env = env,
                 Ports = new List<V1ContainerPort>(new V1ContainerPort[]
