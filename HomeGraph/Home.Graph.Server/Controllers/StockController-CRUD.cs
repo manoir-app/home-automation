@@ -133,10 +133,10 @@ namespace Home.Graph.Server.Controllers
                 {
                     lesStksImpliques.Remove(leSt);
                 }
-                if(leSt!=null)
+                if (leSt != null)
                     lesStksImpliques.Insert(0, leSt);
             }
-            if (lesStksImpliques.Count <1)
+            if (lesStksImpliques.Count < 1)
                 return BadRequest();
 
             var laRes = (from z in lesStksImpliques[0].Reservations
@@ -148,17 +148,17 @@ namespace Home.Graph.Server.Controllers
 
             var lesStksModifies = new List<ProductStock>();
             int i = 0;
-            while(quantity>0 && i<lesStksImpliques.Count)
+            while (quantity > 0 && i < lesStksImpliques.Count)
             {
-                if (lesStksImpliques[i].QuantityOpened >0)
+                if (lesStksImpliques[i].QuantityOpened > 0)
                 {
                     decimal aDeduire = quantity.Value;
                     quantity -= lesStksImpliques[i].QuantityOpened;
                     lesStksModifies.Add(lesStksImpliques[i]);
                     lesStksImpliques[i].QuantityOpened -= aDeduire;
                     lesStksImpliques[i].Reservations = (from z in lesStksImpliques[i].Reservations
-                               where !z.ReservationId.Equals(reservationId)
-                               select z).ToList();
+                                                        where !z.ReservationId.Equals(reservationId)
+                                                        select z).ToList();
                     if (lesStksImpliques[i].QuantityOpened < 0)
                     {
                         lesStksImpliques[i].QuantityOpened = 0;
@@ -208,5 +208,98 @@ namespace Home.Graph.Server.Controllers
 
             return Ok(lesStksModifies);
         }
+
+
+        [Route("content/{id}/consume")]
+        public IActionResult ConsumeById(string id, decimal? qty = null, bool fromNewOnly = false)
+        {
+            id = id.ToLower();
+            var collection = MongoDbHelper.GetClient<ProductStock>();
+
+            var stk = collection.Find(x => x.Id == id).FirstOrDefault();
+            if (stk == null)
+                return NotFound();
+
+            if (!qty.HasValue)
+            {
+                if (fromNewOnly)
+                    qty = stk.QuantityNew;
+                else
+                    qty = stk.QuantityOpened + stk.QuantityNew;
+            }
+
+            if (fromNewOnly)
+            {
+                if (qty > (stk.QuantityNew + 0.1M))
+                    return BadRequest();
+                stk.QuantityNew -= qty.Value;
+
+
+            }
+
+            if (!fromNewOnly && qty > (stk.QuantityOpened + stk.QuantityNew + 0.1M))
+                return BadRequest();
+
+            var tmp = Math.Floor(stk.QuantityNew);
+            if (tmp < stk.QuantityNew)
+            {
+                stk.QuantityOpened += stk.QuantityNew - tmp;
+                stk.QuantityNew = tmp;
+            }
+
+            if (stk.QuantityNew <= 0 && stk.QuantityOpened <= 0)
+                collection.DeleteOne(x => x.Id == id);
+            else
+            {
+                collection.UpdateOne(x => x.Id == id,
+                    Builders<ProductStock>.Update
+                        .Set("QuantityNew", stk.QuantityNew)
+                        .Set("QuantityOpened", stk.QuantityOpened));
+            }
+
+            return Ok(stk);
+        }
+
+        [Route("content/{id}/open")]
+        public IActionResult OpenById(string id, decimal? qty = null)
+        {
+            id = id.ToLower();
+            var collection = MongoDbHelper.GetClient<ProductStock>();
+
+            var stk = collection.Find(x => x.Id == id).FirstOrDefault();
+            if (stk == null)
+                return NotFound();
+
+            if (!qty.HasValue)
+            {
+                qty = stk.QuantityNew;
+            }
+
+            if (qty > (stk.QuantityNew + 0.1M))
+                return BadRequest();
+            stk.QuantityNew -= qty.Value;
+            stk.QuantityOpened += qty.Value;
+
+            var tmp = Math.Floor(stk.QuantityNew);
+            if (tmp < stk.QuantityNew)
+            {
+                stk.QuantityOpened += stk.QuantityNew - tmp;
+                stk.QuantityNew = tmp;
+            }
+
+            if (stk.QuantityNew <= 0 && stk.QuantityOpened <= 0)
+                collection.DeleteOne(x => x.Id == id);
+            else
+            {
+                collection.UpdateOne(x => x.Id == id,
+                    Builders<ProductStock>.Update
+                        .Set("QuantityNew", stk.QuantityNew)
+                        .Set("QuantityOpened", stk.QuantityOpened));
+            }
+
+            return Ok(stk);
+        }
+
+
     }
 }
