@@ -1,0 +1,6 @@
+{
+  "Kind": "Agent",
+  "Name": "Aurore",
+  "ImageName": "aurore",
+  "DockerFile": "DockerFile.Release"
+}

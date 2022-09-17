@@ -1,0 +1,6 @@
+{
+  "Kind": "Main",
+  "Name": "Home Graph",
+  "ImageName": "home-graph",
+  "DockerFile": "DockerFile.Release"
+}

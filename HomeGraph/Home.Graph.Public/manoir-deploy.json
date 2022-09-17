@@ -1,0 +1,6 @@
+{
+  "Kind": "Main",
+  "Name": "Home Graph Public Proxy",
+  "ImageName": "home-public",
+  "DockerFile": "DockerFile.Release"
+}
