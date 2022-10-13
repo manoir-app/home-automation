@@ -100,7 +100,7 @@ namespace Home.Agents.Clara.HomeServices.Providers.HouseKeeping
                         if (td != null && div != null)
                         {
                             var itemDateStr = await td.GetAttributeAsync("data-sort");
-                            if (!DateTimeOffset.TryParseExact(itemDateStr, "yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out dtDebut))
+                            if (!DateTimeOffset.TryParseExact(itemDateStr, "yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal, out dtDebut))
                             {
                                 Console.WriteLine("Unable to parse date for azae event : " + itemDateStr);
                                 continue;
@@ -111,7 +111,7 @@ namespace Home.Agents.Clara.HomeServices.Providers.HouseKeeping
                             if (itemDateStr.IndexOf("_") > -1)
                                 itemDateStr = itemDateStr.Substring(0, itemDateStr.LastIndexOf("_"));
                             itemDateStr = itemDateStr.Replace("_", " ").Trim();
-                            if (!DateTimeOffset.TryParseExact(itemDateStr, "yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out dtFin))
+                            if (!DateTimeOffset.TryParseExact(itemDateStr, "yyyy-MM-dd HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal, out dtFin))
                             {
                                 Console.WriteLine("Unable to parse date for azae event : " + itemDateStr);
                                 continue;
@@ -122,7 +122,7 @@ namespace Home.Agents.Clara.HomeServices.Providers.HouseKeeping
                         td = lig.Locator("td").Nth(3);
                         var type = await td.InnerTextAsync();
 
-                        Console.WriteLine($"Azae : {type} on {dtDebut.Date.ToString("dd/MM/yyyy")} from {dtDebut.ToString("HH:mm")} to {dtFin.ToString("HH:mm")}");
+                        Console.WriteLine($"Azae : {type} on {dtDebut.Date.ToString("dd/MM/yyyy")} from {dtDebut.ToString("HH:mm-zzz")} to {dtFin.ToString("HH:mm-zzz")}");
 
                         var tdItem = new TodoItem()
                         {
