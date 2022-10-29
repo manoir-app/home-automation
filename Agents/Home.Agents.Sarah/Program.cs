@@ -19,22 +19,11 @@ namespace Home.Agents.Sarah
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting Sarah");
-            string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
+
+            AgentHelper.WriteStartupMessage("Sarah", typeof(Program).Assembly);
 
             AgentHelper.SetupLocaleFromServer("sarah");
             AgentHelper.ReportStart("sarah", "home-automation");
-
-            Console.WriteLine("-----------------------");
-            var envs = Environment.GetEnvironmentVariables();
-            Console.WriteLine("Env vars : ");
-            foreach (var k in envs.Keys)
-            {
-                Console.Write(k.ToString().PadRight(35, ' '));
-                Console.Write(" : ");
-                Console.WriteLine(envs[k].ToString());
-            }
-            Console.WriteLine("-----------------------");
 
             var ag = AgentHelper.GetAgent("sarah");
             if (ag == null || string.IsNullOrEmpty(ag.ConfigurationData))
