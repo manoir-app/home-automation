@@ -1,4 +1,5 @@
-﻿using Home.Common.Model;
+﻿using Home.Common;
+using Home.Common.Model;
 using Home.Graph.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,8 +123,18 @@ namespace Home.Graph.Server.Controllers
             public string DeviceApiKey { get; set; }
         }
 
+
+        private class AuthenticationCookie
+        {
+            public string AuthKind { get; set; }
+            public int ExpirationEpoch { get; set; }
+            public string Token { get; set; }
+        }
+
         [Route("login/device"), AllowAnonymous(), HttpPost]
-        public LoginFromDeviceResponse LoginOnDevice([FromBody] CredentialFromDevice creds, bool associateWithUser = false)
+        public LoginFromDeviceResponse LoginOnDevice([FromBody] CredentialFromDevice creds,
+            bool associateWithUser = false,
+            bool addCookie = false)
         {
             var usr = GetUser(creds);
             if (usr == null)
@@ -182,6 +194,26 @@ namespace Home.Graph.Server.Controllers
                 UserId = itm.AssignatedUserId
             });
 
+
+            if(addCookie)
+            {
+                var cookie = new AuthenticationCookie()
+                {
+                    AuthKind = "PERMANENT",
+                    ExpirationEpoch = int.MaxValue,
+                    Token = tmp
+                };
+
+                var uri = new Uri(HomeServerHelper.GetLocalGraphUrl());
+
+                Response.Cookies.Append("ManoirDeviceAuth", JsonConvert.SerializeObject(cookie), new CookieOptions()
+                {
+                    Expires = null,
+                    IsEssential = true,
+                    SameSite = SameSiteMode.Lax,
+                    Domain = uri.Host
+                });
+            }
 
             return ret;
         }

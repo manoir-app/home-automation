@@ -57,7 +57,7 @@ namespace Manoir {
                 $("body").toggleClass("menu-opened");
                 return false;
             });
-           
+
 
         }
     }
@@ -128,14 +128,14 @@ namespace Manoir {
                                 datemsg = item;
                             }
                         });
-                        if (greets != null && localStorage!=null) {
+                        if (greets != null && localStorage != null) {
                             var save: GreetingsSave = {
                                 date: new Date().getTime(),
-                                dateMessage : datemsg==null?null:datemsg.content,
-                                content : greets.content
+                                dateMessage: datemsg == null ? null : datemsg.content,
+                                content: greets.content
                             };
                             localStorage.setItem("manoir-global-greetings", JSON.stringify(save));
-                            ctl.innerHTML = `<header class='manoir-header'><h1 id="manoirGreetings">${greets.content}</h1><p class="date">${datemsg==null?"":datemsg.content}</p></header>`;
+                            ctl.innerHTML = `<header class='manoir-header'><h1 id="manoirGreetings">${greets.content}</h1><p class="date">${datemsg == null ? "" : datemsg.content}</p></header>`;
                         }
                     }
                 })
@@ -169,6 +169,18 @@ namespace Manoir.Common {
             this.sysconnection.start().catch(err => console.error(err));
         }
 
+        public checkLogin(autoRedirect:boolean = true) : boolean {
+            var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+            if (deviceIdentifier != null) {
+                return true;
+            } else {
+                if (location.pathname != '/devicehome.html')
+                    window.location.replace('/devicehome.html');
+
+                return false;
+            }
+        }
+
         private changeAppOnDevice(changeType: string, app: any): void {
             if (app.url != null) {
                 if (typeof manoirDeviceApp != "undefined" && manoirDeviceApp != null) {
@@ -178,7 +190,8 @@ namespace Manoir.Common {
                 document.location = app.url;
             }
         }
-    }}
+    }
+}
 
 customElements.define('manoir-header', Manoir.Header);
 customElements.define('manoir-menu-button', Manoir.MenuButton);

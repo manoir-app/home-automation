@@ -126,6 +126,17 @@ var Manoir;
                 this.sysconnection.on("changeAppOnDevice", this.changeAppOnDevice);
                 this.sysconnection.start().catch(err => console.error(err));
             }
+            checkLogin(autoRedirect = true) {
+                var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+                if (deviceIdentifier != null) {
+                    return true;
+                }
+                else {
+                    if (location.pathname != '/devicehome.html')
+                        window.location.replace('/devicehome.html');
+                    return false;
+                }
+            }
             changeAppOnDevice(changeType, app) {
                 if (app.url != null) {
                     if (typeof manoirDeviceApp != "undefined" && manoirDeviceApp != null) {

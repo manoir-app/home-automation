@@ -1,0 +1,224 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Exo:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+body, p, table, tr, div, button {
+    font-family: 'Exo', sans-serif;
+}
+
+body {
+    color: #f5f5f5;
+    margin:0;
+    padding:0;
+}
+
+p,div {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.loading-message{
+    position:fixed;
+    top:calc(100% - 70px);
+    left:0;
+    height:20px;
+    text-align:center;
+    font-size:48px;
+    vertical-align:top;
+    width:100%;
+    z-index:10;
+}
+
+main {
+    position: fixed;
+    top: 0px;
+    left: 0;
+    width: calc(100% - 40px);
+    height: calc(100% - 80px);
+    padding: 0 20px 20px 20px;
+    margin-bottom: 60px;
+    overflow-y: scroll;
+}
+
+
+.img-back {
+    position:fixed;
+    width:200px;
+    top:30px;
+    left:calc(100% - 120px);
+    opacity:0.3;
+    z-index:2;
+    transform:rotate(10deg);
+}
+
+footer {
+    position: fixed;
+    background: #378F66;
+    top: calc(100% - 60px);
+    left: 0;
+    width: calc(100% - 10px);
+    height: 50px;
+    padding: 5px;
+    text-align: center;
+    z-index:50;
+}
+
+body.menu-opened footer {
+    display:none;
+}
+
+
+.avatar {
+    width: 100px;
+    height: 100px;
+}
+
+.user-list {
+    list-style-type:none;
+    padding:0;
+    margin:0;
+}
+
+.user-list li {
+
+}
+
+/* la page par défaut (list des présents) */
+
+.no-one-home-message {
+    text-align: center;
+    padding: 40px;
+    max-width: 520px;
+    margin: 40px;
+    border: solid 1px #efefef3A;
+    background: #efefef0A;
+    border-radius:20px;
+}
+
+    .no-one-home-message p {
+        text-align: center;
+        font-size:30px;
+        margin:40px 0 0 0;
+    }
+    .no-one-home-message img {
+        max-width:400px;
+        width:50%;
+    }
+    .defaultPage {
+    max-width: 600px;
+    margin: auto;
+}
+
+.defaultPage h2 {
+    font-size:12px;
+    font-weight:normal;
+    opacity:.3;
+    text-transform:uppercase;
+    margin:40px 0 4px 18px;
+}
+
+     .user-list .avatar {
+        vertical-align: top;
+    }
+
+     .user-list li {
+        cursor:pointer;
+        display:block;
+        border:solid 1px transparent;
+        padding:10px 10px 5px 10px;
+        margin:0;
+    }
+
+        .user-list li:hover {
+            border-color: #efefef7A;
+            background: #efefef08;
+        }
+
+     .user-list div.name {
+        display: inline-block;
+    }
+
+     .user-list p.userId {
+        display: none;
+    }
+    
+    .user-list p.userFirstName {
+        vertical-align: top;
+        font-size: 48px;
+        padding:0;
+        margin:0;
+        font-weight:600;
+    }
+
+     .user-list  p.userName {
+        vertical-align: top;
+        font-size: 16px;
+        padding: 0;
+        margin: 10px 0 -6px 3px;
+        opacity:.3;
+    }
+
+footer button {
+    background: #378F66;
+    color:#efefef;
+    border:solid 1px #efefef00;
+    padding:10px 65px;
+    font-size:20px;
+    cursor:pointer;
+}
+
+    footer button img {
+        display:inline-block;
+        margin-right:10px;
+        vertical-align:middle;
+        height:24px;
+    }
+    footer button span {
+        display: inline-block;
+        vertical-align: middle;
+        padding-top:2px;
+    }
+        footer button:hover {
+        border-color: #efefef7A;
+    }
+
+.add-overlay, .remove-overlay {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:100;
+    background:#192852;
+    overflow-y:scroll;
+}
+
+    .add-overlay .content {
+        max-width: 600px;
+        margin: 40px auto;
+    }
+
+    .remove-overlay .content {
+        max-width: 560px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .add-overlay .content .present {
+        pointer-events: none;
+        opacity: 0.3;
+    }
+
+    .add-overlay button, .remove-overlay button {
+        width:100%;
+        padding:20px 0;
+        background:transparent;
+        border:solid 1px #efefef3a;
+        color:#efefef;
+        font-size:20px;
+        margin-bottom:20px;
+    }
+
+    .remove-overlay .user-list {
+        margin-bottom:100px;
+    }

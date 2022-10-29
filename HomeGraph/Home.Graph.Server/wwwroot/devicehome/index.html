@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Device Home App</title>
+    <script src="../scripts/jquery-3.5.1.min.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-sanitize.min.js"></script>
+    <script src="../scripts/angular-animate.min.js"></script>
+    <script src="../scripts/signalr.min.js"></script>
+    <script src="../common/manoir.js"></script>
+    <script src="DeviceHomeApp.js"></script>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="main.css" rel="stylesheet" />
+    <link href="/common/manoir.css" rel="stylesheet" />
+
+    <meta name="viewport" content="initial-scale=1;width:device-width" />
+
+</head>
+<body ng-app="DeviceHomeApp" ng-controller="DefaultPage">
+    <!-- ng-class="currentPresence!=null && currentPresence.privacyModeActivated?'privacy-mode-activated':'no-privacy-mode'" -->
+
+    <manoir-menu-bar></manoir-menu-bar>
+
+    <main class="full-background">
+
+        <manoir-menu-button></manoir-menu-button>
+        <manoir-header></manoir-header>
+
+        <h1>Homepage device</h1>
+
+        <p ng-if="isLoggedIn">Connecté !</p>
+
+    </main>
+
+    
+</body>
+</html>
