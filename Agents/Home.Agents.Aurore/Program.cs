@@ -13,38 +13,7 @@ namespace Home.Agents.Aurore
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting Aurore");
-            string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
-
-            if (cn != null)
-            {
-                Console.WriteLine("with config = " + cn);
-                ConfigurationSettingsHelper.Init(cn);
-            }
-            else
-                Console.WriteLine("without config");
-            Console.WriteLine("-----------------------");
-
-            Console.WriteLine("Copying common files to cache folder");
-            try
-            {
-                CopyCommonFiles("/app/Files/", "/app/Files/");
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-            Console.WriteLine("-----------------------");
-
-            var envs = Environment.GetEnvironmentVariables();
-            Console.WriteLine("Env vars : ");
-            foreach (var k in envs.Keys)
-            {
-                Console.Write(k.ToString().PadRight(35, ' '));
-                Console.Write(" : ");
-                Console.WriteLine(envs[k].ToString());
-            }
-            Console.WriteLine("-----------------------");
+            AgentHelper.WriteStartupMessage("Aurore", typeof(Program).Assembly);
 
             AgentHelper.SetupLocaleFromServer("aurore");
             AgentHelper.ReportStart("aurore", "user-interaction");

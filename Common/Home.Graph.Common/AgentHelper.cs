@@ -1,9 +1,11 @@
 ﻿using Home.Common.Model;
+using k8s;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 
 namespace Home.Common
@@ -350,5 +352,52 @@ namespace Home.Common
             return null;
         }
 
+        public static void WriteStartupMessage(string agentName, Assembly assembly)
+        {
+            Console.WriteLine($"Starting {agentName}");
+
+            string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
+
+            if (cn != null)
+            {
+                Console.WriteLine("with config = " + cn);
+                ConfigurationSettingsHelper.Init(cn);
+            }
+            else
+                Console.WriteLine("without config");
+            Console.WriteLine("-----------------------");
+            var envs = Environment.GetEnvironmentVariables();
+            Console.WriteLine("Env vars : ");
+            foreach (var k in envs.Keys)
+            {
+                Console.Write(k.ToString().PadRight(35, ' '));
+                Console.Write(" : ");
+                Console.WriteLine(envs[k].ToString());
+            }
+            Console.WriteLine("-----------------------");
+
+            try
+            {
+                var config = KubernetesClientConfiguration.InClusterConfig();
+                Console.WriteLine($"host for k8s configuration : {config.Host}");
+                Console.WriteLine("-----------------------");
+
+            }
+            catch
+            {
+
+            }
+
+            try
+            {
+                DateTime dt = System.IO.File.GetLastWriteTime(assembly.Location);
+                Console.Write($"Build date : {dt.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}");
+                Console.WriteLine("-----------------------");
+            }
+            catch
+            {
+
+            }
+        }
     }
 }

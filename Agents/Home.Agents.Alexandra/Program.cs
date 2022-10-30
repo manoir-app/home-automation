@@ -23,26 +23,7 @@ namespace Home.Agents.Alexandra
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
-            Console.WriteLine("Starting Alexandra");
-            string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
-
-            if (cn != null)
-            {
-                Console.WriteLine("with config = " + cn);
-                ConfigurationSettingsHelper.Init(cn);
-            }
-            else
-                Console.WriteLine("without config");
-            Console.WriteLine("-----------------------");
-            var envs = Environment.GetEnvironmentVariables();
-            Console.WriteLine("Env vars : ");
-            foreach (var k in envs.Keys)
-            {
-                Console.Write(k.ToString().PadRight(35, ' '));
-                Console.Write(" : ");
-                Console.WriteLine(envs[k].ToString());
-            }
-            Console.WriteLine("-----------------------");
+            AgentHelper.WriteStartupMessage("Alexandra", typeof(Program).Assembly);
 
             AgentHelper.SetupLocaleFromServer("alexandra");
             AgentHelper.ReportStart("alexandra", "amazon", "alexa", "integration");
