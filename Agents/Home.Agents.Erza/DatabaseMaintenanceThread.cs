@@ -136,7 +136,11 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<Integration>();
                 MongoDbHelper.CreateCollection<ApplicationShortcut>();
                 MongoDbHelper.CreateCollection<UserStatus>();
-                MongoDbHelper.CreateCollection<UserCrmData>();
+                MongoDbHelper.CreateCollection<UserPrmData>();
+                MongoDbHelper.CreateCollection<UserPrmInteractionLog>();
+                MongoDbHelper.CreateCollection<UserPrmNote>();
+                MongoDbHelper.CreateCollection<PrmCategory>();
+                MongoDbHelper.CreateCollection<PrmRelationship>();
 
                 MongoDbHelper.CreateCollection<Entity>();
             }

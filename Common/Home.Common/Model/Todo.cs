@@ -73,6 +73,11 @@ namespace Home.Common.Model
         public string ScenarioOnStart { get; set; }
         public string ScenarioOnEnd { get; set; }
         public bool AutoActivate { get; set; }
+
+
+        public string ContactId { get; set; }
+        public string UserPrmDataId { get; set; }
+        public string UserPrmTodoKind { get; set; }
     }
 
     public enum ReminderKind

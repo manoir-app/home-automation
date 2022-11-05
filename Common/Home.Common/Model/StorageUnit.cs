@@ -28,6 +28,8 @@ namespace Home.Common.Model
         public decimal CoordinateX { get; set; }
         public decimal CoordinateY { get; set; }
 
+        public Size3D SizeInMm { get; set; }
+
         public StorageUnitForDisplay ShapeOnFloorPlan { get; set; }
         public StorageUnitForDisplay ShapeDetails { get; set; }
 
@@ -65,6 +67,8 @@ namespace Home.Common.Model
         public decimal CoordinateX { get; set; }
         public decimal CoordinateY { get; set; }
         public List<ProductMetaType> AllowedProductsMetaTypes { get; set; }
+
+        public Size3D SizeInMm { get; set; }
 
     }
 
