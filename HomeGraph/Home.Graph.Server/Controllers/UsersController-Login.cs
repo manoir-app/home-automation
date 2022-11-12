@@ -129,16 +129,17 @@ namespace Home.Graph.Server.Controllers
             public string AuthKind { get; set; }
             public int ExpirationEpoch { get; set; }
             public string Token { get; set; }
+            public string DeviceId { get; set; }
         }
 
         [Route("login/device"), AllowAnonymous(), HttpPost]
-        public LoginFromDeviceResponse LoginOnDevice([FromBody] CredentialFromDevice creds,
+        public IActionResult LoginOnDevice([FromBody] CredentialFromDevice creds,
             bool associateWithUser = false,
             bool addCookie = false)
         {
             var usr = GetUser(creds);
             if (usr == null)
-                return null;
+                return BadRequest();
 
             var ret = new LoginFromDeviceResponse()
             {
@@ -201,7 +202,8 @@ namespace Home.Graph.Server.Controllers
                 {
                     AuthKind = "PERMANENT",
                     ExpirationEpoch = int.MaxValue,
-                    Token = tmp
+                    Token = tmp,
+                    DeviceId = ret.Device.Id
                 };
 
                 var uri = new Uri(HomeServerHelper.GetLocalGraphUrl());
@@ -216,7 +218,7 @@ namespace Home.Graph.Server.Controllers
                 });
             }
 
-            return ret;
+            return Ok(ret);
         }
 
     }
