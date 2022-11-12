@@ -18,10 +18,12 @@ var Manoir;
         refreshData() {
             var nav = $("#manoirMainMenu ul");
             nav.empty();
+            nav.append($("<li class='app'><a href='/devicehome/'><span class='icon'></span><span class='title'>Accueil</span><span class='desc'>/devicehome/</span></li>"));
             nav.append($("<li class='separator'>Home Automation</li>"));
-            nav.append($("<li class='app'><a href='/app/home/'><span class='icon'></span><span class='title'>Accueil</span><span class='desc'>/app/home/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/homautomation'><span class='icon'></span><span class='title'>Domotique</span><span class='desc'>/app/homeautomation/</span></li>"));
             nav.append($("<li class='app'><a href='/app/security/'><span class='icon'></span><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
             nav.append($("<li class='separator'>Outils</li>"));
+            nav.append($("<li class='app'><a href='/app/welcomescreen/'><span class='icon'></span><span class='title'>Welcome</span><span class='desc'>/app/welcomescreen/</span></li>"));
         }
     }
     Manoir.MainMenuBar = MainMenuBar;
@@ -125,6 +127,17 @@ var Manoir;
                     .build();
                 this.sysconnection.on("changeAppOnDevice", this.changeAppOnDevice);
                 this.sysconnection.start().catch(err => console.error(err));
+            }
+            checkLogin(autoRedirect = true) {
+                var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+                if (deviceIdentifier != null) {
+                    return true;
+                }
+                else {
+                    if (location.pathname != '/devicehome.html')
+                        window.location.replace('/devicehome.html');
+                    return false;
+                }
             }
             changeAppOnDevice(changeType, app) {
                 if (app.url != null) {

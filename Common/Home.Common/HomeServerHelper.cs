@@ -10,6 +10,18 @@ namespace Home.Common
     {
         internal static AutomationMesh _cache;
 
+        public static bool IsNonProd()
+        {
+            var imgTag = Environment.GetEnvironmentVariable("IMAGE_TAG");
+            if (string.IsNullOrEmpty(imgTag))
+                return false;
+            if (imgTag.Equals("latest", StringComparison.InvariantCultureIgnoreCase))
+                return false;
+            if (imgTag.Equals("stable", StringComparison.InvariantCultureIgnoreCase))
+                return false;
+            return true;
+        }
+
         public static string GetLocalIP()
         {
 
