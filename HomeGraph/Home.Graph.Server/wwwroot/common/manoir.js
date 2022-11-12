@@ -18,10 +18,12 @@ var Manoir;
         refreshData() {
             var nav = $("#manoirMainMenu ul");
             nav.empty();
+            nav.append($("<li class='app'><a href='/devicehome/'><span class='icon'></span><span class='title'>Accueil</span><span class='desc'>/devicehome/</span></li>"));
             nav.append($("<li class='separator'>Home Automation</li>"));
-            nav.append($("<li class='app'><a href='/app/home/'><span class='icon'></span><span class='title'>Accueil</span><span class='desc'>/app/home/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/homautomation'><span class='icon'></span><span class='title'>Domotique</span><span class='desc'>/app/homeautomation/</span></li>"));
             nav.append($("<li class='app'><a href='/app/security/'><span class='icon'></span><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
             nav.append($("<li class='separator'>Outils</li>"));
+            nav.append($("<li class='app'><a href='/app/welcome/'><span class='icon'></span><span class='title'>Welcome</span><span class='desc'>/app/welcome/</span></li>"));
         }
     }
     Manoir.MainMenuBar = MainMenuBar;

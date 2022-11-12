@@ -208,10 +208,11 @@ namespace Home.Graph.Server.Controllers
 
                 Response.Cookies.Append("ManoirDeviceAuth", JsonConvert.SerializeObject(cookie), new CookieOptions()
                 {
-                    Expires = null,
+                    Expires = DateTime.Today.AddYears(10),
                     IsEssential = true,
                     SameSite = SameSiteMode.Lax,
-                    Domain = uri.Host
+                    Domain = uri.Host,
+                    MaxAge = TimeSpan.FromDays(10*365)
                 });
             }
 
