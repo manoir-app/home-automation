@@ -23,7 +23,7 @@ var Manoir;
             nav.append($("<li class='app'><a href='/app/homautomation'><span class='icon'></span><span class='title'>Domotique</span><span class='desc'>/app/homeautomation/</span></li>"));
             nav.append($("<li class='app'><a href='/app/security/'><span class='icon'></span><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
             nav.append($("<li class='separator'>Outils</li>"));
-            nav.append($("<li class='app'><a href='/app/welcome/'><span class='icon'></span><span class='title'>Welcome</span><span class='desc'>/app/welcome/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/welcomescreen/'><span class='icon'></span><span class='title'>Welcome</span><span class='desc'>/app/welcomescreen/</span></li>"));
         }
     }
     Manoir.MainMenuBar = MainMenuBar;
