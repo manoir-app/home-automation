@@ -37,7 +37,7 @@ module Manoir.DeviceHomeApp {
 
             this.connection.start().catch(err => console.error(err));
 
-            this.scope.isLoggedIn = super.checkLogin(false);
+            this.scope.isLoggedIn = super.checkLogin(true);
         }
 
         private onMeshChange(changeType: string, mesh: any) : void {

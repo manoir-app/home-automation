@@ -24,7 +24,7 @@ var Manoir;
                     .build();
                 this.connection.on("notifyMeshChange", this.onMeshChange);
                 this.connection.start().catch(err => console.error(err));
-                this.scope.isLoggedIn = super.checkLogin(false);
+                this.scope.isLoggedIn = super.checkLogin(true);
             }
             onMeshChange(changeType, mesh) {
                 console.log(mesh);

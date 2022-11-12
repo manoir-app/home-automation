@@ -391,7 +391,7 @@ namespace Home.Common
             try
             {
                 DateTime dt = System.IO.File.GetLastWriteTime(assembly.Location);
-                Console.Write($"Build date : {dt.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}");
+                Console.WriteLine($"Build date : {dt.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}");
                 Console.WriteLine("-----------------------");
             }
             catch
