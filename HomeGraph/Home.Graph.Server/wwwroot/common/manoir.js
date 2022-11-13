@@ -18,12 +18,12 @@ var Manoir;
         refreshData() {
             var nav = $("#manoirMainMenu ul");
             nav.empty();
-            nav.append($("<li class='app'><a href='/devicehome/'><span class='icon'></span><span class='title'>Accueil</span><span class='desc'>/devicehome/</span></li>"));
+            nav.append($("<li class='app'><a href='/devicehome/'><img class='icon' src='/assets/imgs/streamlinehq-bird-house-pets-animals.svg' /><span class='title'>Accueil</span><span class='desc'>/devicehome/</span></li>"));
             nav.append($("<li class='separator'>Home Automation</li>"));
-            nav.append($("<li class='app'><a href='/app/homautomation'><span class='icon'></span><span class='title'>Domotique</span><span class='desc'>/app/homeautomation/</span></li>"));
-            nav.append($("<li class='app'><a href='/app/security/'><span class='icon'></span><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/homautomation'><img class='icon' src='/assets/imgs/streamlinehq-smart-light-connect-lamps-lights-fire.svg' /><span class='title'>Domotique</span><span class='desc'>/app/homeautomation/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/security/'><img class='icon' src='/assets/imgs/streamlinehq-lock-1-interface-essential.svg' /><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
             nav.append($("<li class='separator'>Outils</li>"));
-            nav.append($("<li class='app'><a href='/app/welcomescreen/'><span class='icon'></span><span class='title'>Welcome</span><span class='desc'>/app/welcomescreen/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/welcomescreen/'><img class='icon' src='/assets/imgs/streamlinehq-layout-dashboard-interface-essential.svg' /><span class='title'>Welcome</span><span class='desc'>/app/welcomescreen/</span></li>"));
         }
     }
     Manoir.MainMenuBar = MainMenuBar;
