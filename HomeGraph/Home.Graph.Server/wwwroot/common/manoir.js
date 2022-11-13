@@ -7,7 +7,7 @@ var Manoir;
     class MainMenuBar extends HTMLElement {
         connectedCallback() {
             var self = this;
-            this.innerHTML = '<section id="manoirMainMenu" class="manoir-main-menu-content"><button class="manoir-main-menu-close"></button><ul></ul></section>';
+            this.innerHTML = '<section id="manoirMainMenu" class="manoir-main-menu-content"><button class="manoir-main-menu-close"><img src="/assets/imgs/streamlinehq-close-interface-essential.svg" /></button><ul></ul></section>';
             $("#manoirMainMenu .manoir-main-menu-close").click(function (e) {
                 e.preventDefault();
                 $("body").removeClass("menu-opened");
