@@ -126,6 +126,7 @@ var Manoir;
                     .withAutomaticReconnect()
                     .build();
                 this.sysconnection.on("changeAppOnDevice", this.changeAppOnDevice);
+                this.sysconnection.on("forceRefresh", this.forceRefresh);
                 this.sysconnection.start().catch(err => console.error(err));
             }
             checkLogin(autoRedirect = true) {
@@ -139,13 +140,26 @@ var Manoir;
                     return false;
                 }
             }
-            changeAppOnDevice(changeType, app) {
+            static isCurrentDevice(deviceId) {
+                var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+                if (deviceIdentifier == null || deviceIdentifier.device == null)
+                    return false;
+                return deviceIdentifier.device.id == deviceId;
+            }
+            changeAppOnDevice(changeDeviceId, app) {
+                if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
+                    return;
                 if (app.url != null) {
                     if (typeof manoirDeviceApp != "undefined" && manoirDeviceApp != null) {
                         manoirDeviceApp.setApplication(app.url);
                     }
                     document.location = app.url;
                 }
+            }
+            forceRefresh(changeDeviceId) {
+                if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
+                    return;
+                document.location.reload(true);
             }
         }
         Common.ManoirAppPage = ManoirAppPage;

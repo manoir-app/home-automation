@@ -18,5 +18,10 @@ namespace Home.Graph.Server.Hubs
         {
             context.Clients.All.SendAsync("changeAppOnDevice", deviceId, app);
         }
+
+        public static void ForceRefreshDeviceApp(IHubContext<SystemHub> context, string deviceId)
+        {
+            context.Clients.All.SendAsync("forceRefresh", deviceId);
+        }
     }
 }

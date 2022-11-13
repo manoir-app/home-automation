@@ -167,11 +167,12 @@ namespace Manoir.Common {
                 .build();
 
             this.sysconnection.on("changeAppOnDevice", this.changeAppOnDevice);
+            this.sysconnection.on("forceRefresh", this.forceRefresh);
 
             this.sysconnection.start().catch(err => console.error(err));
         }
 
-        public checkLogin(autoRedirect:boolean = true) : boolean {
+        public checkLogin(autoRedirect: boolean = true): boolean {
             var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
             if (deviceIdentifier != null) {
                 return true;
@@ -183,7 +184,18 @@ namespace Manoir.Common {
             }
         }
 
-        private changeAppOnDevice(changeType: string, app: any): void {
+        private static isCurrentDevice(deviceId: string): boolean {
+            var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+            if (deviceIdentifier == null || deviceIdentifier.device == null)
+                return false;
+            return deviceIdentifier.device.id == deviceId;
+        }
+
+        private changeAppOnDevice(changeDeviceId: string, app: any): void {
+
+            if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
+                return;
+
             if (app.url != null) {
                 if (typeof manoirDeviceApp != "undefined" && manoirDeviceApp != null) {
                     manoirDeviceApp.setApplication(app.url);
@@ -191,6 +203,14 @@ namespace Manoir.Common {
 
                 document.location = app.url;
             }
+        }
+
+        private forceRefresh(changeDeviceId: string): void {
+
+            if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
+                return;
+
+            document.location.reload(true);
         }
     }
 }
