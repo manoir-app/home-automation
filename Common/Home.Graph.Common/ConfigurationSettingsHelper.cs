@@ -88,6 +88,20 @@ namespace Home.Common
             return cfg["HomeAutomation:NotificationHub"];
         }
 
+        public static string GetZohoClientId()
+        {
+            var cfg = GetConfig();
+            return cfg["Zoho:ClientId"];
+        }
+
+        public static string GetZohoClientSecret()
+        {
+            var cfg = GetConfig();
+            return cfg["Zoho:ClientSecret"];
+        }
+
+
+
         public static string GetTwitchClientId()
         {
             var cfg = GetConfig();

@@ -33,9 +33,19 @@
                 <li id="liAzureMgmt" style="display:none"><a href="#">Connect to azure management</a></li>
                 <li id="liSpotify" style="display:none"><a href="#">Connect with Spotify</a></li>
                 <li id="liSonos" style="display:none"><a href="#">Connect with Sonos</a></li>
+                <li id="liZoho" style="display:none"><a href="#">Connect with Zoho ManageEngine</a></li>
             </ul>
 
             <script type="text/javascript">
+
+                fetch('/oauth/zoho/geturl').then(function (response) { return response.text(); }).then(function (url) {
+                    var li = document.getElementById("liZoho");
+                    var [a] = li.getElementsByTagName("a");
+
+                    li.style.display = "block";
+                    a.href = url;
+                });
+
                 fetch('/oauth/twitch/geturl').then(function (response) { return response.text(); }).then(function (url) {
                     var li = document.getElementById("liTwitch");
                     var [a] = li.getElementsByTagName("a");
