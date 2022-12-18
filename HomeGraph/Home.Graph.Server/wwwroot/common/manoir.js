@@ -41,6 +41,20 @@ var Manoir;
     }
     Manoir.MenuButton = MenuButton;
     class Header extends HTMLElement {
+        constructor() {
+            super();
+            this.appconnection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/1.0/appanddevices")
+                .withAutomaticReconnect()
+                .build();
+            this.appconnection.on("notifyUserChange", this.notifyUserChange);
+            this.appconnection.start().catch(err => console.error(err));
+        }
+        notifyUserChange(changeType, user) {
+            if (changeType != null && changeType.toLocaleLowerCase() == "presence") {
+                this.refreshData();
+            }
+        }
         connectedCallback() {
             var greetings = "Bonjour <strong>tout le monde</strong> !";
             var dateMessage = "- chargement en cours -";
@@ -120,6 +134,7 @@ var Manoir;
     var Common;
     (function (Common) {
         class ManoirAppPage {
+            // notifyUserChange
             constructor() {
                 this.sysconnection = new signalR.HubConnectionBuilder()
                     .withUrl("/hubs/1.0/system")

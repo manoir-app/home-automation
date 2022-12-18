@@ -66,6 +66,29 @@ namespace Manoir {
 
     export class Header extends HTMLElement {
 
+        appconnection: signalR.HubConnection;
+
+        constructor() {
+            super();
+
+            this.appconnection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/1.0/appanddevices")
+                .withAutomaticReconnect()
+                .build();
+
+            this.appconnection.on("notifyUserChange", this.notifyUserChange);
+
+            this.appconnection.start().catch(err => console.error(err));
+        }
+
+        private notifyUserChange(changeType: string, user: any): void {
+
+            if (changeType != null && changeType.toLocaleLowerCase() == "presence") {
+                this.refreshData();
+            }
+
+        }
+
         connectedCallback() {
             var greetings = "Bonjour <strong>tout le monde</strong> !";
             var dateMessage = "- chargement en cours -";
@@ -160,6 +183,8 @@ namespace Manoir.Common {
     export abstract class ManoirAppPage {
         sysconnection: signalR.HubConnection;
 
+        // notifyUserChange
+
         constructor() {
             this.sysconnection = new signalR.HubConnectionBuilder()
                 .withUrl("/hubs/1.0/system")
@@ -170,7 +195,13 @@ namespace Manoir.Common {
             this.sysconnection.on("forceRefresh", this.forceRefresh);
 
             this.sysconnection.start().catch(err => console.error(err));
+
+
+            
+
         }
+
+     
 
         public checkLogin(autoRedirect: boolean = true): boolean {
             var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
