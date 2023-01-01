@@ -71,12 +71,16 @@ namespace Manoir {
         constructor() {
             super();
 
+            var self = this;
+
             this.appconnection = new signalR.HubConnectionBuilder()
                 .withUrl("/hubs/1.0/appanddevices")
                 .withAutomaticReconnect()
                 .build();
 
-            this.appconnection.on("notifyUserChange", this.notifyUserChange);
+            this.appconnection.on("notifyUserChange", (changetype: string, user: any) => {
+                self.notifyUserChange(changetype, user);
+            });
 
             this.appconnection.start().catch(err => console.error(err));
         }
