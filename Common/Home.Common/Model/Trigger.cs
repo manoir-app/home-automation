@@ -21,6 +21,7 @@ namespace Home.Common.Model
         NetworkDeviceConnectionChanged = 8,
 
         Webhook = 15,
+        MqttValue = 16,
     }
 
     public enum NetworkDeviceTriggerKind
@@ -34,7 +35,9 @@ namespace Home.Common.Model
         public Trigger()
         {
             RaisedMessages = new List<TriggerRaisedMessage>();
+            ChangedProperties = new List<TriggerPropertyChange>();
         }
+
         public string Id { get; set; }
         public TriggerKind Kind { get; set; }
 
@@ -46,8 +49,23 @@ namespace Home.Common.Model
         public string NetworkDeviceName { get; set; }
         public NetworkDeviceTriggerKind? NetworkDeviceTriggerKind { get; set; }
 
+        /// <summary>
+        /// Le path de la propriété (pour MQTT par exemple)
+        /// </summary>
+        public string Path { get; set; }
+
+        /// <summary>
+        /// Si renseigné, la différence minimale pour
+        /// que l'on mette à jour (pour éviter de faire
+        /// des updates en permanence pour un détecteur
+        /// un peu trop sensible)
+        /// </summary>
+        public decimal? ThredsholdForChange { get; set; }
 
         public List<TriggerRaisedMessage> RaisedMessages { get; set; }
+
+        public List<TriggerPropertyChange> ChangedProperties { get; set; } 
+
 
         public DateTimeOffset? LatestOccurence { get; set; }
 
@@ -90,6 +108,21 @@ namespace Home.Common.Model
     {
         public string MessageTopic { get; set; }
         public string MessageContent { get; set; }
+    }
+
+    public enum TriggerPropertyChangeKind
+    {
+        GenericProperty,
+        RoomProperty
+    }
+
+    public class TriggerPropertyChange
+    {
+        public string PropertyName { get; set; }
+
+        public string RoomId { get; set; }
+
+        public TriggerPropertyChangeKind Kind { get; set; }
     }
 
 }

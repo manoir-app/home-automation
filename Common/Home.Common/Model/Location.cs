@@ -77,6 +77,7 @@ namespace Home.Common.Model
             GroupMappingForServices = new Dictionary<string, List<string>>();
             Shape = new List<LocationPoint>();
             Walls = new List<LocationWall>();
+            Properties = new LocationRoomProperties();
         }
 
         public string Id { get; set; }
@@ -89,10 +90,19 @@ namespace Home.Common.Model
 
         public int FloorLevel { get; set; }
 
+        public LocationRoomProperties Properties { get; set; }
+
         public List<LocationPoint> Shape { get; set; }
         public List<LocationWall> Walls { get; set; }
     }
 
+    public class LocationRoomProperties
+    {
+        public decimal? Temperature { get; set; }
+        public decimal? Humidity { get; set; }
+
+        public Dictionary<string, string> MoreProperties { get; set; }
+    }
     public class LocationPoint
     {
         public int X { get; set; }

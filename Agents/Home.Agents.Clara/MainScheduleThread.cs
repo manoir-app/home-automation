@@ -143,6 +143,7 @@ namespace Home.Agents.Clara
 
         private static Entity PushSun(Entity sun)
         {
+            // on push sur le serveur
             for (int i = 0; i < 3; i++)
             {
                 try
@@ -160,7 +161,13 @@ namespace Home.Agents.Clara
                 }
             }
 
+            // on push aussi sur MQTT
+            MqttHelper.PublishEntity(sun);
+
             return null;
         }
+
+
+
     }
 }
