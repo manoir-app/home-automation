@@ -399,7 +399,7 @@ namespace Home.Graph.Common
                     case "system.datetimeoffset":
                         msgs.Add(new MqttApplicationMessageBuilder()
                         .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
-                        .WithPayload(t.DateSimpleValue.GetValueOrDefault().ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture))
+                        .WithPayload(t.DateSimpleValue.GetValueOrDefault().ToUniversalTime().ToString("yyyyMMdd-HHmmssZ", CultureInfo.InvariantCulture))
                         .WithAtLeastOnceQoS()
                         .WithRetainFlag().Build());
                         break;

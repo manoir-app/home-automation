@@ -40,8 +40,8 @@ namespace Home.Agents.Clara
             DownloadSourceChecker.Stop();
             NewsChecker.Stop();
             ClaraMessageHandler.Stop();
-            PimSchedulerThread.Start();
-            MainScheduleThread.Start();
+            PimSchedulerThread.Stop();
+            MainScheduleThread.Stop();
         }
     }
 }

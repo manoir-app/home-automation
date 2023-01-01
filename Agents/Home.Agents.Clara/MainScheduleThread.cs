@@ -161,9 +161,6 @@ namespace Home.Agents.Clara
                 }
             }
 
-            // on push aussi sur MQTT
-            MqttHelper.PublishEntity(sun);
-
             return null;
         }
 

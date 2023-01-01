@@ -38,6 +38,18 @@ namespace Home.Graph.Server
                 Console.WriteLine(t[k].ToString());
             }
 
+
+            try
+            {
+                DateTime dt = System.IO.File.GetLastWriteTime(typeof(Program).Assembly.Location);
+                Console.WriteLine($"Build date : {dt.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}");
+                Console.WriteLine("-----------------------");
+            }
+            catch
+            {
+
+            }
+
             var host = CreateHostBuilder(args).Build();
             host.Run();
 

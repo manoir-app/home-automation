@@ -65,6 +65,8 @@ namespace Home.Graph.Server.Controllers
 
             if (tmp != null)
             {
+                Console.WriteLine($"Trigger raised : {triggerId}");
+
                 DateTimeOffset runDate = DateTimeOffset.Now;
                 coll.UpdateOne(x => x.Id == triggerId,
                     Builders<Trigger>.Update
@@ -78,26 +80,31 @@ namespace Home.Graph.Server.Controllers
                         content = await st.ReadToEndAsync();
                 }
 
-                foreach (var t in tmp.RaisedMessages)
+                if (tmp.RaisedMessages != null)
                 {
-                    // on raise un event correspondant au webhook
-                    if (!string.IsNullOrEmpty(t.MessageTopic))
+                    foreach (var t in tmp.RaisedMessages)
                     {
-                        MessagingHelper.PushToLocalAgent(t.MessageTopic,
-                            tmp.ReplaceContent(t.MessageContent, source, content));
+                        // on raise un event correspondant au webhook
+                        if (!string.IsNullOrEmpty(t.MessageTopic))
+                        {
+                            MessagingHelper.PushToLocalAgent(t.MessageTopic,
+                                tmp.ReplaceContent(t.MessageContent, source, content));
+                        }
                     }
                 }
 
-                foreach (var t in tmp.ChangedProperties)
+                if (tmp.ChangedProperties != null)
                 {
-                    // on raise un event correspondant au webhook
-                    if (!string.IsNullOrEmpty(t.PropertyName))
+                    foreach (var t in tmp.ChangedProperties)
                     {
-                        switch (t.Kind)
+                        if (!string.IsNullOrEmpty(t.PropertyName))
                         {
-                            case TriggerPropertyChangeKind.RoomProperty:
-                                SetRoomProperty(t, data);
-                                break;
+                            switch (t.Kind)
+                            {
+                                case TriggerPropertyChangeKind.RoomProperty:
+                                    SetRoomProperty(t, data);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -110,13 +117,15 @@ namespace Home.Graph.Server.Controllers
 
         private void SetRoomProperty(TriggerPropertyChange t, string data)
         {
+            var meshColl = MongoDbHelper.GetClient<AutomationMesh>();
+            var local = meshColl.Find(x => x.Id.Equals("local")).FirstOrDefault();
+            if(local==null)
+                return;
+
             var coll = MongoDbHelper.GetClient<Location>();
-            var locs = coll.Find(x => x.Id.Equals("local")).ToList();
-            var zones = new List<LocationZone>();
-            foreach (var tmp in (from z in locs select z.Zones).ToList())
-                zones.AddRange(tmp);
+            var locs = coll.Find(x => x.Id.Equals(local.LocationId)).FirstOrDefault();
             var rooms = new List<LocationRoom>();
-            foreach (var tmp in (from z in zones select z.Rooms).ToList())
+            foreach (var tmp in (from z in locs.Zones select z.Rooms).ToList())
                 rooms.AddRange(tmp);
 
             var room = (from z in rooms where z.Id.Equals(t.RoomId, StringComparison.InvariantCultureIgnoreCase) select z).FirstOrDefault();
@@ -159,13 +168,19 @@ namespace Home.Graph.Server.Controllers
             try
             {
 
-                var arrayFilters = Builders<Location>.Filter.Eq("Id", "local")
-                        & Builders<Location>.Filter.Eq("Zones.Rooms.Id", room.Id);
+                var parentZone = (from z in locs.Zones where z.Rooms.Contains(room) select z).FirstOrDefault();
+                if (parentZone != null)
+                {
+                    var arrayFilters = Builders<Location>.Filter.Eq("Id", locs.Id)
+                            & Builders<Location>.Filter.Eq("Zones.Id", parentZone.Id);
 
-                var arrayUpdate = Builders<Location>.Update
-                    .Set("Zones.Rooms.$.Properties", room.Properties);
+                    var arrayUpdate = Builders<Location>.Update
+                        .Set("Zones.$.Rooms", parentZone.Rooms);
 
-                coll.UpdateOne(arrayFilters, arrayUpdate);
+                    coll.UpdateOne(arrayFilters, arrayUpdate);
+                }
+                else
+                    Console.WriteLine($"Parent zone of {t.RoomId} not found for update");
             }
             catch (Exception ex)
             {
