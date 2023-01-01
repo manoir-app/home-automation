@@ -54,7 +54,7 @@ namespace Home.Graph.Common
 
             public static MessageHandler _instance = new MessageHandler();
 
-            public Dictionary<string, Action<string>> _handlers = new Dictionary<string, Action<string>>();
+            public Dictionary<string, List<Action<string>>> _handlers = new Dictionary<string, List<Action<string>>>();
 
             public async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
             {
@@ -62,14 +62,17 @@ namespace Home.Graph.Common
                 var t = msg.Topic;
                 if (t == null) return;
 
-                Action<string> handler;
-                if (_handlers.TryGetValue(t, out handler))
+                List<Action<string>> handlers;
+                if (_handlers.TryGetValue(t, out handlers))
                 {
-                    t = msg.ConvertPayloadToString();
-                    if (t != null)
+                    foreach (var handler in handlers)
                     {
-                        Console.WriteLine("MQTTHelper - raising event on subscription to " + msg.Topic + " : " + t);
-                        handler.Invoke(t);
+                        t = msg.ConvertPayloadToString();
+                        if (t != null)
+                        {
+                            Console.WriteLine("MQTTHelper - raising event on subscription to " + msg.Topic + " : " + t);
+                            handler.Invoke(t);
+                        }
                     }
                 }
 
@@ -80,14 +83,20 @@ namespace Home.Graph.Common
 
         public static void AddChangeHandler(string topic, Action<string> handler)
         {
-            MessageHandler._instance._handlers[topic] = handler;
+            List<Action<string>> handlers;
+            if(!MessageHandler._instance._handlers.TryGetValue(topic, out handlers))
+                MessageHandler._instance._handlers[topic] = new List<Action<string>>();
+            MessageHandler._instance._handlers[topic].Add(handler);
             Console.WriteLine("MQTTHelper - subscription to " + topic);
             _client.SubscribeAsync(topic);
         }
 
-        public static void RemoveChangeHandler(string topic)
+        public static void RemoveChangeHandler(string topic, Action<string> handler)
         {
-            MessageHandler._instance._handlers[topic] = null;
+            List<Action<string>> handlers;
+            if (MessageHandler._instance._handlers.TryGetValue(topic, out handlers))
+                MessageHandler._instance._handlers[topic].Remove(handler);
+
             Console.WriteLine("MQTTHelper - ending subscription to " + topic);
             _client.UnsubscribeAsync(topic);
         }
@@ -367,6 +376,17 @@ namespace Home.Graph.Common
                 .WithPayload(entity.Name)
                 .WithAtLeastOnceQoS()
                 .WithRetainFlag().Build());
+            msgs.Add(new MqttApplicationMessageBuilder()
+                .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/kind")
+                .WithPayload(entity.EntityKind)
+                .WithAtLeastOnceQoS()
+                .WithRetainFlag().Build());
+            msgs.Add(new MqttApplicationMessageBuilder()
+                .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/currentImage")
+                .WithPayload(entity.CurrentImageUrl==null?entity.DefaultImageUrl:entity.CurrentImageUrl)
+                .WithAtLeastOnceQoS()
+                .WithRetainFlag().Build());
+
 
             foreach (var t in entity.Datas.Keys)
             {

@@ -55,6 +55,13 @@ namespace Home.Common.Model
         public string Path { get; set; }
 
         /// <summary>
+        /// Si la propriété est du json, on peut en extraire
+        /// une variable, via son json path
+        /// </summary>
+        public string JsonPathInValue { get; set; }
+
+
+        /// <summary>
         /// Si renseigné, la différence minimale pour
         /// que l'on mette à jour (pour éviter de faire
         /// des updates en permanence pour un détecteur
