@@ -143,6 +143,7 @@ namespace Home.Agents.Clara
 
         private static Entity PushSun(Entity sun)
         {
+            // on push sur le serveur
             for (int i = 0; i < 3; i++)
             {
                 try
@@ -162,5 +163,8 @@ namespace Home.Agents.Clara
 
             return null;
         }
+
+
+
     }
 }

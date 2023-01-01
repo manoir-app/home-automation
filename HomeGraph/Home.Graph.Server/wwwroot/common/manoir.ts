@@ -27,7 +27,7 @@ namespace Manoir {
     export class MainMenuBar extends HTMLElement {
         connectedCallback() {
             var self = this;
-            this.innerHTML = '<section id="manoirMainMenu" class="manoir-main-menu-content"><button class="manoir-main-menu-close"></button><ul></ul></section>';
+            this.innerHTML = '<section id="manoirMainMenu" class="manoir-main-menu-content"><button class="manoir-main-menu-close"><img src="/assets/imgs/streamlinehq-close-interface-essential.svg" /></button><ul></ul></section>';
             $("#manoirMainMenu .manoir-main-menu-close").click(function (e) {
                 e.preventDefault();
                 $("body").removeClass("menu-opened");
@@ -39,10 +39,12 @@ namespace Manoir {
         refreshData() {
             var nav = $("#manoirMainMenu ul");
             nav.empty();
+            nav.append($("<li class='app'><a href='/devicehome/'><img class='icon' src='/assets/imgs/streamlinehq-bird-house-pets-animals.svg' /><span class='title'>Accueil</span><span class='desc'>/devicehome/</span></li>"));
             nav.append($("<li class='separator'>Home Automation</li>"));
-            nav.append($("<li class='app'><a href='/app/home/'><span class='icon'></span><span class='title'>Accueil</span><span class='desc'>/app/home/</span></li>"));
-            nav.append($("<li class='app'><a href='/app/security/'><span class='icon'></span><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/homautomation'><img class='icon' src='/assets/imgs/streamlinehq-smart-light-connect-lamps-lights-fire.svg' /><span class='title'>Domotique</span><span class='desc'>/app/homeautomation/</span></li>"));
+            nav.append($("<li class='app'><a href='/app/security/'><img class='icon' src='/assets/imgs/streamlinehq-lock-1-interface-essential.svg' /><span class='title'>Présence</span><span class='desc'>/app/security/</span></li>"));
             nav.append($("<li class='separator'>Outils</li>"));
+            nav.append($("<li class='app'><a href='/app/welcomescreen/'><img class='icon' src='/assets/imgs/streamlinehq-layout-dashboard-interface-essential.svg' /><span class='title'>Welcome</span><span class='desc'>/app/welcomescreen/</span></li>"));
         }
     }
 
@@ -57,12 +59,39 @@ namespace Manoir {
                 $("body").toggleClass("menu-opened");
                 return false;
             });
-           
+
 
         }
     }
 
     export class Header extends HTMLElement {
+
+        appconnection: signalR.HubConnection;
+
+        constructor() {
+            super();
+
+            var self = this;
+
+            this.appconnection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/1.0/appanddevices")
+                .withAutomaticReconnect()
+                .build();
+
+            this.appconnection.on("notifyUserChange", (changetype: string, user: any) => {
+                self.notifyUserChange(changetype, user);
+            });
+
+            this.appconnection.start().catch(err => console.error(err));
+        }
+
+        private notifyUserChange(changeType: string, user: any): void {
+
+            if (changeType != null && changeType.toLocaleLowerCase() == "presence") {
+                this.refreshData();
+            }
+
+        }
 
         connectedCallback() {
             var greetings = "Bonjour <strong>tout le monde</strong> !";
@@ -128,14 +157,14 @@ namespace Manoir {
                                 datemsg = item;
                             }
                         });
-                        if (greets != null && localStorage!=null) {
+                        if (greets != null && localStorage != null) {
                             var save: GreetingsSave = {
                                 date: new Date().getTime(),
-                                dateMessage : datemsg==null?null:datemsg.content,
-                                content : greets.content
+                                dateMessage: datemsg == null ? null : datemsg.content,
+                                content: greets.content
                             };
                             localStorage.setItem("manoir-global-greetings", JSON.stringify(save));
-                            ctl.innerHTML = `<header class='manoir-header'><h1 id="manoirGreetings">${greets.content}</h1><p class="date">${datemsg==null?"":datemsg.content}</p></header>`;
+                            ctl.innerHTML = `<header class='manoir-header'><h1 id="manoirGreetings">${greets.content}</h1><p class="date">${datemsg == null ? "" : datemsg.content}</p></header>`;
                         }
                     }
                 })
@@ -158,6 +187,8 @@ namespace Manoir.Common {
     export abstract class ManoirAppPage {
         sysconnection: signalR.HubConnection;
 
+        // notifyUserChange
+
         constructor() {
             this.sysconnection = new signalR.HubConnectionBuilder()
                 .withUrl("/hubs/1.0/system")
@@ -165,11 +196,41 @@ namespace Manoir.Common {
                 .build();
 
             this.sysconnection.on("changeAppOnDevice", this.changeAppOnDevice);
+            this.sysconnection.on("forceRefresh", this.forceRefresh);
 
             this.sysconnection.start().catch(err => console.error(err));
+
+
+            
+
         }
 
-        private changeAppOnDevice(changeType: string, app: any): void {
+     
+
+        public checkLogin(autoRedirect: boolean = true): boolean {
+            var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+            if (deviceIdentifier != null) {
+                return true;
+            } else {
+                if (location.pathname != '/devicehome.html')
+                    window.location.replace('/devicehome.html');
+
+                return false;
+            }
+        }
+
+        private static isCurrentDevice(deviceId: string): boolean {
+            var deviceIdentifier = angular.fromJson(localStorage.getItem("deviceToken"));
+            if (deviceIdentifier == null || deviceIdentifier.device == null)
+                return false;
+            return deviceIdentifier.device.id == deviceId;
+        }
+
+        private changeAppOnDevice(changeDeviceId: string, app: any): void {
+
+            if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
+                return;
+
             if (app.url != null) {
                 if (typeof manoirDeviceApp != "undefined" && manoirDeviceApp != null) {
                     manoirDeviceApp.setApplication(app.url);
@@ -178,7 +239,16 @@ namespace Manoir.Common {
                 document.location = app.url;
             }
         }
-    }}
+
+        private forceRefresh(changeDeviceId: string): void {
+
+            if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
+                return;
+
+            document.location.reload(true);
+        }
+    }
+}
 
 customElements.define('manoir-header', Manoir.Header);
 customElements.define('manoir-menu-button', Manoir.MenuButton);

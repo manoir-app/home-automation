@@ -56,7 +56,7 @@ namespace Home.Graph.Server.Controllers
         }
 
         [Route("local/triggers/{triggerId}/raise"), HttpGet, HttpPost, AllowAnonymous]
-        public async Task<bool> RaiseEvent(string triggerId)
+        public async Task<bool> RaiseEvent(string triggerId, string data = null)
         {
             var coll = MongoDbHelper.GetClient<Trigger>();
             string source = User.Identity.Name;
@@ -65,6 +65,8 @@ namespace Home.Graph.Server.Controllers
 
             if (tmp != null)
             {
+                Console.WriteLine($"Trigger raised : {triggerId}");
+
                 DateTimeOffset runDate = DateTimeOffset.Now;
                 coll.UpdateOne(x => x.Id == triggerId,
                     Builders<Trigger>.Update
@@ -78,21 +80,113 @@ namespace Home.Graph.Server.Controllers
                         content = await st.ReadToEndAsync();
                 }
 
-                foreach (var t in tmp.RaisedMessages)
+                if (tmp.RaisedMessages != null)
                 {
-                    // on raise un event correspondant au webhook
-                    if (!string.IsNullOrEmpty(t.MessageTopic))
+                    foreach (var t in tmp.RaisedMessages)
                     {
-                        MessagingHelper.PushToLocalAgent(t.MessageTopic,
-                            tmp.ReplaceContent(t.MessageContent, source, content));
+                        // on raise un event correspondant au webhook
+                        if (!string.IsNullOrEmpty(t.MessageTopic))
+                        {
+                            MessagingHelper.PushToLocalAgent(t.MessageTopic,
+                                tmp.ReplaceContent(t.MessageContent, source, content));
+                        }
                     }
                 }
+
+                if (tmp.ChangedProperties != null)
+                {
+                    foreach (var t in tmp.ChangedProperties)
+                    {
+                        if (!string.IsNullOrEmpty(t.PropertyName))
+                        {
+                            switch (t.Kind)
+                            {
+                                case TriggerPropertyChangeKind.RoomProperty:
+                                    SetRoomProperty(t, data);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
                 return true;
             }
 
             return false;
         }
 
+        private void SetRoomProperty(TriggerPropertyChange t, string data)
+        {
+            var meshColl = MongoDbHelper.GetClient<AutomationMesh>();
+            var local = meshColl.Find(x => x.Id.Equals("local")).FirstOrDefault();
+            if(local==null)
+                return;
+
+            var coll = MongoDbHelper.GetClient<Location>();
+            var locs = coll.Find(x => x.Id.Equals(local.LocationId)).FirstOrDefault();
+            var rooms = new List<LocationRoom>();
+            foreach (var tmp in (from z in locs.Zones select z.Rooms).ToList())
+                rooms.AddRange(tmp);
+
+            var room = (from z in rooms where z.Id.Equals(t.RoomId, StringComparison.InvariantCultureIgnoreCase) select z).FirstOrDefault();
+
+            if (room == null)
+            {
+                Console.WriteLine($"Room {t.RoomId} not found");
+                return;
+            }
+            decimal decVal = decimal.MinValue;
+            switch (t.PropertyName.ToLowerInvariant())
+            {
+                case "temperature":
+                case "temp":
+                    if (decimal.TryParse(data, out decVal))
+                    {
+                        Console.WriteLine($"Room {t.RoomId} : setting temperature to {decVal}");
+                        room.Properties.Temperature = decVal;
+                    }
+
+                    break;
+                case "humidity":
+                    if (decimal.TryParse(data, out decVal))
+                    {
+                        Console.WriteLine($"Room {t.RoomId} : setting humidity to {decVal}");
+                        room.Properties.Humidity = decVal;
+                    }
+                    break;
+                default:
+                    Console.WriteLine($"Room {t.RoomId} : setting {t.PropertyName} to {data}");
+                    if (room.Properties.MoreProperties == null)
+                        room.Properties.MoreProperties = new Dictionary<string, string>();
+                    room.Properties.MoreProperties[t.PropertyName] = data;
+                    break;
+            }
+
+
+            MqttHelper.PublishRoom(room);
+
+            try
+            {
+
+                var parentZone = (from z in locs.Zones where z.Rooms.Contains(room) select z).FirstOrDefault();
+                if (parentZone != null)
+                {
+                    var arrayFilters = Builders<Location>.Filter.Eq("Id", locs.Id)
+                            & Builders<Location>.Filter.Eq("Zones.Id", parentZone.Id);
+
+                    var arrayUpdate = Builders<Location>.Update
+                        .Set("Zones.$.Rooms", parentZone.Rooms);
+
+                    coll.UpdateOne(arrayFilters, arrayUpdate);
+                }
+                else
+                    Console.WriteLine($"Parent zone of {t.RoomId} not found for update");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
 
         [Route("local/triggers/{triggerId}"), HttpDelete()]
         public bool DeleteTrigger(string triggerId)

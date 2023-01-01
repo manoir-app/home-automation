@@ -17,7 +17,7 @@ namespace Home.Agents.Sarah
             {
                 RefreshRoutines();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
@@ -27,6 +27,47 @@ namespace Home.Agents.Sarah
             t.Start();
         }
 
+        private class MqttTriggerChecker
+        {
+            private Trigger _t;
+            decimal _lastValue = decimal.MinValue;
+            public void Init(Trigger t)
+            {
+                if (t.Kind != TriggerKind.MqttValue)
+                    return;
+
+                MqttHelper.Start();
+                if (_t != null)
+                    MqttHelper.RemoveChangeHandler(_t.Path);
+
+                _t = t;
+
+                MqttHelper.AddChangeHandler(t.Path, (value) =>
+                {
+                    if (t.ThredsholdForChange != null)
+                    {
+                        decimal valDec = -1;
+                        if (decimal.TryParse(value, out valDec))
+                        {
+                            decimal change = Math.Abs(_lastValue - valDec);
+
+                            if (change < Math.Abs(t.ThredsholdForChange.Value))
+                                return;
+
+                            _lastValue = valDec;
+                        }
+                    }
+
+                    TriggersChecker.Raise(t, value);
+                });
+            }
+
+            public void Stop()
+            {
+                if (_t != null)
+                    MqttHelper.RemoveChangeHandler(_t.Path);
+            }
+        }
 
         public static void Stop()
         {
@@ -72,17 +113,32 @@ namespace Home.Agents.Sarah
 
         public static bool _stop = false;
 
+        static Dictionary<string, MqttTriggerChecker> _mqtt = new Dictionary<string, MqttTriggerChecker>();
 
         public static void Reload()
         {
+            foreach (var k in _mqtt.Keys)
+            {
+                _mqtt[k].Stop();
+            }
+            _mqtt.Clear();
+
             using (var cli = new MainApiAgentWebClient("sarah"))
             {
                 var lst = cli.DownloadData<List<Trigger>>("v1.0/system/mesh/local/triggers");
 
                 _triggers = lst;
-                foreach(var t in _triggers)
+                foreach (var t in _triggers)
                 {
-                    Console.WriteLine($"Trigger {t.Id} : {JsonConvert.SerializeObject(t)}");
+                    if (t.Kind == TriggerKind.MqttValue)
+                    {
+                        var mqtt = new MqttTriggerChecker();
+                        _mqtt.Add(t.Id, mqtt);
+                        mqtt.Init(t);
+                        Console.WriteLine($"Trigger {t.Id} - MQTT initialized : {JsonConvert.SerializeObject(t)}");
+                    }
+                    else 
+                        Console.WriteLine($"Trigger {t.Id} : {JsonConvert.SerializeObject(t)}");
                 }
 
                 var tmp = cli.DownloadData<Location>("v1.0/system/mesh/local/location");
@@ -106,7 +162,7 @@ namespace Home.Agents.Sarah
                             TestClockTrigger(t);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
@@ -127,13 +183,13 @@ namespace Home.Agents.Sarah
             switch (t.OffsetKind.GetValueOrDefault(TimeOffsetKind.FromMidnight))
             {
                 case TimeOffsetKind.FromSunrise:
-                    if (_loc != null && _loc.Coordinates!=null)
+                    if (_loc != null && _loc.Coordinates != null)
                     {
                         DateTimeOffset sunrise = SunCalculator.CalculateSunRise((double)_loc.Coordinates.Latitude, (double)_loc.Coordinates.Longitude, DateTime.Today);
                         if (sunrise.Add(offset) < DateTimeOffset.Now)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
-                            RaiseEvent(t);
+                            Raise(t, null);
                         }
                     }
                     else
@@ -148,7 +204,7 @@ namespace Home.Agents.Sarah
                         if (sunset.Add(offset) < DateTimeOffset.Now)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
-                            RaiseEvent(t);
+                            Raise(t, null);
                         }
                     }
                     else
@@ -158,19 +214,19 @@ namespace Home.Agents.Sarah
                     break;
                 case TimeOffsetKind.FromMidnight:
                     var today = DateTime.Today;
-                    if (new DateTimeOffset(today.Year, today.Month, today.Day,0,0,0,tzOffset).Add(offset) < DateTimeOffset.Now)
+                    if (new DateTimeOffset(today.Year, today.Month, today.Day, 0, 0, 0, tzOffset).Add(offset) < DateTimeOffset.Now)
                     {
                         t.LatestOccurence = DateTimeOffset.Now;
-                        RaiseEvent(t);
+                        Raise(t, null);
                     }
                     break;
                 case TimeOffsetKind.FromEarliestWakeup:
-                    if(nextminWakeUp.HasValue)
+                    if (nextminWakeUp.HasValue)
                     {
                         if (nextminWakeUp.Value.Add(offset) < DateTimeOffset.Now)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
-                            RaiseEvent(t);
+                            Raise(t, null);
                         }
                     }
                     else
@@ -184,7 +240,7 @@ namespace Home.Agents.Sarah
                         if (nextmaxWakeUp.Value.Add(offset) < DateTimeOffset.Now)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
-                            RaiseEvent(t);
+                            Raise(t, null);
                         }
                     }
                     else
@@ -199,13 +255,17 @@ namespace Home.Agents.Sarah
 
         }
 
-        private static void RaiseEvent(Trigger t)
+        private static void Raise(Trigger t, string data)
         {
             for (int i = 0; i < 3; i++)
             {
                 using (var cli = new MainApiAgentWebClient("sarah"))
                 {
-                    var done = cli.DownloadData<bool>($"v1.0/system/mesh/local/triggers/{t.Id}/raise");
+                    string url = $"v1.0/system/mesh/local/triggers/{t.Id}/raise";
+                    if (!string.IsNullOrEmpty(data))
+                        url += "?data=" + Uri.EscapeDataString(data);
+
+                    var done = cli.DownloadData<bool>(url);
                     if (done)
                     {
                         Console.WriteLine("Trigger : " + t.Id + " déclenché");

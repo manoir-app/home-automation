@@ -33,5 +33,15 @@ namespace Home.Graph.Server.Controllers
 
             return true;
         }
+
+        [Route("all/{deviceId}/force-refresh"), HttpPost, HttpGet]
+        public bool ForceRefresh(string deviceId)
+        {
+            deviceId = deviceId.ToLowerInvariant();
+
+            SystemHub.ForceRefreshDeviceApp(_sysContext, deviceId);
+
+            return true;
+        }
     }
 }

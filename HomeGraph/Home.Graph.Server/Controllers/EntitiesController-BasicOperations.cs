@@ -106,6 +106,15 @@ namespace Home.Graph.Server.Controllers
             }
 
             lst = collection.Find(x => x.Id == entity.Id).FirstOrDefault();
+
+            try
+            {
+                MqttHelper.PublishEntity(entity);
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine(ex);
+            }
             return lst;
         }
 

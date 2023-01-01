@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,11 @@ namespace Home.Graph.Server
             return base.HandleChallengeAsync(properties);
         }
 
+        private class AuthenticationCookie
+        {
+            public string Token { get; set; }
+        }
+
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             AuthenticationHeaderValue authHeader = null;
@@ -39,18 +45,27 @@ namespace Home.Graph.Server
             {
                 string auth = Request.Headers["Authorization"];
                 Console.WriteLine($"auth {auth} for : {Request.Method}/{Request.Path}");
-
-                authHeader = AuthenticationHeaderValue.Parse(auth);
-                Console.WriteLine($"{authHeader.Scheme} : {authHeader.Parameter}");
-                if (authHeader != null)
+                if (!string.IsNullOrEmpty(auth))
                 {
-                    switch (authHeader.Scheme.ToLowerInvariant())
+                    authHeader = AuthenticationHeaderValue.Parse(auth);
+                    Console.WriteLine($"{authHeader.Scheme} : {authHeader.Parameter}");
+                    if (authHeader != null)
                     {
-                        case "bearer":
-                            return AuthDevice(authHeader);
-                        case "signature": // smartthings à priori
-                            return AuthSignature(authHeader);
+                        switch (authHeader.Scheme.ToLowerInvariant())
+                        {
+                            case "bearer":
+                                return AuthDevice(authHeader);
+                            case "signature": // smartthings à priori
+                                return AuthSignature(authHeader);
+                        }
                     }
+                }
+
+                if(Request.Cookies.TryGetValue("ManoirDeviceAuth", out string cookie))
+                {
+                    var tmp = JsonConvert.DeserializeObject<AuthenticationCookie>(cookie);
+                    if (tmp != null && !string.IsNullOrEmpty(tmp.Token))
+                        return AuthDevice(tmp.Token);
                 }
 
             }
@@ -74,9 +89,18 @@ namespace Home.Graph.Server
 
         private Task<AuthenticateResult> AuthDevice(AuthenticationHeaderValue authHeader)
         {
-            Device user = null;
             var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
-            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+            var credentialToken = Encoding.UTF8.GetString(credentialBytes);
+            return AuthDevice(credentialToken);
+        }
+
+        private Task<AuthenticateResult> AuthDevice(string credentialToken)
+        {
+            Device user = null;
+            var credentials = credentialToken.Split(new[] { ':' }, 2);
+            if (credentials.Length != 2)
+                return Task.FromResult(AuthenticateResult.Fail("Error Occured.Authorization failed - NO API KEY."));
+
             var username = credentials[0];
             var password = credentials[1];
 

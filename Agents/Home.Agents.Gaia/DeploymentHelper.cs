@@ -19,7 +19,7 @@ namespace Home.Agents.Gaia
         private static string _tag = null;
         public static string GetImageTag()
         {
-            if(_tag==null)
+            if (_tag == null)
             {
                 _tag = Environment.GetEnvironmentVariable("IMAGE_TAG");
                 if (_tag == null)
@@ -49,6 +49,16 @@ namespace Home.Agents.Gaia
                     Console.WriteLine($"Updating secret {secretName}");
                     client.ReplaceNamespacedSecret(t, secretName, "default");
                 }
+            }
+        }
+
+        public static V1Secret GetSecret(string secretName)
+        {
+            var config = KubernetesClientConfiguration.InClusterConfig();
+            using (var client = new Kubernetes(config))
+            {
+                var t = GetSecret(client, secretName);
+                return t;
             }
         }
 
@@ -416,6 +426,16 @@ namespace Home.Agents.Gaia
                 Value = HomeServerHelper.GetLocalIP()
             });
 
+            var imgTag = Environment.GetEnvironmentVariable("IMAGE_TAG");
+            if (!string.IsNullOrEmpty(imgTag))
+            {
+                env.Add(new V1EnvVar()
+                {
+                    Name = "IMAGE_TAG",
+                    Value = imgTag
+                });
+            }
+
 
             V1Deployment d = new V1Deployment()
             {
@@ -677,6 +697,16 @@ namespace Home.Agents.Gaia
                     MountPath = "/home-automation/"
                 });
 
+            }
+
+            var imgTag = Environment.GetEnvironmentVariable("IMAGE_TAG");
+            if (!string.IsNullOrEmpty(imgTag))
+            {
+                env.Add(new V1EnvVar()
+                {
+                    Name = "IMAGE_TAG",
+                    Value = imgTag
+                });
             }
 
             env.Add(new V1EnvVar()
@@ -953,6 +983,16 @@ namespace Home.Agents.Gaia
                 Value = HomeServerHelper.GetLocalIP()
             });
 
+            var imgTag = Environment.GetEnvironmentVariable("IMAGE_TAG");
+            if (!string.IsNullOrEmpty(imgTag))
+            {
+                env.Add(new V1EnvVar()
+                {
+                    Name = "IMAGE_TAG",
+                    Value = imgTag
+                });
+            }
+
             var url = Environment.GetEnvironmentVariable("DOCKER_CONTAINER_REGISTRY");
             if (url == null)
                 url = HomeServerHelper.GetLocalIP() + ":5000";
@@ -976,7 +1016,7 @@ namespace Home.Agents.Gaia
             var cnts = new List<V1Container>();
             cnts.Add(new V1Container()
             {
-                Image = url + "/" + agentName + ":latest",
+                Image = url + "/" + agentName + ":" + GetImageTag(),
                 Name = agentName,
                 Env = env,
                 VolumeMounts = volumesMount

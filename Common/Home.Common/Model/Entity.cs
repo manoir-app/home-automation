@@ -55,7 +55,7 @@ namespace Home.Common.Model
 
             // info meteo
 
-            if (locationInfo.WeatherHazards != null && locationInfo.Weather.Count > 0)
+            if (locationInfo.Weather != null && locationInfo.Weather.Count > 0)
             {
                 var wt = (from z in locationInfo.Weather
                            where z.DateDebut <= DateTimeOffset.Now
@@ -131,6 +131,12 @@ namespace Home.Common.Model
             SimpleType = "System.Int64";
         }
 
+        public EntityData(Decimal simpleValue)
+        {
+            DecimalSimpleValue = simpleValue;
+            SimpleType = "System.Decimal";
+        }
+
         public EntityData(DateTimeOffset simpleValue)
         {
             DateSimpleValue = simpleValue;
@@ -151,6 +157,7 @@ namespace Home.Common.Model
         public string SimpleType { get; set; }
         public string SimpleValue { get; set; }
         public long? IntSimpleValue { get; set; }
+        public decimal? DecimalSimpleValue { get; set; }
         public DateTimeOffset? DateSimpleValue { get; set; }
         public Dictionary<string, EntityData> ComplexValue { get; set; }
 

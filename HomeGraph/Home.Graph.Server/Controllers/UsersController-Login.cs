@@ -1,4 +1,5 @@
-﻿using Home.Common.Model;
+﻿using Home.Common;
+using Home.Common.Model;
 using Home.Graph.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,12 +123,23 @@ namespace Home.Graph.Server.Controllers
             public string DeviceApiKey { get; set; }
         }
 
+
+        private class AuthenticationCookie
+        {
+            public string AuthKind { get; set; }
+            public int ExpirationEpoch { get; set; }
+            public string Token { get; set; }
+            public string DeviceId { get; set; }
+        }
+
         [Route("login/device"), AllowAnonymous(), HttpPost]
-        public LoginFromDeviceResponse LoginOnDevice([FromBody] CredentialFromDevice creds, bool associateWithUser = false)
+        public IActionResult LoginOnDevice([FromBody] CredentialFromDevice creds,
+            bool associateWithUser = false,
+            bool addCookie = false)
         {
             var usr = GetUser(creds);
             if (usr == null)
-                return null;
+                return BadRequest();
 
             var ret = new LoginFromDeviceResponse()
             {
@@ -183,7 +196,29 @@ namespace Home.Graph.Server.Controllers
             });
 
 
-            return ret;
+            if(addCookie)
+            {
+                var cookie = new AuthenticationCookie()
+                {
+                    AuthKind = "PERMANENT",
+                    ExpirationEpoch = int.MaxValue,
+                    Token = tmp,
+                    DeviceId = ret.Device.Id
+                };
+
+                var uri = new Uri(HomeServerHelper.GetLocalGraphUrl());
+
+                Response.Cookies.Append("ManoirDeviceAuth", JsonConvert.SerializeObject(cookie), new CookieOptions()
+                {
+                    Expires = DateTime.Today.AddYears(10),
+                    IsEssential = true,
+                    SameSite = SameSiteMode.Lax,
+                    Domain = uri.Host,
+                    MaxAge = TimeSpan.FromDays(10*365)
+                });
+            }
+
+            return Ok(ret);
         }
 
     }
