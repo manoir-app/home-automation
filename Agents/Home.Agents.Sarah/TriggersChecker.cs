@@ -2,8 +2,10 @@
 using Home.Common.Model;
 using Home.Graph.Common;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 
@@ -38,34 +40,66 @@ namespace Home.Agents.Sarah
 
                 MqttHelper.Start();
                 if (_t != null)
-                    MqttHelper.RemoveChangeHandler(_t.Path);
+                    MqttHelper.RemoveChangeHandler(_t.Path, this.Handle);
 
                 _t = t;
 
-                MqttHelper.AddChangeHandler(t.Path, (value) =>
+                MqttHelper.AddChangeHandler(t.Path, this.Handle);
+            }
+
+            private void Handle(string value)
+            {
+                Console.WriteLine($"Received message on MQTT for topic {_t.Path} : {value}");
+
+                if (_t.JsonPathInValue != null)
                 {
-                    if (t.ThredsholdForChange != null)
+                    try
                     {
-                        decimal valDec = -1;
-                        if (decimal.TryParse(value, out valDec))
+                        var tmp = JObject.Parse(value);
+                        if (tmp != null)
                         {
-                            decimal change = Math.Abs(_lastValue - valDec);
-
-                            if (change < Math.Abs(t.ThredsholdForChange.Value))
-                                return;
-
-                            _lastValue = valDec;
+                            var obj = tmp.SelectToken(_t.JsonPathInValue, false);
+                            if (obj != null)
+                            {
+                                switch (obj.Type)
+                                {
+                                    case JTokenType.Float:
+                                        value = ((float)obj).ToString("0.0000", CultureInfo.InvariantCulture);
+                                        break;
+                                    default:
+                                        value = obj.ToString();
+                                        break;
+                                }
+                            }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                }
 
-                    TriggersChecker.Raise(t, value);
-                });
+                if (_t.ThredsholdForChange != null)
+                {
+                    decimal valDec = -1;
+                    if (decimal.TryParse(value, out valDec))
+                    {
+                        decimal change = Math.Abs(_lastValue - valDec);
+
+                        if (change < Math.Abs(_t.ThredsholdForChange.Value))
+                            return;
+
+                        _lastValue = valDec;
+                    }
+                }
+
+                TriggersChecker.Raise(_t, value);
             }
 
             public void Stop()
             {
                 if (_t != null)
-                    MqttHelper.RemoveChangeHandler(_t.Path);
+                    MqttHelper.RemoveChangeHandler(_t.Path, this.Handle);
             }
         }
 
@@ -137,7 +171,7 @@ namespace Home.Agents.Sarah
                         mqtt.Init(t);
                         Console.WriteLine($"Trigger {t.Id} - MQTT initialized : {JsonConvert.SerializeObject(t)}");
                     }
-                    else 
+                    else
                         Console.WriteLine($"Trigger {t.Id} : {JsonConvert.SerializeObject(t)}");
                 }
 

@@ -71,16 +71,19 @@ namespace Home.Agents.Clara
                     dtNextSunRise = SunCalculator.CalculateSunRise((double)_meshLocation.Coordinates.Latitude,
                     (double)_meshLocation.Coordinates.Longitude, DateTime.Today.AddDays(1));
                     sun.CurrentImageUrl = HomeServerHelper.GetPublicGraphUrl($"/v1.0/services/files/common/images/sun_daylight.png");
+                    sun.Datas["CurrentStatus"] = new EntityData("day");
                 }
                 else
                 {
                     sun.CurrentImageUrl = HomeServerHelper.GetPublicGraphUrl($"/v1.0/services/files/common/images/sun_night.png");
+                    sun.Datas["CurrentStatus"] = new EntityData("night");
                 }
                 if (dtSunSet < DateTimeOffset.Now)
                 {
                     dtSunSet = SunCalculator.CalculateSunSet((double)_meshLocation.Coordinates.Latitude,
                     (double)_meshLocation.Coordinates.Longitude, DateTime.Today.AddDays(1));
                     sun.CurrentImageUrl = HomeServerHelper.GetPublicGraphUrl($"/v1.0/services/files/common/images/sun_night.png");
+                    sun.Datas["CurrentStatus"] = new EntityData("night");
                 }
 
                 sun.Datas["TodaySunRise"] = new EntityData(dtSunRise);
