@@ -28,6 +28,7 @@ namespace Home.Agents.Clara
         private static DateTimeOffset _lastTodoRefresh = DateTimeOffset.Now;
         private static DateTimeOffset _lastInProgressRefresh = DateTimeOffset.MinValue;
         private static DateTimeOffset _lastHomeServicesRefresh = DateTimeOffset.MinValue;
+        private static DateTimeOffset _lastGlobalCalendarRefresh = DateTimeOffset.MinValue;
 
         public static void Run()
         {
@@ -180,6 +181,37 @@ namespace Home.Agents.Clara
             }
         }
 
+        internal static void DoCalendarEvents()
+        {
+            if (Math.Abs((DateTimeOffset.Now - _lastGlobalCalendarRefresh).TotalMinutes) < 5)
+                return;
+
+            _lastGlobalCalendarRefresh = DateTimeOffset.Now;
+
+            try
+            {
+                // puis on récupère les éléments externes
+                var items = HomeServices.HomeServicesHelper.GetNextScheduledItems(DateTimeOffset.Now.AddDays(31));
+
+                items = DedoublonnageParOriginId(items);
+
+                var listIds = (from z in items
+                               where z.ListId != null
+                               select z.ListId).Distinct().ToArray();
+                foreach (var listId in listIds)
+                {
+                    var itemsInList = (from z in items
+                                       where z.ListId != null && z.ListId.Equals(listId)
+                                       select z).ToList();
+                    SyncItems(listId, itemsInList, "HomeServices_");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error in HomeServices scheduler : " + e.ToString());
+            }
+        }
+
         internal static void DoHomeServicesEvents()
         {
             if (Math.Abs((DateTimeOffset.Now - _lastHomeServicesRefresh).TotalMinutes) < 5)
@@ -202,7 +234,7 @@ namespace Home.Agents.Clara
                     var itemsInList = (from z in items
                                        where z.ListId != null && z.ListId.Equals(listId)
                                        select z).ToList();
-                    SyncHomeServicesItems(listId, itemsInList);
+                    SyncItems(listId, itemsInList, "HomeServices_");
                 }
             }
             catch (Exception e)
@@ -226,7 +258,7 @@ namespace Home.Agents.Clara
             return temp.Values.ToList();
         }
 
-        private static void SyncHomeServicesItems(string listId, List<TodoItem> newItems)
+        private static void SyncItems(string listId, List<TodoItem> newItems, string originPrefix)
         {
 
 
@@ -252,12 +284,12 @@ namespace Home.Agents.Clara
             if (current == null)
                 return;
 
-            Console.WriteLine($"HomeServices : Sync in todo {listId} : server count = {current.Count}, local count={newItems.Count}");
+            Console.WriteLine($"CalendarSync : Sync in todo {listId} : server count = {current.Count}, local count={newItems.Count}");
 
             // on refresh les items existants
             foreach (var item in current)
             {
-                if (item.Origin == null || !(item.Origin.StartsWith("HomeServices_", StringComparison.InvariantCultureIgnoreCase)))
+                if (item.Origin == null || !(item.Origin.StartsWith(originPrefix, StringComparison.InvariantCultureIgnoreCase)))
                     continue;
                 bool found = false;
                 for (int i = 0; i < newItems.Count; i++)
@@ -291,7 +323,7 @@ namespace Home.Agents.Clara
             }
 
             if (newItems.Count > 0)
-                Console.WriteLine($"HomeServices : adding {newItems.Count} local item(s) : " + JsonConvert.SerializeObject(newItems));
+                Console.WriteLine($"CalendarSync : adding {newItems.Count} local item(s) : " + JsonConvert.SerializeObject(newItems));
 
             foreach (var item in newItems)
                 UpsertItem(item);
