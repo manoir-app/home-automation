@@ -90,6 +90,9 @@ namespace Home.Agents.Erza
                     {
                         var tmp = certificate.Subject;
 
+                        if (tmp.StartsWith("CN="))
+                            tmp = tmp.Substring(3);
+
                         // c'est très très moche pour l'instant
                         if (!tmp.EndsWith("manoir.app"))
                             return true;

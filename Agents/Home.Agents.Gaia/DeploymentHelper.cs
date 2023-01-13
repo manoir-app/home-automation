@@ -11,6 +11,7 @@ using System.Text;
 using k8s.Autorest;
 using Home.Graph.Common;
 using MongoDB.Driver;
+using System.IO;
 
 namespace Home.Agents.Gaia
 {
@@ -40,7 +41,7 @@ namespace Home.Agents.Gaia
                 if (t != null)
                 {
                     if (!t.Type.Equals("Opaque", StringComparison.InvariantCultureIgnoreCase))
-                        throw new InvalidOperationException("Secret is not an opaque secret");
+                        throw new InvalidOperationException("Secret is not an opaque secret, it's a " + t.Type);
                     var byteContent = Encoding.UTF8.GetBytes(content);
                     if (t.Data.ContainsKey(filename))
                         t.Data[filename] = byteContent;
@@ -51,6 +52,41 @@ namespace Home.Agents.Gaia
                 }
             }
         }
+
+        public static void RefreshCertificateSecret(string secretName, string contentForCrt, string contentForKey)
+        {
+            var config = KubernetesClientConfiguration.InClusterConfig();
+            using (var client = new Kubernetes(config))
+            {
+                var t = GetSecret(client, secretName);
+                if (t != null)
+                {
+                    if (t.Type.Equals("Opaque", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        DeploymentHelper.RefreshOpaqueSecret("local-certs", "tls.crt", contentForCrt);
+                        DeploymentHelper.RefreshOpaqueSecret("local-certs", "tls.key", contentForKey);
+                        return;
+                    }
+
+                    if (!t.Type.Equals("kubernetes.io/tls", StringComparison.InvariantCultureIgnoreCase))
+                        throw new InvalidOperationException("Secret is not an kubernetes.io/tls secret, it's a " + t.Type);
+                    var byteContent = Encoding.UTF8.GetBytes(contentForCrt);
+                    if (t.Data.ContainsKey("tls.crt"))
+                        t.Data["tls.crt"] = byteContent;
+                    else
+                        t.Data.Add("tls.crt", byteContent);
+                    byteContent = Encoding.UTF8.GetBytes(contentForKey);
+                    if (t.Data.ContainsKey("tls.key"))
+                        t.Data["tls.key"] = byteContent;
+                    else
+                        t.Data.Add("tls.key", byteContent);
+
+                    Console.WriteLine($"Updating secret {secretName}");
+                    client.ReplaceNamespacedSecret(t, secretName, "default");
+                }
+            }
+        }
+
 
         public static V1Secret GetSecret(string secretName)
         {

@@ -114,15 +114,14 @@ namespace Home.Agents.Gaia
             return MessageResponse.OK;
         }
 
-        private static MessageResponse ChangeCertificate(string messageBody)
+        internal static MessageResponse ChangeCertificate(string messageBody)
         {
-            var msgCertif = SystemCertificateChangeMessage.ReadAs<SystemCertificateChangeMessage>(messageBody);
-            string pth = Path.Combine("/home-automation/frps/", "generic.pem.crt");
-            if(File.Exists(pth))
-                DeploymentHelper.RefreshOpaqueSecret("local-certs", "tls.crt", File.ReadAllText(pth));
-            pth = Path.Combine("/home-automation/frps/", "generic.pem.key");
-            if (File.Exists(pth))
-                DeploymentHelper.RefreshOpaqueSecret("local-certs", "tls.key", File.ReadAllText(pth));
+            string pthCrt = Path.Combine("/home-automation/frps/", "generic.pem.crt");
+            string pthKey = Path.Combine("/home-automation/frps/", "generic.pem.key");
+            if (File.Exists(pthCrt) && File.Exists(pthKey))
+                DeploymentHelper.RefreshCertificateSecret("local-certs", File.ReadAllText(pthCrt), File.ReadAllText(pthKey));
+            else
+                Console.WriteLine("File(s) are missing for updating certificate. Please verify that both .crt and .key are available");
             return MessageResponse.OK;
         }
     }
