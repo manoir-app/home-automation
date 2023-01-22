@@ -1,4 +1,5 @@
-﻿using Home.Common;
+﻿using Home.Agents.Clara.Calendars;
+using Home.Common;
 using Home.Common.Model;
 using Newtonsoft.Json;
 using System;
@@ -26,10 +27,10 @@ namespace Home.Agents.Clara.HomeServices
             foreach (var k in cfg.HomeServices.Keys)
             {
                 var inte = GetProvider(k, cfg.HomeServices[k]);
-                if (inte == null || !(inte is IHomeServiceScheduler))
+                if (inte == null || !(inte is ICalendarProvider))
                     continue;
                 Console.WriteLine("Obtention des items depuis " + k);
-                var sch = (inte as IHomeServiceScheduler).GetNextScheduledItems(maxDate);
+                var sch = (inte as ICalendarProvider).GetNextScheduledItems(maxDate);
                 todoItems.AddRange(sch);
             }
 

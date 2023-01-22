@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using Home.Graph.Common;
 using Newtonsoft.Json;
+using static Home.Agents.Clara.NewsItems.YoutubeHelper;
 
 namespace Home.Agents.Clara
 {
@@ -39,6 +40,7 @@ namespace Home.Agents.Clara
                 DoScheduledEventsMaintenace();
                 DoTodoSync();
                 DoHomeServicesEvents();
+                DoCalendarEvents();
                 Thread.Sleep(5000);
             }
         }
@@ -191,24 +193,29 @@ namespace Home.Agents.Clara
             try
             {
                 // puis on récupère les éléments externes
-                var items = HomeServices.HomeServicesHelper.GetNextScheduledItems(DateTimeOffset.Now.AddDays(31));
-
-                items = DedoublonnageParOriginId(items);
-
-                var listIds = (from z in items
-                               where z.ListId != null
-                               select z.ListId).Distinct().ToArray();
-                foreach (var listId in listIds)
-                {
-                    var itemsInList = (from z in items
-                                       where z.ListId != null && z.ListId.Equals(listId)
-                                       select z).ToList();
-                    SyncItems(listId, itemsInList, "HomeServices_");
-                }
+                SyncItems(Calendars.SchoolPlanningCalendar.GetNextScheduledItems(DateTimeOffset.Now.AddMonths(18))
+                , "SchoolPlanning_", 600);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error in HomeServices scheduler : " + e.ToString());
+                Console.WriteLine("Error in SchoolPlanning scheduler : " + e.ToString());
+            }
+
+        }
+
+        private static void SyncItems(List<TodoItem> items, string type, int delai=31)
+        {
+            items = DedoublonnageParOriginId(items);
+
+            var listIds = (from z in items
+                           where z.ListId != null
+                           select z.ListId).Distinct().ToArray();
+            foreach (var listId in listIds)
+            {
+                var itemsInList = (from z in items
+                                   where z.ListId != null && z.ListId.Equals(listId)
+                                   select z).ToList();
+                SyncItems(listId, itemsInList, type, delai);
             }
         }
 
@@ -222,20 +229,8 @@ namespace Home.Agents.Clara
             try
             {
                 // puis on récupère les éléments externes
-                var items = HomeServices.HomeServicesHelper.GetNextScheduledItems(DateTimeOffset.Now.AddDays(31));
-
-                items = DedoublonnageParOriginId(items);
-
-                var listIds = (from z in items
-                               where z.ListId != null
-                               select z.ListId).Distinct().ToArray();
-                foreach (var listId in listIds)
-                {
-                    var itemsInList = (from z in items
-                                       where z.ListId != null && z.ListId.Equals(listId)
-                                       select z).ToList();
-                    SyncItems(listId, itemsInList, "HomeServices_");
-                }
+                SyncItems(HomeServices.HomeServicesHelper.GetNextScheduledItems(DateTimeOffset.Now.AddDays(31))
+                , "HomeServices_");
             }
             catch (Exception e)
             {
@@ -258,10 +253,8 @@ namespace Home.Agents.Clara
             return temp.Values.ToList();
         }
 
-        private static void SyncItems(string listId, List<TodoItem> newItems, string originPrefix)
+        private static void SyncItems(string listId, List<TodoItem> newItems, string originPrefix, int delai = 31)
         {
-
-
             List<TodoItem> current = null;
             List<TodoItem> toDelete = new List<TodoItem>();
             for (int i = 0; i < 3; i++)
@@ -270,7 +263,7 @@ namespace Home.Agents.Clara
                 {
                     using (var cli = new MainApiAgentWebClient("clara"))
                     {
-                        current = cli.DownloadData<List<TodoItem>>("v1.0/todos/events?includeDone=true&nextDays=31&listId=" + listId);
+                        current = cli.DownloadData<List<TodoItem>>("v1.0/todos/events?includeDone=true&nextDays=" + delai + "&listId=" + listId);
                         break;
                     }
                 }
@@ -280,11 +273,15 @@ namespace Home.Agents.Clara
                     current = null;
                 }
             }
-
             if (current == null)
                 return;
 
-            Console.WriteLine($"CalendarSync : Sync in todo {listId} : server count = {current.Count}, local count={newItems.Count}");
+            current = (from z in current
+                       where z.Origin != null 
+                        && z.Origin.StartsWith(originPrefix, StringComparison.InvariantCultureIgnoreCase)
+                       select z).ToList();
+
+            Console.WriteLine($"CalendarSync : Sync in todo {listId}/{originPrefix} : server count = {current.Count}, local count={newItems.Count}");
 
             // on refresh les items existants
             foreach (var item in current)
@@ -325,10 +322,13 @@ namespace Home.Agents.Clara
             if (newItems.Count > 0)
                 Console.WriteLine($"CalendarSync : adding {newItems.Count} local item(s) : " + JsonConvert.SerializeObject(newItems));
 
+           
             foreach (var item in newItems)
                 UpsertItem(item);
 
-            // pour l'instant on ne fait rien des delete : pas de point api
+            if(toDelete!=null && toDelete.Count>0)
+                Console.WriteLine($"CalendarSync : deleting {toDelete.Count} item(s) : " + JsonConvert.SerializeObject(toDelete));
+
             foreach (var item in toDelete)
                 DeleteItem(item);
         }
