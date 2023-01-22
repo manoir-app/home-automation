@@ -32,6 +32,9 @@
 
 
 	<ItemGroup>
+		<Compile Update="ManoirWebClient.cs">
+		  <SubType>Component</SubType>
+		</Compile>
 		<Compile Update="MainApiAgentWebClient.cs" />
 	</ItemGroup>
 
