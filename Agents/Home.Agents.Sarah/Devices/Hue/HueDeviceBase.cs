@@ -95,17 +95,17 @@ namespace Home.Agents.Sarah.Devices.Hue
                         {
                             default: // (x,y)
                                 if (_light == null)
-                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = new HueHelper.XYLight(light.state.xy).ToColor(light.state.bri / 2.54f).ToString() });
+                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = HueHelper.FromXyz(light.state.xy).ToString() });
                                 else if (_light.state.xy == null && light.state.xy != null)
-                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = new HueHelper.XYLight(light.state.xy).ToColor(light.state.bri / 2.54f).ToString() });
+                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = HueHelper.FromXyz(light.state.xy).ToString() });
                                 else if (_light.state.xy.Length != light.state.xy?.Length)
-                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = new HueHelper.XYLight(light.state.xy).ToColor(light.state.bri / 2.54f).ToString() });
+                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = HueHelper.FromXyz(light.state.xy).ToString() });
                                 else if (_light.state.xy.Length > 0 && _light.state.xy[0] != light.state.xy[0])
-                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = new HueHelper.XYLight(light.state.xy).ToColor(light.state.bri / 2.54f).ToString() });
+                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = HueHelper.FromXyz(light.state.xy).ToString() });
                                 else if (_light.state.xy.Length > 1 && _light.state.xy[1] != light.state.xy[1])
-                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = new HueHelper.XYLight(light.state.xy).ToColor(light.state.bri / 2.54f).ToString() });
+                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = HueHelper.FromXyz(light.state.xy).ToString() });
                                 else if (_light.state.xy.Length > 2 && _light.state.xy[2] != light.state.xy[2])
-                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = new HueHelper.XYLight(light.state.xy).ToColor(light.state.bri / 2.54f).ToString() });
+                                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = HueHelper.FromXyz(light.state.xy).ToString() });
                                 break;
                         }
                     }

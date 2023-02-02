@@ -38,7 +38,7 @@ namespace Home.Agents.Sarah.Devices.Hue
                 changes.Add("bri", (short)(brightness.Value));
 
             if (color.HasValue)
-                changes.Add("xy", new XYLight(color.Value));
+                changes.Add("xy", HueHelper.ToXy(color.Value).Vector);
 
             string ipV4 = dev.DeviceAddresses.FirstOrDefault();
             using (var cli = new WebClient())

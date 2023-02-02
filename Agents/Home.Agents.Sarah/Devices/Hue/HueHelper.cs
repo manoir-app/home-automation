@@ -9,6 +9,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Home.Common.HomeAutomation;
 using System.Drawing;
+using Colourful;
 
 namespace Home.Agents.Sarah.Devices.Hue
 {
@@ -17,67 +18,37 @@ namespace Home.Agents.Sarah.Devices.Hue
         static Device _bridge = null;
         static ExternalToken _token = null;
 
-        public class XYLight
+        static HueHelper()
         {
-            public float X { get; set; }
-            public float Y { get; set; }
+            rgbToXyz = new ConverterBuilder().FromRGB().ToXYZ().Build();
+            xyzToRgb = new ConverterBuilder().FromXYZ().ToRGB().Build();
 
-            public XYLight()
-            {
+        }
 
-            }
-
-            public XYLight(float[] xy)
-            {
-                if(xy!=null && xy.Length==2)
-                {
-                    X = xy[0];
-                    Y = xy[1];
-                }
-            }
-
-            public XYLight(Color c)
-            {
-                float x = (c.R * 0.649926f) + (c.G * 0.103455f) + (c.B * 0.197109f);
-                float y = (c.R * 0.234327f) + (c.G * 0.743075f) + (c.B * 0.022598f);
-                float z = (c.R * 0.000000f) + (c.G * 0.053077f) + (c.B * 1.035763f);
-
-                this.X = x / (x + y + z);
-                this.Y = y / (x + y + z);
-            }
-
-            public Color ToColor(float brightness = 1)
-            {
-                float x1 = X; // the given x1 value
-
-                float y1 = Y; // the given y1 value
-
-                float z = 1.0f - x1 - y1;
-
-                float y2 = brightness; // The given brightness value
-
-                float x2 = (y2 / y1) * x1;
-
-                float z2 = (y2 / y1) * z;
-
-                float r = x2 * 1.4628067f - y2 * 0.1840623f - z2 * 0.2743606f;
-
-                float g = -x2 * 0.5217933f + y2 * 1.4472381f + z2 * 0.0677227f;
-
-                float b = x2 * 0.0349342f - y2 * 0.0968930f + z2 * 1.2884099f;
-
-                r = (float)(r <= 0.0031308f ? 12.92f * r : (1.0f + 0.055f) * Math.Pow(r, (1.0f / 2.4f)) - 0.055f);
-
-                g = (float)(g <= 0.0031308f ? 12.92f * g : (1.0f + 0.055f) * Math.Pow(g, (1.0f / 2.4f)) - 0.055f);
-
-                b = (float)(b <= 0.0031308f ? 12.92f * b : (1.0f + 0.055f) * Math.Pow(b, (1.0f / 2.4f)) - 0.055f);
-
-                return Color.FromArgb((int)(255 * r), (int)(255 * g), (int)(255 * b));
-            }
+        static Colourful.IColorConverter<XYZColor, RGBColor> xyzToRgb = null;
+        static Colourful.IColorConverter<RGBColor, XYZColor> rgbToXyz = null;
+        public static XYZColor ToXy(Color g)
+        {
+            var rgb = RGBColor.FromColor(g);
+            return rgbToXyz.Convert(rgb);
         }
 
 
+        public static Color FromXyz(XYZColor g)
+        {
+            var tmp = xyzToRgb.Convert(g);
+            return tmp.ToColor();
+        }
+        public static Color FromXyz(float[] values)
+        {
+            XYZColor g;
+            if (values.Length == 3)
+                g = new XYZColor(values[0], values[1], values[2]);
+            else
+                return Color.Transparent;
 
+            return FromXyz(g);
+        }
 
         #region Data Objects
 
