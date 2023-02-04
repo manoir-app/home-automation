@@ -1,4 +1,5 @@
 ﻿using Home.Common.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,10 +12,12 @@ namespace Home.Common.Messages
 
         public IntegrationConfigurationMessage() : base("")
         {
-
+            SetupValues = new Dictionary<string, string>();
         }
 
-        public IntegrationConfigurationMessage(string agent, Integration integration, IntegrationInstance instance) : base("")
+        public IntegrationConfigurationMessage(string agent, 
+            Integration integration, 
+            IntegrationInstance instance) : base("")
         {
             this.Topic = string.Format(_messageFormat, agent);
             Instance = instance;
@@ -38,6 +41,8 @@ namespace Home.Common.Messages
 
         public Integration Integration { get; set; }
         public IntegrationInstance Instance { get; set; }
+
+        public Dictionary<string, string> SetupValues { get; set; }
     }
 
     public class IntegrationConfigurationResponse : MessageResponse
@@ -47,6 +52,22 @@ namespace Home.Common.Messages
 
         }
 
+        public IntegrationConfigurationResponse(IntegrationConfigurationMessage source) : base()
+        {
+            if (source.Instance != null)
+                this.Instance = JsonConvert.DeserializeObject<IntegrationInstance>(
+                    JsonConvert.SerializeObject(source.Instance));
+            else
+                this.Instance = new IntegrationInstance()
+                {
+                    Id = Guid.NewGuid().ToString("N"),
+                    IsSetup = false,
+                    Label = source?.Integration?.Label == null ? "New" : source?.Integration?.Label,
+                    Settings = new Dictionary<string, string>()
+                };
+        }
+
+        public IntegrationInstance Instance { get; set; }
         public string ConfigurationCard { get; set; }
         public string ConfigurationCardFormat { get; set; }
 

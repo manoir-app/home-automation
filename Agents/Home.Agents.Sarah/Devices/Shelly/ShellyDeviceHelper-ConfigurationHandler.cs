@@ -15,7 +15,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
 {
     partial class ShellyDeviceHelper
     {
-        internal static IntegrationConfigurationResponse HandleConfigurationMessage(IntegrationConfigurationMessage integrationConfigurationMessage)
+        internal static IntegrationConfigurationResponse HandleConfigurationMessage(IntegrationConfigurationMessage message)
         {
             AdaptiveCard card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
             card.Body.Add(new AdaptiveTextBlock()
@@ -23,13 +23,15 @@ namespace Home.Agents.Sarah.Devices.Shelly
                 Text = "No configuration data required"
             });
 
-            return new IntegrationConfigurationResponse()
+            var tmp =  new IntegrationConfigurationResponse(message)
             {
                 ConfigurationCard = card.ToJson(),
                 ConfigurationCardFormat = "adaptivecard+json",
                 IsFinalStep = true
             };
-            
+
+            tmp.Instance.IsSetup = true;
+            return tmp;
         }
 
     }
