@@ -1,5 +1,6 @@
 ﻿using Home.Common.Model;
 using Home.Graph.Common;
+using Home.Journal.Common.Model;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -108,7 +109,7 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<AutomationMesh>();
                 MongoDbHelper.CreateCollection<Agent>();
                 MongoDbHelper.CreateCollection<Contact>();
-                MongoDbHelper.CreateCollection<User>();
+                MongoDbHelper.CreateCollection<Common.Model.User>();
                 MongoDbHelper.CreateCollection<Device>();
                 MongoDbHelper.CreateCollection<InformationItem>();
                 MongoDbHelper.CreateCollection<InformationItemsBucket>();
@@ -139,6 +140,13 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<UserCrmData>();
 
                 MongoDbHelper.CreateCollection<Entity>();
+
+                // les pages de journalApp
+                MongoDbHelper.CreateCollection<Page>();
+                MongoDbHelper.CreateCollection<PageSection>();
+                MongoDbHelper.CreateCollection<PageTheme>();
+
+
             }
             catch (Exception ex)
             {

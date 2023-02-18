@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="JournalApp.Common" Version="1.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.11.1" />
     <PackageReference Include="MQTTnet" Version="3.0.13" />
     <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.13" />
