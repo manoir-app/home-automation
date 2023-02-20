@@ -8,12 +8,14 @@
     <script src="../scripts/jquery-2.0.2.js"></script>
     <script src="../scripts/angular.min.js"></script>
     <script src="../scripts/angular-animate.js"></script>
-    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
     <script src="../scripts/ui-select2.js"></script>
     <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
 
     <script src="/me/scripts/user-menu.js"></script>
     <script src="chat.js"></script>
+    <link rel="manifest" href="/manifest.json">
 
     <manoir-head></manoir-head>
 
@@ -93,7 +95,7 @@
                                                             <div class="bubble">
                                                                 <p>{{msg.messageContent}}</p>
                                                             </div>
-                                                            
+
                                                         </div>
                                                     </div>
                                                 </li>
@@ -148,6 +150,12 @@
     <script src="/assets/feather.min.js"></script>
     <script src="/assets/template.js"></script>
     <script src="chat-from-template.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
 
 </body>
 </html>

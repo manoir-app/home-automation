@@ -1,0 +1,17 @@
+{
+  "lang": "fr-fr",
+  "name": "Manoir Home Automation",
+  "short_name": "Home Automation",
+  "description": "Control your home with MaNoir",
+  "start_url": "/",
+  "background_color": "#2f3d58",
+  "theme_color": "#2f3d58",
+  "orientation": "any",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/icon_512.png",
+      "sizes": "512x512"
+    }
+  ]
+}

@@ -20,6 +20,7 @@
     <manoir-head></manoir-head>
 
     <link rel="stylesheet" href="home-automation.css" />
+    <link rel="manifest" href="/manifest.json">
 
     <title>Home Automation</title>
 </head>
@@ -169,13 +170,13 @@
                                         <div class="col-md-5 " ng-if="dev.mainRole=='main:light'">
                                             <div class="row">
                                                 <div class="col-md-2 ">
-                                                    <button class="btn btn-sm  align-middle" ng-class="dev.mainStatus=='on'?'btn-outline-primary':'btn-primary'"  ng-click="events.swicthOff(dev)">OFF</button>
+                                                    <button class="btn btn-sm  align-middle" ng-class="dev.mainStatus=='on'?'btn-outline-primary':'btn-primary'" ng-click="events.swicthOff(dev)">OFF</button>
                                                 </div>
                                                 <div class="col-md-8 pt-2">
                                                     <input type="range" class="form-range" min="0" max="100" ng-model="dev.mainStatusInt" />
                                                 </div>
                                                 <div class="col-md-2 ">
-                                                    <button class="btn btn-sm align-middle" ng-class="dev.mainStatus=='on'?'btn-primary':'btn-outline-primary'"  ng-click="events.swicthOn(dev)">ON</button>
+                                                    <button class="btn btn-sm align-middle" ng-class="dev.mainStatus=='on'?'btn-primary':'btn-outline-primary'" ng-click="events.swicthOn(dev)">ON</button>
 
                                                 </div>
                                             </div>
@@ -189,7 +190,7 @@
                                                     <input type="range" class="form-range" min="0" max="100" ng-model="dev.mainStatusInt" />
                                                 </div>
                                                 <div class="col-md-2 ">
-                                                    <button class="btn btn-sm align-middle" ng-class="dev.mainStatus=='on'?'btn-primary':'btn-outline-primary'"  ng-click="events.swicthOn(dev)">OPEN</button>
+                                                    <button class="btn btn-sm align-middle" ng-class="dev.mainStatus=='on'?'btn-primary':'btn-outline-primary'" ng-click="events.swicthOn(dev)">OPEN</button>
 
                                                 </div>
                                             </div>
@@ -218,6 +219,11 @@
     <script src="/assets/feather.min.js"></script>
     <script src="/assets/template.js"></script>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
 
 </body>
 </html>
