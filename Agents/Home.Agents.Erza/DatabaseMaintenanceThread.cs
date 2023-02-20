@@ -128,8 +128,6 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<ChatChannel>();
                 MongoDbHelper.CreateCollection<ChatMessage>();
 
-
-
                 MongoDbHelper.CreateCollection<UnitOfMeasurement>();
                 MongoDbHelper.CreateCollection<StorageUnit>();
                 MongoDbHelper.CreateCollection<ProductStock>();
@@ -141,12 +139,15 @@ namespace Home.Agents.Erza
 
                 MongoDbHelper.CreateCollection<Entity>();
 
+                MongoDbHelper.CreateCollection<Recipe>();
+                MongoDbHelper.CreateCollection<RecipeCategory>();
+                MongoDbHelper.CreateCollection<RecipeCuisine>();
+
+
                 // les pages de journalApp
                 MongoDbHelper.CreateCollection<Page>();
                 MongoDbHelper.CreateCollection<PageSection>();
                 MongoDbHelper.CreateCollection<PageTheme>();
-
-
             }
             catch (Exception ex)
             {

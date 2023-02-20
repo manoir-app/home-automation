@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html ng-app="RecipeConfigApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <script src="../../scripts/jquery-2.0.2.js"></script>
+    <script src="../../scripts/angular.min.js"></script>
+    <script src="../../scripts/angular-animate.js"></script>
+    <script src="../../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../../assets/select2.min.css" />
+    <script src="../../scripts/ui-select2.js"></script>
+    <script src="../../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="../admin.js"></script>
+    <script src="recipeconfigs.js"></script>
+    <manoir-head></manoir-head>
+    <link rel="stylesheet" href="recipeconfigs.css" />
+
+    <title>Administration - Recipes configuration</title>
+</head>
+<body ng-controller="RecipeConfigController">
+
+    <div class="main-wrapper">
+
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                    <div>
+                        <h4 class="mb-3 mb-md-0">Recipes configuration</h4>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap text-nowrap">
+                        <button class="btn btn-outline-primary mb-2 mb-md-0 d-inline-block" ng-click="events.switchToNewCategory();">New category</button>
+                        <button class="btn btn-outline-primary mb-2 mb-md-0 d-inline-block ml-5" ng-click="events.switchToNewCuisine();">New cuisine style</button>
+                    </div>
+                </div>
+                <nav class="page-breadcrumb">
+                    <ol class="breadcrumb  breadcrumb-arrow">
+                        <li class="breadcrumb-item"><a href="/admin/">Administration</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Recipe configuration</li>
+                    </ol>
+                </nav>
+
+                <div class="row">
+
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='RecipeConfig-list'">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Recipes categories</h4>
+                                <div class="table-responsive">
+                                    <table class="table .table-hover table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Label</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <tr ng-repeat="un in categories">
+                                                <td class="label">
+                                                    <span class='name' ng-bind="un.name"></span>
+                                                </td>
+                                                <td class="config"><button class="btn btn-primary mr-1 mb-1" ng-click="events.editCategory(un)">Edit</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <h4 class="card-title mt-4">Recipes cuisine styles</h4>
+                                <div class="table-responsive">
+                                    <table class="table .table-hover table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Label</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <tr ng-repeat="un in cuisines">
+                                                <td class="label">
+                                                    <span class='name' ng-bind="un.name"></span>
+                                                </td>
+                                                <td class="config"><button class="btn btn-primary mr-1 mb-1" ng-click="events.editCusine(un)">Edit</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='RecipeConfig-editCategory'">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                    <div>
+                                        <h4 class="card-title">Edit Category</h4>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                        <button class="btn btn-primary me-2" ng-click="events.saveCategoryInEdit();" tabindex="25">Save</button>
+                                        <button class="btn btn-secondary" ng-click="events.switchBackToMain();" tabindex="25">Back</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content" ng-if="currentCategory!=null">
+                                <div class="card-body">
+                                    <div class="form-row row mb-2">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="category-name">Name</label>
+                                                <input type="text" id="category-name" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="Name" ng-model="currentCategory.name" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-12 grid-margin stretch-card" ng-if="view=='RecipeConfig-editCuisine'">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                    <div>
+                                        <h4 class="card-title">Edit Cusine Style</h4>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mb-0">
+                                        <button class="btn btn-primary me-2" ng-click="events.saveCuisineInEdit();" tabindex="25">Save</button>
+                                        <button class="btn btn-secondary" ng-click="events.switchBackToMain();" tabindex="25">Back</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content" ng-if="currentCuisine!=null">
+                                <div class="card-body">
+                                    <div class="form-row row mb-2">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="cuisine-name">Name</label>
+                                                <input type="text" id="cuisine-name" class="form-control" autocomplete="off" tabindex="1"
+                                                       name="name" placeholder="Name" ng-model="currentCuisine.name" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+</body>
+</html>

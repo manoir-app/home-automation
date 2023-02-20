@@ -1,4 +1,5 @@
 ﻿using Home.Agents.Clara;
+using Home.Agents.Clara.Calendars.SchoolPlanning;
 using Home.Agents.Clara.HomeServices.Providers.HouseKeeping;
 using Home.Common;
 using Home.Graph.Common;
@@ -13,6 +14,8 @@ namespace Home.Agents.Clara
 
         static void Main(string[] args)
         {
+            new FranceSchoolPlanning().GetNextScheduledItems(DateTimeOffset.Now.AddYears(1));
+
             AgentHelper.WriteStartupMessage("Clara", typeof(Program).Assembly);
 
             AgentHelper.SetupLocaleFromServer("clara");

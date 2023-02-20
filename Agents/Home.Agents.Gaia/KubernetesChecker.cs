@@ -134,12 +134,12 @@ namespace Home.Agents.Gaia
                         if (diff)
                         {
                             Console.WriteLine("Local certificates not up-to-date, updating " + k8sDataName);
-                            DeploymentHelper.RefreshOpaqueSecret("local-certs", k8sDataName, tmp);
+                            GaiaMessageHandler.ChangeCertificate("");
                             return;
                         }
                     }
                 }
-                Console.WriteLine("Certificate was update to date");
+                Console.WriteLine("Certificate was updated to date");
             }
             else
             {

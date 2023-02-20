@@ -34,6 +34,8 @@
     <None Remove="adminroot\routines.htm" />
     <None Remove="adminroot\scenarios.css" />
     <None Remove="adminroot\scenarios.htm" />
+    <None Remove="adminroot\settings\recipeconfigs.css" />
+    <None Remove="adminroot\settings\recipeconfigs.htm" />
     <None Remove="adminroot\settings\units.css" />
     <None Remove="adminroot\settings\units.htm" />
     <None Remove="adminroot\tokens.css" />
@@ -107,6 +109,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="adminroot\locations.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="adminroot\settings\recipeconfigs.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="adminroot\settings\recipeconfigs.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="adminroot\settings\units.css">
@@ -608,6 +616,9 @@
     <None Update="adminroot\locations.js.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="adminroot\settings\recipeconfigs.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="adminroot\settings\units.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -717,6 +728,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </TypeScriptCompile>
     <TypeScriptCompile Update="adminroot\scenarios.ts">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </TypeScriptCompile>
+    <TypeScriptCompile Update="adminroot\settings\recipeconfigs.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </TypeScriptCompile>
     <TypeScriptCompile Update="adminroot\settings\units.ts">

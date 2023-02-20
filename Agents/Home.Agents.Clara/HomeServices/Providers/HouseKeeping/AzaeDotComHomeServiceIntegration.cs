@@ -1,4 +1,5 @@
-﻿using Home.Common;
+﻿using Home.Agents.Clara.Calendars;
+using Home.Common;
 using Home.Common.Model;
 using Microsoft.Playwright;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Home.Agents.Clara.HomeServices.Providers.HouseKeeping
 {
-    internal class AzaeDotComHomeServiceIntegration : IHomeServiceProvider, IHomeServiceScheduler
+    internal class AzaeDotComHomeServiceIntegration : IHomeServiceProvider, ICalendarProvider
     {
         private static Dictionary<string, List<TodoItem>> _allUsersItems = new Dictionary<string, List<TodoItem>>();
 

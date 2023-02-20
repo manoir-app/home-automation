@@ -12,8 +12,4 @@ namespace Home.Agents.Clara.HomeServices
         void Init(HomeServicesConfig config);
     }
 
-    public interface IHomeServiceScheduler
-    {
-        IEnumerable<TodoItem> GetNextScheduledItems(DateTimeOffset maxDate);
-    }
 }

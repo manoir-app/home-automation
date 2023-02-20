@@ -12,6 +12,7 @@ namespace Home.Common.Model
         public const string ComponentRoutine = "routine";
         public const string ComponentDevice = "device";
         public const string ComponentDataCollector = "data-collector";
+        public const string ComponentCalendarProvider = "calendar-provider";
 
         public Integration()
         {
