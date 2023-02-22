@@ -222,7 +222,7 @@ namespace Home.Graph.Server.Controllers
         }
 
         [Route("all/{userName}"), HttpPost]
-        public User PostUser(string userName, [FromBody] User usrToUpsert, string pwd = null /* pour les tests */)
+        public User PostUser(string userName, [FromBody] User usrToUpsert, string pwd = null /* pour les tests */, string pincode = null /* pour les tests aussi */)
         {
             if (userName == null)
                 return null;
@@ -261,6 +261,28 @@ namespace Home.Graph.Server.Controllers
                     arrayUpdate = arrayUpdate.Set("HashedPassword", pwd); // juste le temps des premiers tests :)
                 }
 
+
+                if (pincode != null)
+                {
+                    pincode += userName;
+
+                    byte[] hashedBytes;
+
+                    var blr = new StringBuilder();
+
+                    using (SHA256 hash = SHA256Managed.Create())
+                    {
+                        Encoding enc = Encoding.UTF8;
+                        hashedBytes = hash.ComputeHash(enc.GetBytes(pincode));
+                    }
+
+                    foreach (var b in hashedBytes)
+                        blr.Append(b.ToString("x2"));
+                    pincode = blr.ToString();
+
+                    arrayUpdate = arrayUpdate.Set("HashedPassword", pincode); // juste le temps des premiers tests :)
+                }
+
                 // les champs updatables
                 collection.UpdateOne(x => x.Id == userName, arrayUpdate);
 
@@ -289,6 +311,27 @@ namespace Home.Graph.Server.Controllers
                         blr.Append(b.ToString("x2"));
                     pwd = blr.ToString();
                     usrToUpsert.HashedPassword = pwd;
+                }
+
+                if (pincode != null)
+                {
+                    pincode += userName;
+
+                    byte[] hashedBytes;
+
+                    var blr = new StringBuilder();
+
+                    using (SHA256 hash = SHA256Managed.Create())
+                    {
+                        Encoding enc = Encoding.UTF8;
+                        hashedBytes = hash.ComputeHash(enc.GetBytes(pincode));
+                    }
+
+                    foreach (var b in hashedBytes)
+                        blr.Append(b.ToString("x2"));
+                    pincode = blr.ToString();
+
+                    usrToUpsert.HashedPinCode = pincode;
                 }
                 collection.InsertOne(usrToUpsert);
 
