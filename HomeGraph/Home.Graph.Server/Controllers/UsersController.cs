@@ -280,7 +280,7 @@ namespace Home.Graph.Server.Controllers
                         blr.Append(b.ToString("x2"));
                     pincode = blr.ToString();
 
-                    arrayUpdate = arrayUpdate.Set("HashedPassword", pincode); // juste le temps des premiers tests :)
+                    arrayUpdate = arrayUpdate.Set("HashedPinCode", pincode); // juste le temps des premiers tests :)
                 }
 
                 // les champs updatables
