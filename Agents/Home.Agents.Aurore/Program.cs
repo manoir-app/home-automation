@@ -1,4 +1,5 @@
-﻿using Home.Common;
+﻿using Home.Agents.Aurore.Greetings;
+using Home.Common;
 using System;
 using System.IO;
 using System.Linq;
@@ -20,12 +21,14 @@ namespace Home.Agents.Aurore
 
             AuroreMessageHandler.Start();
             AuroreNewsItemService.Start();
+            CommonAppGreetingsUpdater.Start();
             while (!_stop)
             {
                 Thread.Sleep(500);
                 AgentHelper.Ping("aurore");
 
             }
+            CommonAppGreetingsUpdater.Stop();
             AuroreNewsItemService.Stop();
             AuroreMessageHandler.Stop();
 

@@ -92,6 +92,7 @@ namespace Home.Common.Messages
 
             switch (convertTo.ToLowerInvariant())
             {
+                case "text/html":
                 case "html":
                     var builder = new MarkdownPipelineBuilder();
                     builder.Extensions.Add(new MyParagraphExtension());
@@ -102,6 +103,11 @@ namespace Home.Common.Messages
                         if(!string.IsNullOrEmpty(r.Content))
                             r.Content = Markdown.ToHtml(r.Content, pipeline);
                     }
+                    break;
+                case "md":
+                case "markdown":
+                case "text/markdown":
+                    // par défaut c'est du markdown...
                     break;
             }
         }

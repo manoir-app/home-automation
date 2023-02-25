@@ -32,6 +32,32 @@ namespace Home.Graph.Server.Controllers
             return lst;
         }
 
+        [Route("find/pages"), HttpGet]
+        public Page GetPageByPath(string pagePath, string userId)
+        {
+            if (pagePath == null)
+                return null;
+
+            if (string.IsNullOrEmpty(userId))
+                userId = "#MESH#";
+
+            pagePath = pagePath.ToLowerInvariant();
+            var collection = MongoDbHelper.GetClient<Page>();
+
+            if (userId.Equals("#MESH#", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var lst = collection.Find(x => x.Path == pagePath && x.IsPublic).FirstOrDefault();
+                return lst;
+
+            }
+            else
+            {
+                userId = userId.ToLowerInvariant(); 
+                var lst = collection.Find(x => x.Path == pagePath && !x.IsPublic && x.UserIds!=null && x.UserIds.Contains(userId)).FirstOrDefault();
+                return lst;
+            }
+        }
+
         [Route("pages"), HttpPost]
         public Page UpsertPage([FromBody] Page page)
         {
@@ -155,5 +181,23 @@ namespace Home.Graph.Server.Controllers
         }
 
         #endregion
+
+        [Route("find/sections"), Route("find/section")]
+        public ActionResult FindSection(string pagePath, string userId, int order)
+        {
+            if (string.IsNullOrEmpty(userId))
+                userId = "#MESH#";
+
+            var pg = GetPageByPath(pagePath, userId);
+            if (pg == null)
+                return new NotFoundResult();
+
+            var collection = MongoDbHelper.GetClient<PageSection>();
+            var lst = collection.Find(x => x.PageId == pg.Id && x.Order == order).FirstOrDefault();
+            if (lst == null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(lst);
+        }
     }
 }
