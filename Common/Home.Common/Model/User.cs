@@ -38,6 +38,7 @@ namespace Home.Common.Model
         public string CommonName { get; set; }
         public string SsmlTaggedName { get; set; }
 
+        public string HashedPinCode { get; set; }
         public string HashedPassword { get; set; }
 
         public string MainEmail { get; set; }
