@@ -32,6 +32,9 @@
 
 
 	<ItemGroup>
+		<Compile Update="TypeSenseWebClient.cs">
+		  <SubType>Component</SubType>
+		</Compile>
 		<Compile Update="ManoirWebClient.cs">
 		  <SubType>Component</SubType>
 		</Compile>
