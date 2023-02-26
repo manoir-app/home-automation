@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System;
+    using System.Linq;
 using Home.Graph.Common;
 using Home.Journal.Common.Model;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Home.Graph.Server.Controllers
 {
@@ -198,6 +200,38 @@ namespace Home.Graph.Server.Controllers
                 return new NotFoundResult();
 
             return new OkObjectResult(lst);
+        }
+
+        public class FindSectionBySourceResult
+        {
+            public Page Page { get; set; }
+            public PageSection Section { get; set; }
+        }
+
+        [Route("find/bysource")]
+        public ActionResult FindSection(string source)
+        {
+            var collection = MongoDbHelper.GetClient<PageSection>();
+            var lst = collection.Find(x => x.Source == source).ToList();
+            if (lst == null)
+                return new NotFoundResult();
+
+            List<string> pageIds = (from z in lst select z.PageId).Distinct().ToList();
+
+            var pgcollection = MongoDbHelper.GetClient<Page>();
+            var lstPg = pgcollection.Find(x => pageIds.Contains(x.Id)).ToList();
+            var ret = new List<FindSectionBySourceResult>();
+            foreach(var r in lst)
+            {
+                var pg = (from z in lstPg where z.Id.Equals(r.PageId) select z).FirstOrDefault();
+                ret.Add(new FindSectionBySourceResult()
+                {
+                    Page = pg,
+                    Section = r,
+                });
+            }
+
+            return new OkObjectResult(ret);
         }
     }
 }

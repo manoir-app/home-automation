@@ -25,11 +25,17 @@ namespace Home.Agents.Aurore.Greetings
             try
             {
                 var users = AgentHelper.GetMainUsers("aurore");
-                var pgs = GetPagesToUpdate();
-                foreach(var pg in pgs)
+
+                JournalHelper.Update("https://manoir.app/agents/aurore#greetings", (secUpd) =>
                 {
-                    RefreshJournalPage(pg, users);
-                }
+                    var t = RefreshJournalPage(new PageToUpdate(secUpd.Page, secUpd.Section), users);
+                    if (t != null)
+                    {
+                        secUpd.Section = t;
+                        return true;
+                    }
+                    return false;
+                });
             }
             catch(Exception ex)
             {
@@ -37,7 +43,7 @@ namespace Home.Agents.Aurore.Greetings
             }
         }
 
-        private static void RefreshJournalPage(PageToUpdate pg, List<Common.Model.User> users)
+        private static PageSection RefreshJournalPage(PageToUpdate pg, List<Common.Model.User> users)
         {
             GreetingsMessageResponse resp = null;
             if (pg.User.Equals("#mesh#", StringComparison.InvariantCultureIgnoreCase))
@@ -59,9 +65,10 @@ namespace Home.Agents.Aurore.Greetings
 
             if(resp!=null)
             {
-                PageSection sc = FindPageSection(pg.PagePath, pg.User, pg.Order);
+                PageSection sc = pg.Section;
                 if(sc!=null)
                 {
+                    string olddata = sc.Data;
                     sc.Data = "";
                     resp.ConvertTo("md");
                     foreach(var r in resp.Items)
@@ -71,25 +78,32 @@ namespace Home.Agents.Aurore.Greetings
                             sc.Data += "# ";
                         sc.Data += r.Content;
                     }
+
+                    if (sc.Data.Equals(olddata))
+                        return null;
+
                     sc.Source = "https://manoir.app/agents/aurore#greetings";
                 }
-                UploadSection(sc);
+                return sc;
             }
+
+            return null;
         }
 
        
 
         private class PageToUpdate
         {
-            public string PagePath { get; set; }
-            public int Order { get; set; }
             public string User { get; set; }
             public List<string> AllUsers { get; set; }
 
-            public PageToUpdate(Page p, string user, int order)
+            public Page Page { get; set; }
+            public PageSection Section { get; set; }
+
+            public PageToUpdate(Page p, PageSection sec)
             {
-                PagePath = p.Path;
-                Order = order; 
+                Page = p;
+                Section = sec;
                 User = p.IsPublic ? "#mesh#" : (p.UserIds.FirstOrDefault("#mesh#"));
                 AllUsers = new List<string>();
                 if (p.IsPublic)
@@ -99,104 +113,10 @@ namespace Home.Agents.Aurore.Greetings
             }
         }
 
-        private static List<PageToUpdate> GetPagesToUpdate()
-        {
-            // pour l'instant en dur, pour tester
-            var ret = new List<PageToUpdate>();
-
-            Page pg;
-
-            pg = GetPage("/index.html", "#mesh#");
-            if (pg != null)
-                ret.Add(new PageToUpdate(pg, "#mesh#", 0));
-
-            pg = GetPage("/user/index.html", "mcarbenay");
-            if (pg != null)
-                ret.Add(new PageToUpdate(pg, "mcarbenay", 0));
-
-            return ret;
-        }
 
 
-        private static PageSection FindPageSection(string path, string user, int order)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-                    using (var cli = new MainApiAgentWebClient("aurore"))
-                    {
-                        var pg = cli.DownloadData<PageSection>($"/v1.0/journal/find/section?pagePath={HttpUtility.UrlEncode(path)}&order={order}&userId={HttpUtility.UrlEncode(user)}");
-                        return pg;
-                    }
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse)
-                {
-                    var resp = ex.Response as HttpWebResponse;
-                    if (resp.StatusCode == HttpStatusCode.NotFound)
-                        return null;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Err gettings scheduled items : " + e);
-                }
-            }
+        
 
-            return null;
-        }
-
-        private static PageSection UploadSection(PageSection sc)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-                    using (var cli = new MainApiAgentWebClient("aurore"))
-                    {
-                        var pg = cli.UploadData<PageSection, PageSection>($"/v1.0/journal/pages/{sc.PageId}/sections", "POST", sc);
-                        return pg;
-                    }
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse)
-                {
-                    var resp = ex.Response as HttpWebResponse;
-                    if (resp.StatusCode == HttpStatusCode.NotFound)
-                        return null;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Err gettings scheduled items : " + e);
-                }
-            }
-
-            return null;
-        }
-
-        private static Page GetPage(string path, string user)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-                    using (var cli = new MainApiAgentWebClient("aurore"))
-                    {
-                        var pg = cli.DownloadData<Page>($"/v1.0/journal/find/pages?pagePath={HttpUtility.UrlEncode(path)}&userId={HttpUtility.UrlEncode(user)}");
-                        return pg;
-                    }
-                }
-                catch (WebException ex) when (ex.Response is HttpWebResponse)
-                {
-                    var resp = ex.Response as HttpWebResponse;
-                    if (resp.StatusCode == HttpStatusCode.NotFound)
-                        return null;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Err gettings pages : " + e);
-                }
-            }
-
-            return null;
-        }
+       
     }
 }

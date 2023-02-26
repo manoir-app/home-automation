@@ -29,7 +29,7 @@ namespace Home.Agents.Erza.WeatherProviders
                 string url = $"https://api.met.no/weatherapi/locationforecast/2.0/compact.json?lat={coord.Latitude.ToString("0.0000", CultureInfo.InvariantCulture)}&lon={coord.Longitude.ToString("0.0000", CultureInfo.InvariantCulture)}";
                 using (var cli = new WebClient())
                 {
-                    cli.Headers.Add(HttpRequestHeader.UserAgent, "manoir.app erza-weather-status-1.0 github.com/mcarbenay");
+                    cli.Headers.Add(HttpRequestHeader.UserAgent, "manoir.app erza-weather-status-1.0 github.com/manoir-app");
                     var response = cli.DownloadString(url);
                     var objResp = JsonConvert.DeserializeObject<MetNoResponse>(response);
                     ConvertAndUpload(objResp, contextName);
