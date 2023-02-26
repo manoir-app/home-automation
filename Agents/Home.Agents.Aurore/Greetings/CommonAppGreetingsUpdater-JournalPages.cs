@@ -71,7 +71,7 @@ namespace Home.Agents.Aurore.Greetings
                             sc.Data += "# ";
                         sc.Data += r.Content;
                     }
-                    sc.Source = "https://manoir.app/agents/aurore";
+                    sc.Source = "https://manoir.app/agents/aurore#greetings";
                 }
                 UploadSection(sc);
             }
