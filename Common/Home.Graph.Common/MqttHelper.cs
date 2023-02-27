@@ -1,11 +1,12 @@
 ﻿using Home.Common;
 using Home.Common.Model;
 using MQTTnet;
-using MQTTnet.Client.Options;
-using MQTTnet.Client.Receiving;
+using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -17,10 +18,15 @@ namespace Home.Graph.Common
 
         public static void Start()
         {
+
             if (_client != null)
                 return;
 
+            Console.WriteLine("MQTT * Start ");
+
             string server = LocalDebugHelper.GetLocalServiceHost();
+            //if (server == null)
+            //    server = Environment.GetEnvironmentVariable("MOSQUITTO_SERVICE_HOST");
             if (server == null)
                 server = HomeServerHelper.GetLocalIP();
             if (server == null)
@@ -29,76 +35,121 @@ namespace Home.Graph.Common
             var options = new ManagedMqttClientOptionsBuilder()
                 .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
                 .WithClientOptions(new MqttClientOptionsBuilder()
-                    .WithClientId("HomeGraph")
+                    .WithClientId("HomeGraph-" + Environment.MachineName)
                     .WithTcpServer((opts) =>
                     {
                         opts.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork;
                         opts.Server = server;
                         opts.Port = 1883;
                     })
-                    .WithCleanSession(true)
+                    .WithKeepAlivePeriod(TimeSpan.FromMinutes(10))
                     .Build())
                 .Build();
 
             _client = new MqttFactory().CreateManagedMqttClient();
+            _client.ApplicationMessageReceivedAsync += _client_ApplicationMessageReceivedAsync;
+            _client.ConnectingFailedAsync += _client_ConnectingFailedAsync;
+            _client.ConnectedAsync += _client_ConnectedAsync;
+            _client.ApplicationMessageProcessedAsync += _client_ApplicationMessageProcessedAsync;
+            _client.ApplicationMessageSkippedAsync += _client_ApplicationMessageSkippedAsync;
+            _client.DisconnectedAsync += _client_DisconnectedAsync;
+            _client.SynchronizingSubscriptionsFailedAsync += _client_SynchronizingSubscriptionsFailedAsync;
             _client.StartAsync(options).Wait();
-            _client.ApplicationMessageReceivedHandler = MessageHandler._instance;
         }
 
-        private class MessageHandler : IMqttApplicationMessageReceivedHandler
+        private static Task _client_SynchronizingSubscriptionsFailedAsync(ManagedProcessFailedEventArgs arg)
         {
-            private MessageHandler()
-            {
+            Console.WriteLine("MQTT * Err de sync sub : " + arg.Exception);
+            return Task.CompletedTask;
+        }
 
+        private static Task _client_DisconnectedAsync(MQTTnet.Client.MqttClientDisconnectedEventArgs arg)
+        {
+            if (arg.Exception == null)
+                Console.WriteLine("MQTT * Déconnecté : " + arg.ReasonString);
+            else
+                Console.WriteLine("MQTT * Déconnecté : " + arg.ReasonString + "/" + arg.Exception);
+            return Task.CompletedTask;
+        }
+
+        private static Task _client_ApplicationMessageSkippedAsync(ApplicationMessageSkippedEventArgs arg)
+        {
+            Console.WriteLine("MQTT * Skipped");
+            return Task.CompletedTask;
+        }
+
+        private static Task _client_ApplicationMessageProcessedAsync(ApplicationMessageProcessedEventArgs arg)
+        {
+            if (arg.Exception != null)
+            {
+                Console.WriteLine("MQTT * Erreur - " + JsonConvert.SerializeObject(arg.ApplicationMessage.ApplicationMessage) + arg.Exception?.ToString());
             }
+            else
+                Console.WriteLine("MQTT * OK - " + JsonConvert.SerializeObject(arg.ApplicationMessage.ApplicationMessage));
 
-            public static MessageHandler _instance = new MessageHandler();
+            return Task.CompletedTask;
+        }
 
-            public Dictionary<string, List<Action<string>>> _handlers = new Dictionary<string, List<Action<string>>>();
+        private static Task _client_ConnectedAsync(MQTTnet.Client.MqttClientConnectedEventArgs arg)
+        {
+            Console.WriteLine("MQTT * Connecté : " + arg.ConnectResult.ReasonString);
+            return Task.CompletedTask;
+        }
 
-            public async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
+        private static Task _client_ConnectingFailedAsync(ConnectingFailedEventArgs arg)
+        {
+            Console.WriteLine("MQTT * Connection failed : " + arg.Exception.ToString());
+            return Task.CompletedTask;
+        }
+
+
+
+        public static Dictionary<string, List<Action<string>>> _handlers = new Dictionary<string, List<Action<string>>>();
+
+
+        private static Task _client_ApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)
+        {
+            var msg = arg.ApplicationMessage;
+            var t = msg.Topic;
+            if (t == null) return Task.CompletedTask;
+
+            List<Action<string>> handlers;
+            if (_handlers.TryGetValue(t, out handlers))
             {
-                var msg = eventArgs.ApplicationMessage;
-                var t = msg.Topic;
-                if (t == null) return;
-
-                List<Action<string>> handlers;
-                if (_handlers.TryGetValue(t, out handlers))
+                foreach (var handler in handlers)
                 {
-                    foreach (var handler in handlers)
+                    t = msg.ConvertPayloadToString();
+                    if (t != null)
                     {
-                        t = msg.ConvertPayloadToString();
-                        if (t != null)
-                        {
-                            Console.WriteLine("MQTTHelper - raising event on subscription to " + msg.Topic + " : " + t);
-                            handler.Invoke(t);
-                        }
+                        Console.WriteLine("MQTTHelper - raising event on subscription to " + msg.Topic + " : " + t);
+                        handler.Invoke(t);
                     }
                 }
-
-                await Task.CompletedTask;
             }
+
+            return Task.CompletedTask;
         }
+
 
 
         public static void AddChangeHandler(string topic, Action<string> handler)
         {
             List<Action<string>> handlers;
-            if(!MessageHandler._instance._handlers.TryGetValue(topic, out handlers))
-                MessageHandler._instance._handlers[topic] = new List<Action<string>>();
-            MessageHandler._instance._handlers[topic].Add(handler);
+            if (!_handlers.TryGetValue(topic, out handlers))
+                _handlers[topic] = new List<Action<string>>();
+            _handlers[topic].Add(handler);
             Console.WriteLine("MQTTHelper - subscription to " + topic);
-            _client.SubscribeAsync(topic);
+            _client.SubscribeAsync(topic).Wait();
         }
 
         public static void RemoveChangeHandler(string topic, Action<string> handler)
         {
             List<Action<string>> handlers;
-            if (MessageHandler._instance._handlers.TryGetValue(topic, out handlers))
-                MessageHandler._instance._handlers[topic].Remove(handler);
+            if (_handlers.TryGetValue(topic, out handlers))
+                _handlers[topic].Remove(handler);
 
             Console.WriteLine("MQTTHelper - ending subscription to " + topic);
-            _client.UnsubscribeAsync(topic);
+            _client.UnsubscribeAsync(topic).Wait();
         }
 
         public static void PublishUserLogin(User user, string where)
@@ -109,13 +160,11 @@ namespace Home.Graph.Common
 
                 AddRefreshUserMessages(user, msgs);
 
-                msgs.Add(new MqttApplicationMessageBuilder()
+
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                     .WithTopic($"mesh/users/{user.Id}/activity/login/{where}")
                     .WithPayload(DateTimeOffset.Now.ToString("u"))
-                    .WithAtLeastOnceQoS()
-                    .WithRetainFlag().Build());
-
-                _client.PublishAsync(msgs).Wait();
+                    .WithRetainFlag().Build()).Wait();
             }
             catch (Exception ex)
             {
@@ -125,16 +174,16 @@ namespace Home.Graph.Common
 
         private static void AddRefreshUserMessages(User user, List<MqttApplicationMessage> msgs)
         {
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/users/{user.Id}/name")
                 .WithPayload(user.CommonName)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
-            msgs.Add(new MqttApplicationMessageBuilder()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/users/{user.Id}/role")
                 .WithPayload(user.IsMain ? "main" : "user")
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
         }
 
         public static void PublishUserPresence(User user, Location loc)
@@ -153,34 +202,31 @@ namespace Home.Graph.Common
 
                     if (loc == null)
                     {
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                             .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/id")
                             .WithPayload("")
-                            .WithAtLeastOnceQoS()
-                            .WithRetainFlag().Build());
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                            .WithRetainFlag().Build()).Wait();
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                             .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/name")
                             .WithPayload("")
-                            .WithAtLeastOnceQoS()
-                            .WithRetainFlag().Build());
+                            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                            .WithRetainFlag().Build()).Wait();
                     }
                     else
                     {
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                             .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/id")
                             .WithPayload(loc.Id)
-                            .WithAtLeastOnceQoS()
-                            .WithRetainFlag().Build());
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                            .WithRetainFlag().Build()).Wait();
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                             .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/name")
                             .WithPayload(loc.Name)
-                            .WithAtLeastOnceQoS()
-                            .WithRetainFlag().Build());
+                            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                            .WithRetainFlag().Build()).Wait();
                     }
                 }
-
-                _client.PublishAsync(msgs).Wait();
-
             }
             catch (Exception ex)
             {
@@ -194,20 +240,17 @@ namespace Home.Graph.Common
             {
                 List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
 
-                msgs.Add(new MqttApplicationMessageBuilder()
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                     .WithTopic($"mesh/triggers/{triggerId}/lastRun")
                     .WithPayload(triggerExecutionDate.ToString("O"))
-                    .WithAtLeastOnceQoS()
-                    .WithRetainFlag().Build());
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag().Build()).Wait();
 
-                msgs.Add(new MqttApplicationMessageBuilder()
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                     .WithTopic($"mesh/triggers/{triggerId}/desc")
                     .WithPayload(description)
-                    .WithAtLeastOnceQoS()
-                    .WithRetainFlag().Build());
-
-
-                _client.PublishAsync(msgs).Wait();
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag().Build()).Wait();
             }
             catch (Exception ex)
             {
@@ -248,152 +291,142 @@ namespace Home.Graph.Common
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
                 .WithTopic("mesh/network/appliances/" + deviceName + "/reachable")
                 .WithPayload(isReachable.ToString())
-                .WithAtLeastOnceQoS()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
-            msgs.Add(msg1.Build());
+            _client.EnqueueAsync(msg1.Build()).Wait();
 
             if (!string.IsNullOrEmpty(mainIpv4))
             {
-                msgs.Add(new MqttApplicationMessageBuilder()
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic("mesh/network/appliances/" + deviceName + "/ipv4")
                 .WithPayload(mainIpv4.ToString())
-                .WithAtLeastOnceQoS()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
-                .Build());
+                .Build()).Wait();
             }
 
             if (!string.IsNullOrEmpty(mainIpv6))
             {
-                msgs.Add(new MqttApplicationMessageBuilder()
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic("mesh/network/appliances/" + deviceName + "/ipv6")
                 .WithPayload(mainIpv6.ToString())
-                .WithAtLeastOnceQoS()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
-                .Build());
+                .Build()).Wait();
             }
 
-            _client.PublishAsync(msgs).Wait();
 
         }
 
         public static void PublishAgentStatus(string agent, string status, DateTimeOffset lastPing)
         {
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/agents/{agent}/status")
                 .WithPayload(status)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
 
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/agents/{agent}/lastPing")
                 .WithPayload(lastPing.ToString("u"))
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
 
-            _client.PublishAsync(msgs).Wait();
         }
 
         public static void PublishSceneGroupStatus(string sceneGroupId, string sceneGroupName, DateTimeOffset lastChange, string sceneId, string sceneName, bool isActive)
         {
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/scenes/{sceneGroupId}/name")
                 .WithPayload(sceneGroupName)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
 
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/scenes/{sceneGroupId}/lastChange")
                 .WithPayload(lastChange.ToString("u"))
-                .WithAtLeastOnceQoS().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce).Build()).Wait();
 
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/scenes/{sceneGroupId}/{sceneId}/name")
                 .WithPayload(sceneName)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
 
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/scenes/{sceneGroupId}/{sceneId}/active")
                 .WithPayload(isActive.ToString())
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
-
-            _client.PublishAsync(msgs).Wait();
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
         }
 
 
         public static void PublishRoom(LocationRoom room)
         {
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/name")
                 .WithPayload(room.Name)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
 
             if (room.Properties != null)
             {
                 if (room.Properties.Temperature != null)
-                    msgs.Add(new MqttApplicationMessageBuilder()
+                    _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                         .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/temperature")
                         .WithPayload(room.Properties.Temperature.GetValueOrDefault().ToString("0.00"))
-                        .WithAtLeastOnceQoS()
-                        .WithRetainFlag().Build());
+                        .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                        .WithRetainFlag().Build()).Wait();
                 if (room.Properties.Humidity != null)
-                    msgs.Add(new MqttApplicationMessageBuilder()
+                    _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                     .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/humidity")
                     .WithPayload(room.Properties.Humidity.GetValueOrDefault().ToString("0.00"))
-                    .WithAtLeastOnceQoS()
-                    .WithRetainFlag().Build());
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag().Build()).Wait();
 
                 if (room.Properties.MoreProperties != null)
                 {
                     foreach (var t in room.Properties.MoreProperties.Keys)
                     {
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                             .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
                             .WithPayload(room.Properties.MoreProperties[t])
-                            .WithAtLeastOnceQoS()
-                            .WithRetainFlag().Build());
+                            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                            .WithRetainFlag().Build()).Wait();
                     }
                 }
 
             }
-
-
-
-            _client.PublishAsync(msgs).Wait();
         }
 
         public static void PublishEntity(Entity entity)
         {
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
-            msgs.Add(new MqttApplicationMessageBuilder()
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/name")
                 .WithPayload(entity.Name)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
-            msgs.Add(new MqttApplicationMessageBuilder()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/kind")
                 .WithPayload(entity.EntityKind)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
-            msgs.Add(new MqttApplicationMessageBuilder()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
+            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/currentImage")
-                .WithPayload(entity.CurrentImageUrl==null?entity.DefaultImageUrl:entity.CurrentImageUrl)
-                .WithAtLeastOnceQoS()
-                .WithRetainFlag().Build());
+                .WithPayload(entity.CurrentImageUrl == null ? entity.DefaultImageUrl : entity.CurrentImageUrl)
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithRetainFlag().Build()).Wait();
 
 
             foreach (var t in entity.Datas.Keys)
             {
                 AddEntityData(msgs, t, entity.Datas[t], EscapeName(entity.Id));
             }
-
-            _client.PublishAsync(msgs).Wait();
         }
 
         private static void AddEntityData(List<MqttApplicationMessage> msgs, string key, EntityData t, string path)
@@ -403,32 +436,32 @@ namespace Home.Graph.Common
                 switch (t.SimpleType.ToLowerInvariant())
                 {
                     case "system.decimal":
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                         .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.DecimalSimpleValue.GetValueOrDefault().ToString("0.00", CultureInfo.InvariantCulture))
-                        .WithAtLeastOnceQoS()
-                        .WithRetainFlag().Build());
+                        .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                        .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.int64":
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                         .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.IntSimpleValue.GetValueOrDefault().ToString("0", CultureInfo.InvariantCulture))
-                        .WithAtLeastOnceQoS()
-                        .WithRetainFlag().Build());
+                        .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                        .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.datetimeoffset":
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                         .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.DateSimpleValue.GetValueOrDefault().ToUniversalTime().ToString("yyyyMMdd-HHmmssZ", CultureInfo.InvariantCulture))
-                        .WithAtLeastOnceQoS()
-                        .WithRetainFlag().Build());
+                        .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                        .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.string":
-                        msgs.Add(new MqttApplicationMessageBuilder()
+                        _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                         .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.SimpleValue)
-                        .WithAtLeastOnceQoS()
-                        .WithRetainFlag().Build());
+                        .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                        .WithRetainFlag().Build()).Wait();
                         break;
 
                 }
@@ -455,9 +488,9 @@ namespace Home.Graph.Common
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/properties/{property}")
                 .WithPayload(value)
-                .WithAtLeastOnceQoS()
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
-            _client.PublishAsync(msg1.Build()).Wait();
+            _client.EnqueueAsync(msg1.Build()).Wait();
         }
 
         public static void Stop()
