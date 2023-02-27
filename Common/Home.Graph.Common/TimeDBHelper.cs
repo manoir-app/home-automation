@@ -26,7 +26,7 @@ namespace Home.Graph.Common
             return _client;
         }
 
-        public static void Trace(string name, decimal value, Dictionary<string, string> tags)
+        public static void Trace(string origin, string source, string name, decimal value, Dictionary<string, string> tags)
         {
             var client = GetClient();
             using (var writeApi = client.GetWriteApi())
@@ -36,11 +36,14 @@ namespace Home.Graph.Common
                 //
                 var point = PointData.Measurement(name)
                     .Field("value", value)
-                    .Timestamp(DateTime.UtcNow.AddSeconds(-1), WritePrecision.Ns);
+                    .Timestamp(DateTime.UtcNow.AddSeconds(-1), WritePrecision.Ns)
+                    .Tag("source", source)
+                    .Tag("origin", origin);
 
-                if(tags!=null)
+
+                if (tags != null)
                 {
-                    foreach(var k in tags.Keys)
+                    foreach (var k in tags.Keys)
                         point = point.Tag(k, tags[k]);
                 }
 
@@ -48,7 +51,7 @@ namespace Home.Graph.Common
             }
         }
 
-        public static void Trace(string name, bool value, Dictionary<string, string> tags)
+        public static void Trace(string origin, string source, string name, bool value, Dictionary<string, string> tags)
         {
             var client = GetClient();
             using (var writeApi = client.GetWriteApi())
@@ -58,7 +61,10 @@ namespace Home.Graph.Common
                 //
                 var point = PointData.Measurement(name)
                     .Field("value", value)
-                    .Timestamp(DateTime.UtcNow.AddSeconds(-1), WritePrecision.Ns);
+                    .Timestamp(DateTime.UtcNow.AddSeconds(-1), WritePrecision.Ns)
+                    .Tag("source", source)
+                    .Tag("origin", origin);
+
 
                 if (tags != null)
                 {

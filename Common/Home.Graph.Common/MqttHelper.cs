@@ -156,9 +156,7 @@ namespace Home.Graph.Common
         {
             try
             {
-                List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
-
-                AddRefreshUserMessages(user, msgs);
+                AddRefreshUserMessages(user);
 
 
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
@@ -172,7 +170,7 @@ namespace Home.Graph.Common
             }
         }
 
-        private static void AddRefreshUserMessages(User user, List<MqttApplicationMessage> msgs)
+        private static void AddRefreshUserMessages(User user)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/users/{user.Id}/name")
@@ -193,9 +191,8 @@ namespace Home.Graph.Common
 
             try
             {
-                List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
 
-                AddRefreshUserMessages(user, msgs);
+                AddRefreshUserMessages(user);
 
                 if (user.Presence != null)
                 {
@@ -238,7 +235,6 @@ namespace Home.Graph.Common
         {
             try
             {
-                List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
 
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                     .WithTopic($"mesh/triggers/{triggerId}/lastRun")
@@ -293,7 +289,6 @@ namespace Home.Graph.Common
                 .WithPayload(isReachable.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
-            List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(msg1.Build()).Wait();
 
             if (!string.IsNullOrEmpty(mainIpv4))
@@ -321,7 +316,6 @@ namespace Home.Graph.Common
 
         public static void PublishAgentStatus(string agent, string status, DateTimeOffset lastPing)
         {
-            List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/agents/{agent}/status")
                 .WithPayload(status)
@@ -338,7 +332,6 @@ namespace Home.Graph.Common
 
         public static void PublishSceneGroupStatus(string sceneGroupId, string sceneGroupName, DateTimeOffset lastChange, string sceneId, string sceneName, bool isActive)
         {
-            List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/scenes/{sceneGroupId}/name")
                 .WithPayload(sceneGroupName)
@@ -366,7 +359,6 @@ namespace Home.Graph.Common
 
         public static void PublishRoom(LocationRoom room)
         {
-            List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/name")
                 .WithPayload(room.Name)
@@ -405,7 +397,6 @@ namespace Home.Graph.Common
 
         public static void PublishEntity(Entity entity)
         {
-            List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/name")
                 .WithPayload(entity.Name)
@@ -425,11 +416,11 @@ namespace Home.Graph.Common
 
             foreach (var t in entity.Datas.Keys)
             {
-                AddEntityData(msgs, t, entity.Datas[t], EscapeName(entity.Id));
+                AddEntityData(t, entity.Datas[t], EscapeName(entity.Id));
             }
         }
 
-        private static void AddEntityData(List<MqttApplicationMessage> msgs, string key, EntityData t, string path)
+        private static void AddEntityData(string key, EntityData t, string path)
         {
             if (!t.IsComplex())
             {
@@ -471,7 +462,7 @@ namespace Home.Graph.Common
                 path = path + "/" + EscapeName(key);
                 foreach (var z in t.ComplexValue.Keys)
                 {
-                    AddEntityData(msgs, z, t.ComplexValue[z], path);
+                    AddEntityData(z, t.ComplexValue[z], path);
                 }
             }
         }

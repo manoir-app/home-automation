@@ -1,6 +1,7 @@
 ﻿using Home.Common.HomeAutomation;
 using Home.Common.Messages;
 using Home.Common.Model;
+using Home.Graph.Common;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -52,7 +53,7 @@ namespace Home.Agents.Sarah.Devices.Hue
             if (light != null)
             {
                 string globalStatus = "Eteint";
-                if(light.state.on)
+                if (light.state.on)
                 {
                     if (this is IIntensityGradientDevice)
                     {
@@ -65,6 +66,8 @@ namespace Home.Agents.Sarah.Devices.Hue
                         globalStatus = "Allumé";
                     }
                 }
+
+                UpdateInTimeDb(light);
 
                 var changed = new List<DeviceStateChangedMessage.DeviceStateValue>();
                 // on compare la nouvelle avec l'ancienne
@@ -85,6 +88,8 @@ namespace Home.Agents.Sarah.Devices.Hue
                     if (changed.Count > 0)
                         DeviceManager.OnDeviceStateChanged("Hue", GetLightDeviceName(light), Device.HomeAutomationRoleDimmer, globalStatus, changed.ToArray());
                 }
+
+
 
                 changed.Clear();
                 if (this is IColorBoundDevice)
@@ -119,6 +124,36 @@ namespace Home.Agents.Sarah.Devices.Hue
 
             }
             _light = light;
+        }
+
+        private static void UpdateInTimeDb(HueHelper.HueLight light)
+        {
+            try
+            {
+                // on push en timedb
+                if (light.state.on)
+                {
+                    TimeDBHelper.Trace("home", "entities", "brightness", light.state.bri, new Dictionary<string, string>()
+                        {
+                            {"deviceId", GetLightDeviceName(light)},
+                            {"roomId", ""},
+                            {"locationId", ""},
+                        });
+                }
+                else
+                {
+                    TimeDBHelper.Trace("home", "entities", "brightness", 0, new Dictionary<string, string>()
+                        {
+                            {"deviceId", GetLightDeviceName(light)},
+                            {"roomId", ""},
+                            {"locationId", ""},
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Err updating timedb for hue : " + ex);
+            }
         }
 
         protected internal virtual DeviceData ConvertOnOffState()

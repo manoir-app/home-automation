@@ -144,7 +144,7 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting temperature to {decVal}");
                         room.Properties.Temperature = decVal;
-                        TimeDBHelper.Trace("temperature",
+                        TimeDBHelper.Trace("home", "source", "temperature",
                             decVal, new Dictionary<string, string>() {
                                 {"locationId", locs.Id},
                                 {"roomId", room.Id},
@@ -158,7 +158,7 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting humidity to {decVal}");
                         room.Properties.Humidity = decVal;
-                        TimeDBHelper.Trace("humidity",
+                        TimeDBHelper.Trace("home", "source", "humidity",
                             decVal, new Dictionary<string, string>() {
                                 {"locationId", locs.Id},
                                 {"roomId", room.Id},
