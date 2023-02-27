@@ -44,11 +44,9 @@ namespace Home.Graph.Server
             try
             {
                 string auth = Request.Headers["Authorization"];
-                Console.WriteLine($"auth {auth} for : {Request.Method}/{Request.Path}");
                 if (!string.IsNullOrEmpty(auth))
                 {
                     authHeader = AuthenticationHeaderValue.Parse(auth);
-                    Console.WriteLine($"{authHeader.Scheme} : {authHeader.Parameter}");
                     if (authHeader != null)
                     {
                         switch (authHeader.Scheme.ToLowerInvariant())

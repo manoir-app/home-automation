@@ -119,7 +119,7 @@ namespace Home.Graph.Server.Controllers
         {
             var meshColl = MongoDbHelper.GetClient<AutomationMesh>();
             var local = meshColl.Find(x => x.Id.Equals("local")).FirstOrDefault();
-            if(local==null)
+            if (local == null)
                 return;
 
             var coll = MongoDbHelper.GetClient<Location>();
@@ -144,6 +144,12 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting temperature to {decVal}");
                         room.Properties.Temperature = decVal;
+                        TimeDBHelper.Trace("temperature",
+                            decVal, new Dictionary<string, string>() {
+                                {"locationId", locs.Id},
+                                {"roomId", room.Id},
+                                {"roomLevel", room.FloorLevel.ToString()}
+                            });
                     }
 
                     break;
@@ -152,6 +158,12 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting humidity to {decVal}");
                         room.Properties.Humidity = decVal;
+                        TimeDBHelper.Trace("humidity",
+                            decVal, new Dictionary<string, string>() {
+                                {"locationId", locs.Id},
+                                {"roomId", room.Id},
+                                {"roomLevel", room.FloorLevel.ToString()}
+                            });
                     }
                     break;
                 default:
