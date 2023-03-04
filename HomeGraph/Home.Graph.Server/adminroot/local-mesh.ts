@@ -112,7 +112,7 @@ module HomeAutomation.Admin.LocalMesh {
                                 .done(function (data, status, xhr) {
                                     if (xhr != null) {
                                         if (xhr.status == 200)
-                                            document.location.reload(true);
+                                            (document.location as any).reload(true);
                                         else
                                             console.log("Non restarted yet : " + xhr.status);
                                     }

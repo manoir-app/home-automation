@@ -55,9 +55,9 @@ namespace Home.Graph.Common
             if (!string.IsNullOrEmpty(tmp))
                 srv = tmp;
 
-            tmp = LocalDebugHelper.GetLocalServiceHost();
-            if (!string.IsNullOrEmpty(tmp))
-                srv = tmp;
+            //tmp = LocalDebugHelper.GetLocalServiceHost();
+            //if (!string.IsNullOrEmpty(tmp))
+            //    srv = tmp;
 
 
             tmp = Environment.GetEnvironmentVariable("MONGODB_SERVICE_PORT");

@@ -24,7 +24,7 @@ namespace Home.Graph.Common
 
             Console.WriteLine("MQTT * Start ");
 
-            string server = LocalDebugHelper.GetLocalServiceHost();
+            string server = null; // LocalDebugHelper.GetLocalServiceHost();
             //if (server == null)
             //    server = Environment.GetEnvironmentVariable("MOSQUITTO_SERVICE_HOST");
             if (server == null)

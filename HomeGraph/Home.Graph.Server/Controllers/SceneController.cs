@@ -10,6 +10,7 @@ using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -130,6 +131,18 @@ namespace Home.Graph.Server.Controllers
             var lst = collection.Find(x => true).ToList();
             return lst;
         }
+
+        [Route("execute/{id}"), HttpGet]
+        public bool ExecuteScene(string id)
+        {
+            var t = new ExecuteScenarioHomeAutomationMessage()
+            {
+                SceneId = id
+            };
+            MessagingHelper.PushToLocalAgent(t);
+            return true;
+        }
+
 
         [Route("scenes/{id}"), HttpGet]
         public Scene GetScene(string id)

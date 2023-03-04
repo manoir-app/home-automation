@@ -185,9 +185,9 @@ namespace Home.Common
             if (!string.IsNullOrEmpty(tmp))
                 srv = tmp;
 
-            tmp = LocalDebugHelper.GetLocalServiceHost();
-            if (!string.IsNullOrEmpty(tmp))
-                srv = tmp;
+            //tmp = LocalDebugHelper.GetLocalServiceHost();
+            //if (!string.IsNullOrEmpty(tmp))
+            //    srv = tmp;
 
 
             tmp = Environment.GetEnvironmentVariable("NATS_SERVICE_PORT");
