@@ -10,11 +10,20 @@ namespace Home.Graph.Common
     public static class TimeDBHelper
     {
         private static InfluxDBClient _client = null;
+        private static DateTime _lastConnect = DateTime.MinValue;
         private static InfluxDBClient GetClient()
         {
 
             if (_client != null)
-                return _client;
+            {
+                if(Math.Abs((DateTime.Now-_lastConnect).TotalMinutes) > 5)
+                {
+                    _client.Dispose();
+                    _client = null;
+                }
+                else
+                    return _client;
+            }
 
             var srv = Environment.GetEnvironmentVariable("INFLUXDB_SERVICE_HOST");
             var port = Environment.GetEnvironmentVariable("INFLUXDB_SERVICE_PORT");
