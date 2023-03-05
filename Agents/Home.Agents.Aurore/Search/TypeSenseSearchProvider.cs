@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Home.Agents.Aurore.Search
 {
-    internal class TypeSenseSearchProvider
+    public partial class TypeSenseSearchProvider
     {
     }
 }
