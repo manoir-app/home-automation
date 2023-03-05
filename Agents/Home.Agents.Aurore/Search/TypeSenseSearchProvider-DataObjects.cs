@@ -14,7 +14,7 @@ namespace Home.Agents.Aurore.Search
         public class Collection
         {
             [JsonConverter(typeof(UnixDateTimeConverter))   ]
-            public DateTimeOffset created_at { get; set; }
+            public DateTimeOffset? created_at { get; set; }
             public string default_sorting_field { get; set; }
             public bool enable_nested_fields { get; set; }
             public List<CollectionField> fields { get; set; } = new List<CollectionField>();

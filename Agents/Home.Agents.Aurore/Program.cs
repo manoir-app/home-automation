@@ -17,6 +17,16 @@ namespace Home.Agents.Aurore
             AgentHelper.WriteStartupMessage("Aurore", typeof(Program).Assembly);
 
             AgentHelper.SetupLocaleFromServer("aurore");
+
+#if DEBUG
+
+            Search.TypeSenseSearchProvider t = new Search.TypeSenseSearchProvider();
+            t.Prepare();
+
+
+            return;
+#endif
+
             AgentHelper.ReportStart("aurore", "user-interaction");
 
             AuroreMessageHandler.Start();

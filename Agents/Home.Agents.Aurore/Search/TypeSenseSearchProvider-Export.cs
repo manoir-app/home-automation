@@ -1,55 +1,55 @@
 ﻿using Home.Common;
+using Home.Common.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Home.Agents.Aurore.Search
 {
     partial class TypeSenseSearchProvider
     {
-        public void Prepare()
+        public void SyncProducts()
         {
-            using(var cli = new TypeSenseWebClient())
+            // on récupère tous les produits
+            var prdsServer = GetServerProducts();
+            if (prdsServer == null) return;
+
+            // puis on récupère les ids existant coté typesense
+            var ids = GetTypeSenseProducts();
+            if (ids == null) ids = new List<string>();
+
+            // on trouve quels produits seront à supprimer
+            var lesIdsServer = (from z in prdsServer select z.Id).ToList();
+            var idsASuppr = (from z in ids where !lesIdsServer.Contains(z) select z).ToList();
+            DeleteProductsOnTypeSense(idsASuppr);
+
+            // on upsert tous les autres
+            ExportProductToTypeSense(prdsServer);
+        }
+
+        private void ExportProductToTypeSense(List<Product> prdsServer)
+        {
+            
+        }
+
+        private void DeleteProductsOnTypeSense(List<string> idsASuppr)
+        {
+            
+        }
+
+        private List<Product> GetServerProducts()
+        {
+            using(var cli = new MainApiAgentWebClient("aurore"))
             {
-                var dt = cli.DownloadData<Collection[]>("/collections");
-                var coll = GetCollection(dt, "products");
-                if (coll == null)
-                    CreateProductCollection();
+
             }
+
+            return null;
         }
 
-        private void CreateProductCollection()
+        private List<string> GetTypeSenseProducts()
         {
-            Collection c = new Collection()
-            {
-                name = "products",
-                enable_nested_fields = true
-            };
-            c.fields.Add(new CollectionField()
-            {
-                name = "name",
-                type = "string",
-                optional = false,
-                sort = true,
-                index = true
-            });
-            c.fields.Add(new CollectionField()
-            {
-                name = "category",
-                type = "string",
-                optional = false,
-                sort = false,
-                index = true,
-                facet = true
-            });
-
-        }
-
-        private Collection GetCollection(Collection[] all, string name)
-        {
-            return (from z in all where z.name != null && z.name.Equals(name) select z).FirstOrDefault();
+            return null;
         }
     }
 }
