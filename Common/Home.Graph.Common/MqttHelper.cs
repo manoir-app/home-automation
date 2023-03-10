@@ -1,5 +1,6 @@
 ﻿using Home.Common;
 using Home.Common.Model;
+using MongoDB.Bson;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
@@ -357,10 +358,10 @@ namespace Home.Graph.Common
         }
 
 
-        public static void PublishRoom(LocationRoom room)
+        public static void PublishRoom(string zoneId, LocationRoom room)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/name")
+                .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/name")
                 .WithPayload(room.Name)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -369,14 +370,20 @@ namespace Home.Graph.Common
             {
                 if (room.Properties.Temperature != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/temperature")
+                        .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/temperature")
                         .WithPayload(room.Properties.Temperature.GetValueOrDefault().ToString("0.00"))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                 if (room.Properties.Humidity != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/humidity")
+                    .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/humidity")
                     .WithPayload(room.Properties.Humidity.GetValueOrDefault().ToString("0.00"))
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag().Build()).Wait();
+                if (room.Properties.Occupancy != null)
+                    _client.EnqueueAsync(new MqttApplicationMessageBuilder()
+                    .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/occupancy")
+                    .WithPayload(room.Properties.Occupancy.Value.ToString())
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
 
@@ -385,7 +392,7 @@ namespace Home.Graph.Common
                     foreach (var t in room.Properties.MoreProperties.Keys)
                     {
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
+                            .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
                             .WithPayload(room.Properties.MoreProperties[t])
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();
