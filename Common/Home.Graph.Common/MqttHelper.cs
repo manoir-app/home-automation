@@ -1,5 +1,6 @@
 ﻿using Home.Common;
 using Home.Common.Model;
+using MongoDB.Bson;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
@@ -104,7 +105,7 @@ namespace Home.Graph.Common
 
 
 
-        public static Dictionary<string, List<Action<string>>> _handlers = new Dictionary<string, List<Action<string>>>();
+        public static Dictionary<string, List<Action<string, string>>> _handlers = new Dictionary<string, List<Action<string, string>>>();
 
 
         private static Task _client_ApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)
@@ -113,8 +114,34 @@ namespace Home.Graph.Common
             var t = msg.Topic;
             if (t == null) return Task.CompletedTask;
 
-            List<Action<string>> handlers;
-            if (_handlers.TryGetValue(t, out handlers))
+            List<Action<string, string>> handlers = null;
+            if (!_handlers.TryGetValue(t, out handlers))
+            {
+                foreach (var k in _handlers.Keys)
+                {
+                    string[] parts = k.Split(new char[] { '#', '+' }, StringSplitOptions.RemoveEmptyEntries);
+                    string curPath = t;
+                    bool isMatch = true;
+                    // v1 : on ne s'embete pas avec # ou + 
+                    // on match si toutes les parts sont là, dans l'ordre
+                    foreach(var p in parts)
+                    {
+                        int curIndex = curPath.IndexOf(p);
+                        if(curIndex < 0)
+                        {
+                            isMatch = false;
+                            break;
+                        }
+
+                        curPath = curPath.Substring(curIndex + p.Length);
+                    }
+
+                    if(isMatch)
+                        handlers = _handlers[k];
+                }
+            }
+
+            if(handlers!=null)
             {
                 foreach (var handler in handlers)
                 {
@@ -122,29 +149,30 @@ namespace Home.Graph.Common
                     if (t != null)
                     {
                         Console.WriteLine("MQTTHelper - raising event on subscription to " + msg.Topic + " : " + t);
-                        handler.Invoke(t);
+                        handler.Invoke(msg.Topic, t);
                     }
                 }
             }
+
 
             return Task.CompletedTask;
         }
 
 
 
-        public static void AddChangeHandler(string topic, Action<string> handler)
+        public static void AddChangeHandler(string topic, Action<string, string> handler)
         {
-            List<Action<string>> handlers;
+            List<Action<string, string>> handlers;
             if (!_handlers.TryGetValue(topic, out handlers))
-                _handlers[topic] = new List<Action<string>>();
+                _handlers[topic] = new List<Action<string, string>>();
             _handlers[topic].Add(handler);
             Console.WriteLine("MQTTHelper - subscription to " + topic);
             _client.SubscribeAsync(topic).Wait();
         }
 
-        public static void RemoveChangeHandler(string topic, Action<string> handler)
+        public static void RemoveChangeHandler(string topic, Action<string, string> handler)
         {
-            List<Action<string>> handlers;
+            List<Action<string, string>> handlers;
             if (_handlers.TryGetValue(topic, out handlers))
                 _handlers[topic].Remove(handler);
 
@@ -357,10 +385,10 @@ namespace Home.Graph.Common
         }
 
 
-        public static void PublishRoom(LocationRoom room)
+        public static void PublishRoom(string zoneId, LocationRoom room)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/name")
+                .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/name")
                 .WithPayload(room.Name)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -369,14 +397,20 @@ namespace Home.Graph.Common
             {
                 if (room.Properties.Temperature != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/temperature")
+                        .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/temperature")
                         .WithPayload(room.Properties.Temperature.GetValueOrDefault().ToString("0.00"))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                 if (room.Properties.Humidity != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/humidity")
+                    .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/humidity")
                     .WithPayload(room.Properties.Humidity.GetValueOrDefault().ToString("0.00"))
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag().Build()).Wait();
+                if (room.Properties.Occupancy != null)
+                    _client.EnqueueAsync(new MqttApplicationMessageBuilder()
+                    .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/occupancy")
+                    .WithPayload(room.Properties.Occupancy.Value.ToString())
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
 
@@ -385,7 +419,7 @@ namespace Home.Graph.Common
                     foreach (var t in room.Properties.MoreProperties.Keys)
                     {
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
+                            .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
                             .WithPayload(room.Properties.MoreProperties[t])
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();

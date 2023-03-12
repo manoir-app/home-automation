@@ -60,6 +60,31 @@ namespace Home.Graph.Common
             }
         }
 
+        public static void Trace(string origin, string source, string name, string value, Dictionary<string, string> tags)
+        {
+            var client = GetClient();
+            using (var writeApi = client.GetWriteApi())
+            {
+                //
+                // Write by Point
+                //
+                var point = PointData.Measurement(name)
+                    .Field("value", value)
+                    .Timestamp(DateTime.UtcNow.AddSeconds(-1), WritePrecision.Ns)
+                    .Tag("source", source)
+                    .Tag("origin", origin);
+
+
+                if (tags != null)
+                {
+                    foreach (var k in tags.Keys)
+                        point = point.Tag(k, tags[k]);
+                }
+
+                writeApi.WritePoint(point, "home-automation", "manoir-app");
+            }
+        }
+
         public static void Trace(string origin, string source, string name, bool value, Dictionary<string, string> tags)
         {
             var client = GetClient();

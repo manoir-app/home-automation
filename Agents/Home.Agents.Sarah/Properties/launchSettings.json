@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "EnDEV": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "LAN_SERVER_IP": "192.168.2.100"
+      }
+    }
+  }
+}
