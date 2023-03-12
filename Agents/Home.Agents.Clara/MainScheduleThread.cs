@@ -80,7 +80,7 @@ namespace Home.Agents.Clara
                 }
                 if (dtSunSet < DateTimeOffset.Now)
                 {
-                    dtSunSet = SunCalculator.CalculateSunSet((double)_meshLocation.Coordinates.Latitude,
+                    dtNextSunSet = SunCalculator.CalculateSunSet((double)_meshLocation.Coordinates.Latitude,
                     (double)_meshLocation.Coordinates.Longitude, DateTime.Today.AddDays(1));
                     sun.CurrentImageUrl = HomeServerHelper.GetPublicGraphUrl($"/v1.0/services/files/common/images/sun_night.png");
                     sun.Datas["CurrentStatus"] = new EntityData("night");
