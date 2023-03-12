@@ -16,6 +16,11 @@ var HomeAutomation;
                     var self = this;
                     self.scope.view = "systemIntegrations-list";
                     self.scope.events = self;
+                    self.scope.installed = new Array();
+                    self.scope.inProgress = new Array();
+                    self.scope.notInstalled = new Array();
+                    self.scope.all = new Array();
+                    self.scope.isSaving = false;
                     self.init();
                 }
                 switchToView(newView) {
@@ -24,29 +29,68 @@ var HomeAutomation;
                     sc.$applyAsync();
                     return false;
                 }
+                switchToConfigPage(it) {
+                    var sc = this.scope;
+                    sc.view = "config-page";
+                    sc.editedIntegration = it;
+                    sc.$applyAsync();
+                    return false;
+                }
                 init() {
                     var sc = this.scope;
                     var self = this;
-                    //$.ajax({
-                    //    url: '/v1.0/security/Integrations/self/foradmin',
-                    //    type: 'GET',
-                    //    dataType: "json",
-                    //    contentType: "application/json"
-                    //})
-                    //    .done(function (data) {
-                    //        sc.Integrations = new Array<Token>();
-                    //        for (var a of data) {
-                    //            var ag: Token = {
-                    //                user : a.user,
-                    //                tokenType: a.tokenType
-                    //            };
-                    //            if (a.user.toLocaleLowerCase() == "system")
-                    //                sc.SystemIntegrations.push(ag);
-                    //        }
-                    //        sc.$applyAsync();
-                    //    })
-                    //    .fail(function () {
-                    //    });
+                    var withHidden = false;
+                    $.ajax({
+                        url: '/v1.0/system/mesh/local/integrations' + (withHidden ? "?includeHidden=true" : ""),
+                        type: 'GET',
+                        dataType: "json",
+                        contentType: "application/json"
+                    })
+                        .done(function (data) {
+                        self.parseIntegrations(data);
+                        sc.$applyAsync();
+                    })
+                        .fail(function () {
+                    });
+                }
+                parseIntegrations(data) {
+                    var sc = this.scope;
+                    var self = this;
+                    var arr = new Array();
+                    var arrEnCours = new Array();
+                    var arrNot = new Array();
+                    for (var i = 0; i < data.length; i++) {
+                        var int = data[i];
+                        if (int.instances != null && int.instances.length > 0) {
+                            for (var j = 0; j < int.instances.length; j++) {
+                                var toAdd = {
+                                    id: int.id,
+                                    agentId: int.agentId,
+                                    label: int.label,
+                                    hidden: int.hidden,
+                                    instanceId: int.instances[j].id,
+                                    instanceLabel: int.instances[j].label,
+                                    isSetup: int.instances[j].isSetup
+                                };
+                                if (int.instances[j].isSetup)
+                                    arr.push(toAdd);
+                                else
+                                    arrEnCours.push(toAdd);
+                            }
+                        }
+                        else {
+                            arrNot.push(int);
+                        }
+                    }
+                    arr.sort((a, b) => b.label.toLocaleLowerCase().localeCompare(a.label.toLocaleLowerCase()));
+                    arrEnCours.sort((a, b) => b.label.toLocaleLowerCase().localeCompare(a.label.toLocaleLowerCase()));
+                    arrNot.sort((a, b) => b.label.toLocaleLowerCase().localeCompare(a.label.toLocaleLowerCase()));
+                    sc.notInstalled = arrNot;
+                    sc.inProgress = arrEnCours;
+                    sc.installed = arr;
+                    sc.all = data;
+                }
+                saveConfig() {
                 }
             }
             IntegrationsPage.$inject = ["$scope"];

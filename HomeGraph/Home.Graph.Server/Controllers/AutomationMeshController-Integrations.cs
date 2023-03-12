@@ -16,20 +16,29 @@ namespace Home.Graph.Server.Controllers
     partial class AutomationMeshController
     {
         [Route("local/integrations"), HttpGet()]
-        public List<Integration> GetIntegrations()
+        public List<Integration> GetIntegrations(bool includeHidden = false)
         {
             var coll = MongoDbHelper.GetClient<Integration>();
-            return coll.Find(x => true).ToList();
+
+            List<Integration> ret = null;
+            if (includeHidden)
+                return coll.Find(x => true).ToList();
+            else
+                return coll.Find(x => x.Hidden!=true).ToList();
         }
 
         [Route("local/integrations/byagent/{agentId}"), HttpGet()]
-        public List<Integration> GetIntegrations(string agentId, bool onlyActives = false)
+        public List<Integration> GetIntegrations(string agentId, bool onlyActives = false, bool includeHidden = false)
         {
             if (string.IsNullOrEmpty(agentId))
                 return null;
             agentId = agentId.ToLowerInvariant();
             var coll = MongoDbHelper.GetClient<Integration>();
-            var ret = coll.Find(x => x.AgentId != null && x.AgentId == agentId).ToList();
+            List<Integration> ret = null;
+            if(includeHidden)
+                ret = coll.Find(x => x.AgentId != null && x.AgentId == agentId).ToList();
+            else
+                ret = coll.Find(x => x.AgentId != null && x.AgentId == agentId && x.Hidden!=true).ToList();
 
             if (onlyActives)
             {

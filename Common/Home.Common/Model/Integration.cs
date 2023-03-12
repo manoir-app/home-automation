@@ -23,6 +23,9 @@ namespace Home.Common.Model
         public string Id { get; set; }
         public string AgentId { get; set; }
 
+        public bool Hidden { get; set; }
+
+
         public string Label { get; set; }
         public string Image { get; set; }
         public string Description { get; set; }
