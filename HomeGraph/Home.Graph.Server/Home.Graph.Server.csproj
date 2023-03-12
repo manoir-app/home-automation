@@ -34,6 +34,8 @@
     <None Remove="adminroot\routines.htm" />
     <None Remove="adminroot\scenarios.css" />
     <None Remove="adminroot\scenarios.htm" />
+    <None Remove="adminroot\settings\recipeconfigs.css" />
+    <None Remove="adminroot\settings\recipeconfigs.htm" />
     <None Remove="adminroot\settings\units.css" />
     <None Remove="adminroot\settings\units.htm" />
     <None Remove="adminroot\tokens.css" />
@@ -41,6 +43,7 @@
     <None Remove="adminroot\users.css" />
     <None Remove="adminroot\users.htm" />
     <None Remove="userroot\chat.css" />
+    <None Remove="userroot\home-automation-control.css" />
     <None Remove="userroot\home-automation.css" />
     <None Remove="userroot\index.css" />
     <None Remove="userroot\products.css" />
@@ -109,6 +112,12 @@
     <Content Include="adminroot\locations.htm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="adminroot\settings\recipeconfigs.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="adminroot\settings\recipeconfigs.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="adminroot\settings\units.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -174,6 +183,9 @@
     <Content Include="userroot\chat.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="userroot\home-automation-control.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="userroot\home-automation.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -208,6 +220,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="InfluxDB.Client" Version="4.11.0" />
+    <PackageReference Include="JournalApp.Common" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.14.0" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.1.2">
@@ -215,9 +229,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MongoDB.Driver" Version="2.11.1" />
-    <PackageReference Include="MQTTnet" Version="3.0.13" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.13" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="MQTTnet" Version="4.1.4.563" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.1.4.563" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.0.0" />
     <PackageReference Include="YamlDotNet" Version="12.0.0" />
   </ItemGroup>
@@ -382,6 +396,9 @@
     <Content Update="wwwroot\main.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\microsoft\signalr\dist\browser\signalr.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -499,6 +516,9 @@
     <Content Update="wwwroot\scripts\ui-select2.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\sw.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -601,6 +621,9 @@
     <None Update="adminroot\locations.js.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="adminroot\settings\recipeconfigs.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="adminroot\settings\units.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -629,6 +652,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="integrations.js.map">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="userroot\home-automation-control.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="userroot\home-automation-control.htm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="userroot\home-automation.js">
@@ -712,6 +741,9 @@
     <TypeScriptCompile Update="adminroot\scenarios.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </TypeScriptCompile>
+    <TypeScriptCompile Update="adminroot\settings\recipeconfigs.ts">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </TypeScriptCompile>
     <TypeScriptCompile Update="adminroot\settings\units.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </TypeScriptCompile>
@@ -725,6 +757,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </TypeScriptCompile>
     <TypeScriptCompile Update="userroot\chat.ts">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </TypeScriptCompile>
+    <TypeScriptCompile Update="userroot\home-automation-control.ts">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </TypeScriptCompile>
     <TypeScriptCompile Update="userroot\home-automation.ts">

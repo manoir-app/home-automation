@@ -16,6 +16,7 @@
     <script src="local-mesh.js"></script>
     <manoir-head></manoir-head>
     <link rel="stylesheet" href="local-mesh.css" />
+    <link rel="manifest" href="/manifest.json">
 
     <title>Administration - Local Mesh settings</title>
 </head>
@@ -125,6 +126,11 @@
     <script src="/assets/feather.min.js"></script>
     <script src="/assets/template.js"></script>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
 
 </body>
 </html>

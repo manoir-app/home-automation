@@ -12,6 +12,11 @@ namespace Home.Agents.Aurore.Greetings
 
         public static MessageResponse GetGreetings(GreetingsMessage request, bool withNotify)
         {
+            return GetGreetings(request, withNotify, false);
+        }
+
+        public static MessageResponse GetGreetings(GreetingsMessage request, bool withNotify, bool ignorePrivacy)
+        {
             var mesh = PrivacyModeChangedNotificationHandler.GetMesh();
             var usrs = PrivacyModeChangedNotificationHandler.GetLocalPresentUsers();
 
@@ -22,24 +27,30 @@ namespace Home.Agents.Aurore.Greetings
 
             if (usrs.Count == 0)
                 return GetNoOneHomeMessage();
-            else if (!mesh.CurrentPrivacyMode.HasValue)
+            else if (!mesh.CurrentPrivacyMode.HasValue || ignorePrivacy)
             {
-                if (usrs.Count == 1)
-                    return SingleUserGreetings.GetGreetings(request, false);
-
-                var usrMain = (from z in usrs where z.IsMain select z).ToList();
-                if (usrMain.Count == usrs.Count)
-                {
-                    // normalement, ca devrait toujours être le cas, sinon le mode privé serait activé
-                    request.Users = usrMain;
-                    return MultipleUserGreetings.GetGreetings(request);
-                }
-
-                return GreetingsMessageResponse.GenericFail;
+                return GetGreetingsForUserList(request);
             }
             else
                 return GetPrivacyModeMessage(mesh.CurrentPrivacyMode.Value);
 
+        }
+
+        internal static MessageResponse GetGreetingsForUserList(GreetingsMessage request)
+        {
+            var usrs = request.Users;
+            if (usrs.Count == 1)
+                return SingleUserGreetings.GetGreetings(request, false);
+
+            var usrMain = (from z in usrs where z.IsMain select z).ToList();
+            if (usrMain.Count == usrs.Count)
+            {
+                // normalement, ca devrait toujours être le cas, sinon le mode privé serait activé
+                request.Users = usrMain;
+                return MultipleUserGreetings.GetGreetings(request);
+            }
+
+            return GreetingsMessageResponse.GenericFail;
         }
 
         private static MessageResponse GetPrivacyModeMessage(Common.Model.AutomationMeshPrivacyMode value)
@@ -47,7 +58,7 @@ namespace Home.Agents.Aurore.Greetings
             return GetNoOneHomeMessage();
         }
 
-        private static GreetingsMessageResponse GetNoOneHomeMessage()
+        internal static GreetingsMessageResponse GetNoOneHomeMessage()
         {
             var ret = new GreetingsMessageResponse();
             ret.Response = "OK";

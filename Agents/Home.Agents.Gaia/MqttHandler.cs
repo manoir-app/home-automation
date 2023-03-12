@@ -1,5 +1,5 @@
 ﻿using MQTTnet;
-using MQTTnet.Client.Options;
+using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
 using Newtonsoft.Json;
 using System;
@@ -32,7 +32,7 @@ namespace Home.Agents.Gaia
 
         public static void Publish(string topic, object content)
         {
-            _client.PublishAsync(new MqttApplicationMessage()
+            _client.EnqueueAsync(new MqttApplicationMessage()
             {
                 ContentType = "application/json",
                 Topic = "mesh/agents/gaia/" + topic,

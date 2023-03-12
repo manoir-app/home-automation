@@ -10,6 +10,7 @@ using Home.Common.Messages;
 using Home.Graph.Common.Scripting;
 using System.Diagnostics;
 using Home.Graph.Common;
+using Home.Agents.Sarah.Devices.Zigbee2Mqtt;
 
 namespace Home.Agents.Sarah
 {
@@ -21,6 +22,11 @@ namespace Home.Agents.Sarah
         {
 
             AgentHelper.WriteStartupMessage("Sarah", typeof(Program).Assembly);
+
+            //MqttHelper.Start();
+            //Z2MqttHelper.Start();
+            //Console.ReadLine();
+            //return;
 
             AgentHelper.SetupLocaleFromServer("sarah");
             AgentHelper.ReportStart("sarah", "home-automation");

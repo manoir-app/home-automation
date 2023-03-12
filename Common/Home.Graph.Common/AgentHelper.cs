@@ -1,4 +1,5 @@
 ﻿using Home.Common.Model;
+using Home.Graph.Common;
 using k8s;
 using Newtonsoft.Json;
 using System;
@@ -23,7 +24,7 @@ namespace Home.Common
                 {
                     using (var cli = new MainApiAgentWebClient(agentName))
                     {
-                        if(mode.HasValue)
+                        if (mode.HasValue)
                             cli.DownloadData<bool>("v1.0/system/mesh/local/privacymode/set?privacyMode=" + mode.Value.ToString());
                         else
                             cli.DownloadData<bool>("v1.0/system/mesh/local/privacymode/clear");
@@ -145,6 +146,11 @@ namespace Home.Common
         {
             if (Math.Abs((DateTimeOffset.Now - _lastPing).TotalSeconds) < 30)
                 return;
+
+            TimeDBHelper.Trace("system", "agents", "active", 1, new Dictionary<string, string>()
+            {
+                {"agentId", agentName }
+            });
 
             _lastPing = DateTimeOffset.Now;
 

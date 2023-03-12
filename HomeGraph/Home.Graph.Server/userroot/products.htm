@@ -19,6 +19,7 @@
     <manoir-head></manoir-head>
 
     <link rel="stylesheet" href="products.css" />
+    <link rel="manifest" href="/manifest.json">
 
     <title>Products</title>
 
@@ -306,6 +307,13 @@
     <script src="/assets/core.js"></script>
     <script src="/assets/feather.min.js"></script>
     <script src="/assets/template.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
+
 
 </body>
 </html>

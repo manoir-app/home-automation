@@ -245,7 +245,7 @@ namespace Manoir.Common {
             if (!ManoirAppPage.isCurrentDevice(changeDeviceId))
                 return;
 
-            document.location.reload(true);
+            (document.location as any).reload(true);
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Home.Agents.Sarah
             // 3) on refresh MQTT
             
 
+
         }
 
         private static void PostChangeState(string deviceId, DeviceData deviceData, string mainStatus)

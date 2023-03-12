@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <script src="../scripts/jquery-2.0.2.js"></script>
-    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
     <script src="../scripts/angular.min.js"></script>
     <script src="../scripts/jquery-ui-1.10.2.custom.js"></script>
     <script src="../scripts/ui-select2.js"></script>
@@ -22,6 +23,7 @@
     <link rel="stylesheet" type="text/css" href="css/core/menu/menu-types/vertical-menu.css">
     <link rel="stylesheet" type="text/css" href="css/themes/semi-dark-layout.min.css">
     <link href="users.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
 
     <title></title>
 </head>
@@ -109,6 +111,13 @@
             </div>
         </div>
     </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
+
 
 </body>
 </html>

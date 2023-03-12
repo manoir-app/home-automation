@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html ng-app="HomeAutoControlPageApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Bienvenue !</title>
+    <script src="../scripts/jquery-2.0.2.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script src="../scripts/angular-animate.js"></script>
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/ui-select2.js"></script>
+    <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="/me/scripts/user-menu.js"></script>
+    <script src="home-automation-control.js"></script>
+
+    <manoir-head></manoir-head>
+
+    <link rel="stylesheet" href="home-automation-control.css" />
+    <link rel="manifest" href="/manifest.json">
+
+    <title>Home Automation</title>
+</head>
+<body ng-controller="HomeAutoControlPageController">
+    <div class="main-wrapper">
+        <manoir-user-menubar></manoir-user-menubar>
+
+
+
+        <div class="page-wrapper">
+            <manoir-user-header></manoir-user-header>
+
+            <div class="page-content">
+
+
+                <div class="row" ng-if="view == 'devices-list'">
+                    <div class="col-2">
+                        <h4>By room</h4>
+                        <ul class="list-unstyled">
+                            <li><button class="mb-1 btn btn-xs" ng-class="events.isCurrentZone('') ? 'btn-dark':'btn-outline-dark'" ng-click="events.selectCategory('')">All</button></li>
+                            <li ng-repeat="niv1 in zonesForSearch">
+                                <button class="mb-1 btn btn-xs" ng-class="events.isCurrentZone(niv1.id) ? 'btn-primary':'btn-outline-primary'" ng-click="events.selectZone(niv1.id)">{{niv1.name}}</button>
+                                <ul class="list-unstyled ms-2" ng-if="niv1.rooms!=null && niv1.rooms.length>0">
+                                    <li ng-repeat="niv2 in niv1.rooms">
+                                        <button class="mb-1 btn btn-xs" ng-class="events.isCurrentZone(niv2.id) ? 'btn-primary':'btn-outline-primary'" ng-click="events.selectZone(niv2.id)">{{niv2.name}}</button>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-10 grid-margin grid-margin-md-0">
+                        <section class="row">
+                            <div class="card">
+                                <div ng-repeat="room in roomsForDevices track by room.id" class="col-12 grid-margin grid-margin-md-20 mb-4">
+                                    <h2>{{room.name}}</h2>
+
+                                    <div class="row mb-1 mt-1 border-bottom pb-2" ng-repeat="dev in room.devices track by dev.id">
+                                        <div class="col-md-6 pt-2">
+                                            <p>{{dev.deviceGivenName}}</p>
+                                        </div>
+                                        <div class="col-md-5 " ng-if="dev.mainRole=='main:light'">
+                                            <div class="row">
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-sm  align-middle" ng-class="dev.mainStatus=='on'?'btn-outline-primary':'btn-primary'" ng-click="events.swicthOff(dev)">OFF</button>
+                                                </div>
+                                                <div class="col-md-8 pt-2">
+                                                    <input type="range" class="form-range" min="0" max="100" ng-model="dev.mainStatusInt" />
+                                                </div>
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-sm align-middle" ng-class="dev.mainStatus=='on'?'btn-primary':'btn-outline-primary'" ng-click="events.swicthOn(dev)">ON</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 " ng-if="dev.mainRole=='main:shutters'">
+                                            <div class="row">
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-sm  align-middle" ng-class="dev.mainStatus=='on'?'btn-outline-primary':'btn-primary'" ng-click="events.swicthOff(dev)">CLOSED</button>
+                                                </div>
+                                                <div class="col-md-8 pt-2">
+                                                    <input type="range" class="form-range" min="0" max="100" ng-model="dev.mainStatusInt" />
+                                                </div>
+                                                <div class="col-md-2 ">
+                                                    <button class="btn btn-sm align-middle" ng-class="dev.mainStatus=='on'?'btn-primary':'btn-outline-primary'" ng-click="events.swicthOn(dev)">OPEN</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 text-end ">
+                                            <button class="btn btn-light btn-sm">...</button>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+    <script src="/assets/core.js"></script>
+    <script src="/assets/feather.min.js"></script>
+    <script src="/assets/template.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
+
+</body>
+</html>

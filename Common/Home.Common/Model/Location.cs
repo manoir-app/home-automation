@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Home.Common.HomeAutomation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -39,6 +40,9 @@ namespace Home.Common.Model
         public string Country { get; set; }
 
         public List<LocationZone> Zones { get; set; }
+
+        public LocationElementProperties Properties { get; set; }
+
     }
 
     public class LocationZone
@@ -48,6 +52,8 @@ namespace Home.Common.Model
         public string Name { get; set; }
 
         public List<LocationRoom> Rooms { get; set; }
+
+        public LocationElementProperties Properties { get; set; }
 
         public LocationZone()
         {
@@ -77,7 +83,7 @@ namespace Home.Common.Model
             GroupMappingForServices = new Dictionary<string, List<string>>();
             Shape = new List<LocationPoint>();
             Walls = new List<LocationWall>();
-            Properties = new LocationRoomProperties();
+            Properties = new LocationElementProperties();
         }
 
         public string Id { get; set; }
@@ -90,16 +96,18 @@ namespace Home.Common.Model
 
         public int FloorLevel { get; set; }
 
-        public LocationRoomProperties Properties { get; set; }
+        public LocationElementProperties Properties { get; set; }
 
         public List<LocationPoint> Shape { get; set; }
         public List<LocationWall> Walls { get; set; }
     }
 
-    public class LocationRoomProperties
+
+    public class LocationElementProperties
     {
         public decimal? Temperature { get; set; }
         public decimal? Humidity { get; set; }
+        public OccupancyState? Occupancy { get; set; }
 
         public Dictionary<string, string> MoreProperties { get; set; }
     }

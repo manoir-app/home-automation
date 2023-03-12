@@ -6,7 +6,8 @@
     <script src="../scripts/jquery-2.0.2.js"></script>
     <script src="../scripts/angular.min.js"></script>
     <script src="../scripts/angular-animate.js"></script>
-    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
     <script src="../scripts/ui-select2.js"></script>
     <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
 
@@ -15,6 +16,7 @@
     <script src="scenarios.js"></script>
     <manoir-head></manoir-head>
     <link rel="stylesheet" href="scenarios.css" />
+    <link rel="manifest" href="/manifest.json">
 
     <title>Administration - Scenarios</title>
 </head>
@@ -76,6 +78,13 @@
     <script src="/assets/core.js"></script>
     <script src="/assets/feather.min.js"></script>
     <script src="/assets/template.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
+
 
 </body>
 </html>

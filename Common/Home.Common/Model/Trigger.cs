@@ -106,6 +106,8 @@ namespace Home.Common.Model
                     return $"Sur connexion/deconnexion de {this.NetworkDeviceName}";
                 case TriggerKind.Webhook:
                     return $"Webhook";
+                case TriggerKind.MqttValue:
+                    return $"Mqtt";
             }
             return "inconnu";
         }

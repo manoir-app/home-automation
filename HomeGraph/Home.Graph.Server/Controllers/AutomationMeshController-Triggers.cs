@@ -1,13 +1,17 @@
-﻿using Home.Common.Messages;
+﻿using Home.Common.HomeAutomation;
+using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace Home.Graph.Server.Controllers
@@ -119,7 +123,7 @@ namespace Home.Graph.Server.Controllers
         {
             var meshColl = MongoDbHelper.GetClient<AutomationMesh>();
             var local = meshColl.Find(x => x.Id.Equals("local")).FirstOrDefault();
-            if(local==null)
+            if (local == null)
                 return;
 
             var coll = MongoDbHelper.GetClient<Location>();
@@ -135,6 +139,7 @@ namespace Home.Graph.Server.Controllers
                 Console.WriteLine($"Room {t.RoomId} not found");
                 return;
             }
+
             decimal decVal = decimal.MinValue;
             switch (t.PropertyName.ToLowerInvariant())
             {
@@ -144,6 +149,12 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting temperature to {decVal}");
                         room.Properties.Temperature = decVal;
+                        TimeDBHelper.Trace("home", "source", "temperature",
+                            decVal, new Dictionary<string, string>() {
+                                {"locationId", locs.Id},
+                                {"roomId", room.Id},
+                                {"roomLevel", room.FloorLevel.ToString()}
+                            });
                     }
 
                     break;
@@ -152,6 +163,31 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting humidity to {decVal}");
                         room.Properties.Humidity = decVal;
+                        TimeDBHelper.Trace("home", "source", "humidity",
+                            decVal, new Dictionary<string, string>() {
+                                {"locationId", locs.Id},
+                                {"roomId", room.Id},
+                                {"roomLevel", room.FloorLevel.ToString()}
+                            });
+                    }
+                    break;
+                case "occupancy":
+                    try
+                    {
+                        var occ = JsonConvert.DeserializeObject<OccupancyState>(data);
+                        Console.WriteLine($"Room {t.RoomId} : setting occupancy to {occ}");
+                        room.Properties.Occupancy = occ;
+                        TimeDBHelper.Trace("home", "source", "occupancy",
+                            occ.ToString(), new Dictionary<string, string>() {
+                                {"locationId", locs.Id},
+                                {"roomId", room.Id},
+                                {"roomLevel", room.FloorLevel.ToString()}
+                            });
+
+                    }
+                    catch (JsonSerializationException)
+                    {
+
                     }
                     break;
                 default:
@@ -163,7 +199,6 @@ namespace Home.Graph.Server.Controllers
             }
 
 
-            MqttHelper.PublishRoom(room);
 
             try
             {
@@ -171,6 +206,8 @@ namespace Home.Graph.Server.Controllers
                 var parentZone = (from z in locs.Zones where z.Rooms.Contains(room) select z).FirstOrDefault();
                 if (parentZone != null)
                 {
+                    MqttHelper.PublishRoom(parentZone.Id, room);
+
                     var arrayFilters = Builders<Location>.Filter.Eq("Id", locs.Id)
                             & Builders<Location>.Filter.Eq("Zones.Id", parentZone.Id);
 

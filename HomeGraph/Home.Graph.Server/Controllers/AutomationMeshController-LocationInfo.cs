@@ -1,4 +1,5 @@
-﻿using Home.Common.Model;
+﻿using Home.Common.Messages;
+using Home.Common.Model;
 using Home.Graph.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +57,13 @@ namespace Home.Graph.Server.Controllers
                 res = collection.UpdateOne(x => x.Id == "local" && x.LocationInfo == null,
                                 Builders<AutomationMesh>.Update
                                 .Set("LocationInfo", lst.LocationInfo));
+
+                if (res.IsAcknowledged && res.ModifiedCount > 0)
+                    MessagingHelper.PushToLocalAgent(new WeatherChangeMessage(weather));
+            }
+            else
+            {
+                MessagingHelper.PushToLocalAgent(new WeatherChangeMessage(weather));
             }
 
             return res.IsAcknowledged && res.ModifiedCount > 0;

@@ -20,13 +20,13 @@ namespace Home.Agents.Aurore.Greetings
             ret.Response = "OK";
 
             var users = (from z in request.Users
-                        where z.IsMain
-                        select z).ToList(); ;
+                         where z.IsMain
+                         select z).ToList(); ;
 
 
             StringBuilder blr = new StringBuilder();
             blr.Append("Bonjour **");
-            for(int i = 0; i < users.Count; i++)
+            for (int i = 0; i < users.Count; i++)
             {
                 if (i > 0) blr.Append(" & ");
                 blr.Append(users[i].CommonName);
@@ -40,9 +40,15 @@ namespace Home.Agents.Aurore.Greetings
             });
 
             GreetingsHandler.AddMeshStatus(ret);
-            for (int i = 0; i < users.Count; i++)
+            switch (request.Destination)
             {
-                GreetingsHandler.AddUserStatus(ret, users[i], true);
+                case GreetingsMessage.GreetingsDestination.UserApp:
+                case GreetingsMessage.GreetingsDestination.Speakers:
+                    for (int i = 0; i < users.Count; i++)
+                    {
+                        GreetingsHandler.AddUserStatus(ret, users[i], true);
+                    }
+                    break;
             }
             string userName = string.Join(',', (from z in users select z.Id).ToArray());
             string oldGreets = null;
@@ -56,8 +62,8 @@ namespace Home.Agents.Aurore.Greetings
             return ret;
         }
 
-        
 
-      
+
+
     }
 }

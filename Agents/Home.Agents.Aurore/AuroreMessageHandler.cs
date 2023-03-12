@@ -13,13 +13,16 @@ namespace Home.Agents.Aurore
         public static void Start()
         {
 
-            Thread t = new Thread(() => NatsMessageThread.Run(new string[] { "aurore.>",
+            Thread t = new Thread(() => NatsMessageThread.Run(new string[] { 
+                                    "aurore.>",
                                     "pim.chat.>",
                                     "system.mesh.privacymode.changed",
                                     "greetings.>",
                                     "users.accounts.>",
-                                    "communication.>", "security.alarm"},
-            AuroreMessageHandler.HandleMessage));
+                                    "communication.>", "security.alarm",
+                                    WeatherChangeMessage.TopicName
+                                },
+                                AuroreMessageHandler.HandleMessage));
             t.Name = "NatsThread";
             t.Start();
         }
@@ -72,6 +75,8 @@ namespace Home.Agents.Aurore
                     Console.WriteLine("Réponse : ");
                     Console.WriteLine(JsonConvert.SerializeObject(ret));
                     return ret;
+                case WeatherChangeMessage.TopicName:
+                    return UserNotifications.WeatherChangedNotificationHandler.HandleMessage(origin, topic, messageBody);
                 default:
                     return MessageResponse.GenericFail;
             }

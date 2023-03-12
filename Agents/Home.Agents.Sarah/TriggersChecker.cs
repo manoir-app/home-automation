@@ -47,9 +47,9 @@ namespace Home.Agents.Sarah
                 MqttHelper.AddChangeHandler(t.Path, this.Handle);
             }
 
-            private void Handle(string value)
+            private void Handle(string topic, string value)
             {
-                Console.WriteLine($"Received message on MQTT for topic {_t.Path} : {value}");
+                Console.WriteLine($"Received message on MQTT for topic {topic} : {value}");
 
                 if (_t.JsonPathInValue != null)
                 {

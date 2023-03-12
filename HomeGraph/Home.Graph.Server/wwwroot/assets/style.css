@@ -1,4 +1,7 @@
 @charset "UTF-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Exo:wght@300;400;600;700&display=swap');
+
 /*
 * NobleUI - HTML Bootstrap 5 Admin Dashboard Template v2.0.1 (https://nobleui.com/)
 * Copyright © 2022 NobleUI
@@ -24608,14 +24611,22 @@ div.tox .btn-group-lg > .btn-icon-text.tox-button .btn-icon-append,
 }
 
 .auth-page .auth-side-wrapper {
-  width: 100%;
-  height: 100%;
-  background-image: url(https://via.placeholder.com/219x452);
-  background-size: cover;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-image: url(imgs/illust-home.png);
+    background-position: center bottom;
+    background-size: 300px;
+    border: solid 1px #dcdcdc;
+    background-color: #f6f6f6;
+}
+
+.auth-page .auth-content {
+    padding-top:10rem;
 }
 
 .email-aside-nav.collapse {
-  display: block;
+    display: block;
 }
 @media (max-width: 991px) {
   .email-aside-nav.collapse {

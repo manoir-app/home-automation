@@ -8,12 +8,14 @@
     <script src="../scripts/jquery-2.0.2.js"></script>
     <script src="../scripts/angular.min.js"></script>
     <script src="../scripts/angular-animate.js"></script>
-    <script src="../scripts/select2.min.js"></script><link rel="stylesheet" href="../assets/select2.min.css" />
+    <script src="../scripts/select2.min.js"></script>
+    <link rel="stylesheet" href="../assets/select2.min.css" />
     <script src="../scripts/ui-select2.js"></script>
     <script src="../scripts/microsoft/signalr/dist/browser/signalr.min.js"></script>
 
     <script src="/me/scripts/user-menu.js"></script>
     <script src="index.js"></script>
+    <link rel="manifest" href="/manifest.json">
 
     <manoir-head></manoir-head>
 
@@ -44,15 +46,15 @@
                     </div>
                     <div class="col-md-4 grid-margin stretch-card">
                         <div class="card">
-        <div class="card-body">
-            <h4 class="card-title">Present</h4>
-            <div>
-                <div class="user-present" ng-repeat="user in presentUsers">
-                    <img ng-src="{{user.urlAvatarSmall}}" alt="{{user.commonName}}" />
-                </div>
-            </div>
-        </div>
-    </div>
+                            <div class="card-body">
+                                <h4 class="card-title">Present</h4>
+                                <div>
+                                    <div class="user-present" ng-repeat="user in presentUsers">
+                                        <img ng-src="{{user.urlAvatarSmall}}" alt="{{user.commonName}}" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-4 grid-margin stretch-card">
 
@@ -68,6 +70,11 @@
     <script src="/assets/feather.min.js"></script>
     <script src="/assets/template.js"></script>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
 
 </body>
 </html>
