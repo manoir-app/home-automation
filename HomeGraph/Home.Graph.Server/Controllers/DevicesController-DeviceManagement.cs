@@ -203,7 +203,9 @@ namespace Home.Graph.Server.Controllers
                         & Builders<Device>.Filter.Eq("Datas.Name", data.Name);
 
                 var upd = Builders<Device>.Update
-                    .Set("Datas.$.Value", data.Value);
+                    .Set("Datas.$.Value", data.Value)
+                    .Set("Datas.$.StandardDataType", data.StandardDataType)
+                    .Set("Datas.$.IsMainData", data.IsMainData);
 
                 if (!string.IsNullOrEmpty(mainStatus))
                     upd = upd.Set("MainStatusInfo", mainStatus);

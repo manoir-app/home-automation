@@ -68,7 +68,6 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                 if (tmp != null)
                     ParseDevices(tmp);
                 return;
-
             }
 
             foreach (var t in _allDevices.Values)
@@ -131,6 +130,10 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                     ret = new Z2MqttLightSwitch(device.ieee_address, fullMqttPath);
                     ret.RefreshFromConfig(device);
                     break;
+                case "sensor":
+                    ret = new Z2MqttSensor(device.ieee_address, fullMqttPath);
+                    ret.RefreshFromConfig(device);
+                    break;
             }
 
             return ret;
@@ -168,6 +171,13 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                                             return "basic-switch-light";
                                     }
                                     return null;
+                                }
+                                break;
+                            default:
+                                if(exp.name != null)
+                                {
+                                    if (Z2MqttSensor.IsManagedProperty(exp))
+                                        return "sensor";
                                 }
                                 break;
                         }

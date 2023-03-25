@@ -3,10 +3,13 @@ using Home.Common.HomeAutomation;
 using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static Home.Agents.Sarah.Devices.Hue.HueHelper;
@@ -32,11 +35,27 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             _mqttPath = mqttPath;
         }
 
+        internal virtual void ForceRefresh()
+        {
+
+        }
 
         internal abstract void RefreshFromConfig(Z2MqttHelper.DeviceInfo device);
 
         internal abstract void RefreshStatusFromTopic(Dictionary<string, object> values);
 
+        internal void RefreshSensors(Dictionary<string, string> values)
+        {
+            UpdateInTimeDb(values);
+
+            var changed = new List<DeviceStateChangedMessage.DeviceStateValue>();
+            foreach (var k in values.Keys)
+            {
+                changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = k, Value = values[k] });
+            }
+            Console.WriteLine($"Zigbee2MQTT - changing propertues {string.Join(',', (from z in changed select z.Name).ToArray())}");
+            DeviceManager.OnDeviceStateChanged("Zigbee2Mqtt", DeviceName, Device.HomeAutomationMainRoleSensors, "", changed.ToArray());
+        }
 
         internal void RefreshLightOrSwitchState(bool on, decimal? intensity, Color? color)
         {
@@ -77,8 +96,8 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             if (this is IColorBoundDevice && color.HasValue)
             {
                 try
-                {                   
-                   changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = color.Value.ToString() });
+                {
+                    changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = "color", Value = color.Value.ToString() });
                 }
                 catch
                 {
@@ -88,6 +107,32 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                     DeviceManager.OnDeviceStateChanged("Zigbee2Mqtt", DeviceName, Device.HomeAutomationRoleColorBound, globalStatus, changed.ToArray());
             }
 
+        }
+
+
+        private void UpdateInTimeDb(Dictionary<string, string> values)
+        {
+            foreach (var k in values.Keys)
+            {
+
+                try
+                {
+                    // on push en timedb
+                    if (decimal.TryParse(values[k], System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out decimal val))
+                    {
+                        TimeDBHelper.Trace("home", "entities", k, val, new Dictionary<string, string>()
+                        {
+                            {"deviceId", DeviceName},
+                            {"roomId", ""},
+                            {"locationId", ""},
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Err updating timedb for Z2mqtt : " + ex);
+                }
+            }
         }
 
         private void UpdateInTimeDb(bool on, decimal? intensity, Color? color)

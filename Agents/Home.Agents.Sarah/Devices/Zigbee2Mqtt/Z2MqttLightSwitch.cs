@@ -53,6 +53,11 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             };
         }
 
+        internal override void ForceRefresh()
+        {
+            MqttHelper.PublishJson(_mqttPath + "/get", "{\"state\":\"\"}");
+        }
+
         public IEnumerable<DeviceData> GetSwitches()
         {
             var dvs = new List<DeviceData>();
