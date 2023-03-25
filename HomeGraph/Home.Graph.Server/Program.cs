@@ -17,7 +17,7 @@ namespace Home.Graph.Server
     {
         public static void Main(string[] args)
         {
-            MqttHelper.Start();
+            MqttHelper.Start("homegraph");
 
             string cn = Environment.GetEnvironmentVariable("APPCONFIG_CNSTRING");
 

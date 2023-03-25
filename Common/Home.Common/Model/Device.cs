@@ -13,6 +13,7 @@ namespace Home.Common.Model
             Datas = new List<DeviceData>();
             SupportPrivacyMode = true;
             Images = new Dictionary<string, string>();
+            SecondaryDatas = new List<DeviceData>();
         }
 
         public Device(DeviceBase fromAutomationDevice, string managingAgent = "sarah") : this()
@@ -21,6 +22,7 @@ namespace Home.Common.Model
             DeviceKind = Device.DeviceKindHomeAutomation;
 
             this.DeviceRoles.AddRange(fromAutomationDevice.GetRoles());
+            this.SecondaryDatas = fromAutomationDevice.SecondaryProperties;
         }
 
 
@@ -70,6 +72,7 @@ namespace Home.Common.Model
 
         public string MainStatusInfo { get; set; }
         public List<DeviceData> Datas { get; set; }
+        public List<DeviceData> SecondaryDatas { get; set; }
 
         public string AssignatedUserId { get; set; }
 
@@ -145,10 +148,23 @@ namespace Home.Common.Model
         public const string DataTypeGradient = "gradient";
         public const string DataTypeColor = "color";
 
+        public const string DataTypeSensorTemperature = "temperature";
+        public const string DataTypeSensorHumidity = "humidity";
+        public const string DataTypeSensorPressure = "pressure";
+
+
+        // les propriétés secondaires
+        public const string DataTypeAlimentationType = "alimentation";
+        public const string DataTypeBatteryPercentage = "battery_percentage";
+        public const string DataTypeInternalTemperature = "device_temp";
+        public const string DataTypeLinkSignalStrength = "link_quality";
+
+
         public bool IsMainData { get; set; }
         public string Name { get; set; }
         public string StandardDataType { get; set; }
         public string Value { get; set; }
+        public string ValueUnit { get; set; }
         public string MinValue { get; set; }
         public string MaxValue { get; set; }
         public string[] ValidValues { get; set; }

@@ -49,6 +49,8 @@ namespace Home.Agents.Sarah
             topics.Add("homeautomation.shelly");
             topics.Add("homeautomation.hue.>");
             topics.Add("homeautomation.hue");
+            topics.Add("homeautomation.zigbee2mqtt.>");
+            topics.Add("homeautomation.zigbee2mqtt");
             topics.Add("homeautomation.divoom.>");
             topics.Add("homeautomation.divoom");
             topics.Add("display.divoom.>");
@@ -169,6 +171,8 @@ namespace Home.Agents.Sarah
                 return Devices.Hue.HueHelper.HandleMessage(origin, topic, messageBody);
             if (topic.StartsWith("homeautomation.hue", StringComparison.InvariantCultureIgnoreCase))
                 return Devices.Hue.HueHelper.HandleMessage(origin, topic, messageBody);
+            if (topic.StartsWith("homeautomation.zigbee2mqtt", StringComparison.InvariantCultureIgnoreCase))
+                return Devices.Zigbee2Mqtt.Z2MqttHelper.HandleMessage(origin, topic, messageBody);
             if (topic.StartsWith("homeautomation.divoom", StringComparison.InvariantCultureIgnoreCase))
                 return Devices.Divoom.DivoomDeviceHelper.HandleMessage(origin, topic, messageBody);
 

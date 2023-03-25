@@ -26,5 +26,9 @@ namespace Home.Common.HomeAutomation
 
             return roles;
         }
+
+
+        public List<DeviceData> SecondaryProperties { get; } = new List<DeviceData>();
+
     }
 }

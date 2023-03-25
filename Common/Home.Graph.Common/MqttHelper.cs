@@ -17,9 +17,8 @@ namespace Home.Graph.Common
     {
         static IManagedMqttClient _client = null;
 
-        public static void Start()
+        public static void Start(string name)
         {
-
             if (_client != null)
                 return;
 
@@ -36,7 +35,7 @@ namespace Home.Graph.Common
             var options = new ManagedMqttClientOptionsBuilder()
                 .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
                 .WithClientOptions(new MqttClientOptionsBuilder()
-                    .WithClientId("HomeGraph-" + Environment.MachineName)
+                    .WithClientId(name + "-" + Environment.MachineName)
                     .WithTcpServer((opts) =>
                     {
                         opts.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork;
@@ -275,6 +274,24 @@ namespace Home.Graph.Common
                     .WithPayload(description)
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        public static void PublishJson(string topicName, string json)
+        {
+            try
+            {
+
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
+                    .WithTopic(topicName)
+                    .WithContentType("text/json")
+                    .WithPayload(json)
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .Build()).Wait();
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using Home.Agents.Sarah.Devices.Hue;
 using Home.Common;
+using Home.Common.Messages;
 using Home.Graph.Common;
 using System;
 using System.Collections.Generic;
@@ -51,13 +52,13 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             public string property { get; set; }
             public string type { get; set; }
             public string unit { get; set; }
-            public int value_max { get; set; }
-            public int value_min { get; set; }
+            public decimal? value_max { get; set; }
+            public decimal? value_min { get; set; }
             public DeviceFeature[] features { get; set; }
             public string[] values { get; set; }
-            public bool value_off { get; set; }
-            public bool value_on { get; set; }
-            public int value_step { get; set; }
+            public string value_off { get; set; }
+            public string value_on { get; set; }
+            public decimal? value_step { get; set; }
         }
 
         public class DeviceFeature

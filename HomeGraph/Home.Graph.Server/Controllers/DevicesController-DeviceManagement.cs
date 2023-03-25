@@ -50,14 +50,14 @@ namespace Home.Graph.Server.Controllers
                                    .Set("DeviceRoles", dev.DeviceRoles);
 
                         if (string.IsNullOrEmpty(existing.MeshId))
-                            upd.Set("MeshId", dev.MeshId);
+                            upd = upd.Set("MeshId", dev.MeshId);
 
-                        // si on reçoit un nom alors qu'on en avait aucun
+                        // ok si on reçoit un nom alors qu'on en avait aucun
                         // mais ne pas mettre à jour si il y a déjà un nom setté
                         if (dev.DeviceGivenName != null &&
                             (string.IsNullOrEmpty(existing.DeviceGivenName)
                                 || dev.DeviceInternalName == dev.DeviceGivenName))
-                            upd.Set("DeviceGivenName", dev.DeviceGivenName);
+                            upd = upd.Set("DeviceGivenName", dev.DeviceGivenName);
 
                         coll.UpdateOne(x => x.Id == existing.Id, upd);
 

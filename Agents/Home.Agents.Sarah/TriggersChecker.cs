@@ -38,7 +38,7 @@ namespace Home.Agents.Sarah
                 if (t.Kind != TriggerKind.MqttValue)
                     return;
 
-                MqttHelper.Start();
+                MqttHelper.Start("agents-sarah");
                 if (_t != null)
                     MqttHelper.RemoveChangeHandler(_t.Path, this.Handle);
 

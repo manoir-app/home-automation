@@ -22,11 +22,12 @@ namespace Home.Agents.Sarah
         {
 
             AgentHelper.WriteStartupMessage("Sarah", typeof(Program).Assembly);
-
-            //MqttHelper.Start();
-            //Z2MqttHelper.Start();
-            //Console.ReadLine();
-            //return;
+#if DEBUG
+            MqttHelper.Start("agents-sarah");
+            Z2MqttHelper.Start();
+            Console.ReadLine();
+            return;
+#endif
 
             AgentHelper.SetupLocaleFromServer("sarah");
             AgentHelper.ReportStart("sarah", "home-automation");
@@ -51,7 +52,7 @@ namespace Home.Agents.Sarah
             TriggersChecker.Start();
             HomeAutomationCleanup.Start();
             DeviceManager.Start();
-
+            MqttHelper.Start("agents-sarah");
             Devices.NetworkDeviceHelper.Start(cfg);
 
             if (SupportDeviceFamily("shelly", cfg))
@@ -62,6 +63,11 @@ namespace Home.Agents.Sarah
                 Devices.Hue.HueHelper.Start();
             if (SupportDeviceFamily("divoom", cfg))
                 Devices.Divoom.DivoomDeviceHelper.Start();
+            if (SupportDeviceFamily("zigbee2mqtt", cfg))
+                Devices.Zigbee2Mqtt.Z2MqttHelper.Start();
+
+
+
 
             while (!_stop)
             {
@@ -73,6 +79,8 @@ namespace Home.Agents.Sarah
             Devices.Shelly.ShellyDeviceHelper.Stop();
             Devices.Wled.WledHelper.Stop();
             Devices.Divoom.DivoomDeviceHelper.Stop();
+            Devices.Zigbee2Mqtt.Z2MqttHelper.Stop();
+            MqttHelper.Stop();
             DeviceManager.Stop();
             HomeAutomationCleanup.Stop();
             TriggersChecker.Stop();
@@ -89,7 +97,7 @@ namespace Home.Agents.Sarah
                 return MessageResponse.GenericFail;
             }
 
-            switch(integrationConfigurationMessage.Integration.Id.ToLowerInvariant())
+            switch (integrationConfigurationMessage.Integration.Id.ToLowerInvariant())
             {
                 case "sarah.shelly.local":
                     return Devices.Shelly.ShellyDeviceHelper.HandleConfigurationMessage(integrationConfigurationMessage);
@@ -107,7 +115,7 @@ namespace Home.Agents.Sarah
                 return true;
 
             return data.DeviceFamilies.Contains(family);
-        }        
+        }
 
     }
 }
