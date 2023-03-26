@@ -1,19 +1,53 @@
 ﻿using Home.Common;
 using Home.Common.Model;
+using Serilog;
 using System;
+using System.Net;
+using System.Collections.Generic;
+using Serilog.Sinks.Grafana.Loki;
+using Serilog.Context;
 
 namespace Home.Graph.Common
 {
     public static class LogHelper
     {
+
+
+        static ILogger _log = null;
+        static LogHelper()
+        {
+            string port = Environment.GetEnvironmentVariable("LOKI_SERVICE_PORT");
+            if (port == null)
+                port = "3100";
+            string ip = Environment.GetEnvironmentVariable("LOKI_SERVICE_HOST");
+            
+            if (port != null && ip != null)
+            {
+                _log = new LoggerConfiguration()
+                      //.MinimumLevel.Debug()
+                      .Enrich.FromLogContext()
+                      //.Enrich.With<HttpContextEnricher>()
+                      .WriteTo.GrafanaLoki(
+                            $"http://{ip}:{port}",
+                            propertiesAsLabels: new string[] { "SourceKind", "SourceId" }
+                      )
+                      .CreateLogger();
+            }
+        }
+
         public static void Log(LogData l)
         {
+            Console.WriteLine(l.Message);
+
+            if (_log == null)
+                return;
+
             try
             {
-                var coll = MongoDbHelper.GetClient<LogData>();
-                l.Id = Guid.NewGuid().ToString();
-                l.Date = DateTimeOffset.Now;
-                coll.InsertOne(l);
+                using (LogContext.PushProperty("SourceKind", l.Source))
+                using (LogContext.PushProperty("SourceId", l.SourceId))
+                using (LogContext.PushProperty("Picture", l.ImageUrl))
+                    _log.Information(l.Message);
             }
             catch
             {

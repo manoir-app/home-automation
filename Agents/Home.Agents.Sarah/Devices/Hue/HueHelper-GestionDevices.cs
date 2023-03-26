@@ -1,5 +1,6 @@
 ﻿using Home.Common.HomeAutomation;
 using Home.Common.Model;
+using Home.Graph.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace Home.Agents.Sarah.Devices.Hue
 
         private static void Run()
         {
+            LogHelper.Log("agent", "sarah", $"Starting HueBridge");
+
             while (!_stop)
             {
                 try
@@ -47,8 +50,6 @@ namespace Home.Agents.Sarah.Devices.Hue
             List<DeviceBase> ret = new List<DeviceBase>();
             var alldevs = GetLights();
 
-            Console.WriteLine($"Hue - Found {alldevs.Count} devices on hue bridge");
-
             foreach (var lightId in alldevs.Keys)
             {
                 var dev = alldevs[lightId];
@@ -74,9 +75,11 @@ namespace Home.Agents.Sarah.Devices.Hue
                 }
             }
 
-            if(toRegister.Count>0)
-                Console.WriteLine($"Hue - Registering {toRegister.Count} hue devices");
+            if (toRegister.Count > 0)
+            {
+                LogHelper.Log("agent", "sarah", $"Hue - Registering {toRegister.Count} hue devices");
 
+            }
             if (toRegister != null && toRegister.Count > 0)
                 RegisterHueDevice(toRegister.ToArray());
 

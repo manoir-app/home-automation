@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Threading;
+using Home.Graph.Common;
+using Home.Common.HomeAutomation;
 
 namespace Home.Agents.Erza
 {
@@ -25,6 +27,8 @@ namespace Home.Agents.Erza
         private static void MaintenanceUserPresent(bool sendNotificationForChanges = true)
         {
             var usrs = GetLocalPresentUsers();
+            List<string> newOuts = null;
+
             if (usrs != null)
             {
                 var guests = (from z in usrs
@@ -46,9 +50,9 @@ namespace Home.Agents.Erza
                              select z.Id).ToList();
 
 
-                var newOuts = (from z in _alreadyPresents
-                               where !usrs.Any(x => x.Id.Equals(z))
-                               select z).ToList();
+                newOuts = (from z in _alreadyPresents
+                           where !usrs.Any(x => x.Id.Equals(z))
+                           select z).ToList();
 
                 if (newIn.Count > 0)
                     Console.WriteLine("Users in : " + String.Join(',', newIn));
@@ -61,6 +65,34 @@ namespace Home.Agents.Erza
 
                 _alreadyPresents = (from z in usrs
                                     select z.Id).ToList();
+
+                foreach (var usr in usrs)
+                {
+                    TimeDBHelper.Trace("home", "presence", "is-present", 1, new Dictionary<string, string>()
+                    {
+                            {"userId", usr.Id},
+                        });
+                }
+               
+                // on complete les outs avec tous les main
+                // users qui ne sont pas présent, pour avoir
+                // un histo complet sur les main.
+                usrs = AgentHelper.GetMainUsers("erza");
+                foreach (var usr in usrs)
+                {
+                    if (!_alreadyPresents.Contains(usr.Id) && !newOuts.Contains(usr.Id))
+                    {
+                        newOuts.Add(usr.Id);
+                    }
+                }
+
+                foreach (var usr in newOuts)
+                {
+                    TimeDBHelper.Trace("home", "presence", "is-present", 0, new Dictionary<string, string>()
+                    {
+                        {"userId", usr},
+                    });
+                }
             }
         }
 

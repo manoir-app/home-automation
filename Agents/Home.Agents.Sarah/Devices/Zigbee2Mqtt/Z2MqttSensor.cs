@@ -91,32 +91,40 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             {
                 if (_mappings.TryGetValue(k, out string valueName))
                 {
-                    var o = values[k];
-                    if (o == null)
-                        _lastReadings.Add(valueName, "");
-                    else if (o is bool)
-                        _lastReadings.Add(valueName, ((bool)o) ? "on" : "off");
-                    else if (o is float)
-                        _lastReadings.Add(valueName, ((float)o).ToString("0.00", CultureInfo.InvariantCulture));
-                    else if (o is decimal)
-                        _lastReadings.Add(valueName, ((decimal)o).ToString("0.00", CultureInfo.InvariantCulture));
-                    else if (o is double)
-                        _lastReadings.Add(valueName, ((double)o).ToString("0.00", CultureInfo.InvariantCulture));
-                    else if (o is int)
-                        _lastReadings.Add(valueName, ((int)o).ToString("0", CultureInfo.InvariantCulture));
-                    else if (o is long)
-                        _lastReadings.Add(valueName, ((long)o).ToString("0", CultureInfo.InvariantCulture));
-                    else if (o is short)
-                        _lastReadings.Add(valueName, ((short)o).ToString("0", CultureInfo.InvariantCulture));
-                    else if (o is byte)
-                        _lastReadings.Add(valueName, ((byte)o).ToString("0", CultureInfo.InvariantCulture));
-                    else
-                        _lastReadings.Add(valueName, (o).ToString());
+                    try
+                    {
+                        var o = values[k];
+                        if (o == null)
+                            _lastReadings.Add(valueName, "");
+                        else if (o is bool)
+                            _lastReadings.Add(valueName, ((bool)o) ? "on" : "off");
+                        else if (o is float)
+                            _lastReadings.Add(valueName, ((float)o).ToString("0.00", CultureInfo.InvariantCulture));
+                        else if (o is decimal)
+                            _lastReadings.Add(valueName, ((decimal)o).ToString("0.00", CultureInfo.InvariantCulture));
+                        else if (o is double)
+                            _lastReadings.Add(valueName, ((double)o).ToString("0.00", CultureInfo.InvariantCulture));
+                        else if (o is int)
+                            _lastReadings.Add(valueName, ((int)o).ToString("0", CultureInfo.InvariantCulture));
+                        else if (o is long)
+                            _lastReadings.Add(valueName, ((long)o).ToString("0", CultureInfo.InvariantCulture));
+                        else if (o is short)
+                            _lastReadings.Add(valueName, ((short)o).ToString("0", CultureInfo.InvariantCulture));
+                        else if (o is byte)
+                            _lastReadings.Add(valueName, ((byte)o).ToString("0", CultureInfo.InvariantCulture));
+                        else
+                            _lastReadings.Add(valueName, (o).ToString());
+                        Console.WriteLine($"Zigbee2MQTT - {k} = {_lastReadings[k]}");
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine($"Zigbee2MQTT - reading {k} exception {ex.ToString()}");
+
+                    }
                 }
                 else
                 {
                     Console.WriteLine($"Zigbee2MQTT - property {k} not mapped");
-
                 }
             }
 

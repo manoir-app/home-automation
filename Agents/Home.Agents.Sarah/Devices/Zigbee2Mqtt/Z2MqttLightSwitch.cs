@@ -35,7 +35,6 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                     throw new ArgumentException("New value invalid !", nameof(switchNewValue));
             }
 
-            //_light = HueHelper.SetLightStateRgb(_hueDeviceId, state, null, null);
             MqttHelper.PublishJson(_mqttPath + "/set", "{\"state\":\"" + (state ? "on" : "off") + "\"}");
             _on = state;
             return ConvertOnOffState();
@@ -89,6 +88,8 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                         _on = false;
                         break;
                 }
+
+                Console.WriteLine($"Zigbee2MQTT - state = {state}");
             }
 
             base.RefreshLightOrSwitchState(_on, null, null);

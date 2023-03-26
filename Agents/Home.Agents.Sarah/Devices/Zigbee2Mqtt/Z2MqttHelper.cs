@@ -37,11 +37,49 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             pth = pth + "#";
 
             MqttHelper.AddChangeHandler(pth, HandleChange);
+
+
+            var t = new Thread(() => Z2MqttHelper.Run());
+            t.Name = "Zigbee2Mqtt devices";
+            t.Start();
         }
 
+        private static void Run()
+        {
+            LogHelper.Log("agent", "sarah", $"Starting Zigbee2Mqtt");
+            DateTimeOffset lastRefresh = DateTimeOffset.Now;
+
+            while (!_stop)
+            {
+                try
+                {
+                    Thread.Sleep(250);
+                    if (Math.Abs((DateTimeOffset.Now - lastRefresh).TotalMinutes) > 2)
+                    {
+                        foreach (var dev in _allDevices.Values)
+                            dev.ForceRefresh();
+
+                        lastRefresh = DateTimeOffset.Now;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.Write("Zigbee2MQTT - ERR in Z2MqttThread - ");
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
         public static void Stop()
         {
+            string pth = _root;
+            if (!pth.EndsWith("/"))
+                pth = pth + "/";
+            pth = pth + "#";
+
             _stop = true;
+
+            MqttHelper.RemoveChangeHandler(pth, HandleChange);
         }
 
 
@@ -83,26 +121,27 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
 
                 if (pth.Equals(tpc, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Console.WriteLine($"Zigbee2MQTT - update of device " + t._deviceIeeeID);
-                    t.RefreshStatusFromTopic(JsonConvert.DeserializeObject<Dictionary<string, object>>(data));
+                    var topicData = JsonConvert.DeserializeObject<Dictionary<string, object>>(data);
+                    Console.WriteLine($"Zigbee2MQTT - update of device {t._deviceIeeeID} : {string.Join(",", topicData.Keys)}");
+                    t.RefreshStatusFromTopic(topicData);
                     return;
                 }
 
             }
 
             // on détecte le fait que le /bridge/devices soit KO
-            if(_allDevices.Count==0)
+            if (_allDevices.Count == 0)
             {
                 // si on a pas reçu de bridge/devices et qu'on
                 // est démarré depuis 5 min, on restart zigbee2mqtt
-                if(_lastDeviceInfo < _lastStart 
+                if (_lastDeviceInfo < _lastStart
                     && Math.Abs((DateTimeOffset.Now - _lastStart).TotalMinutes) > 5)
                 {
                     string pth = _root;
                     if (!pth.EndsWith("/"))
                         pth = pth + "/";
                     pth += "bridge/request/restart";
-                    _lastStart= DateTimeOffset.Now;
+                    _lastStart = DateTimeOffset.Now;
                     MqttHelper.PublishJson(pth, "");
                 }
             }

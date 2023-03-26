@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Threading;
+using Home.Graph.Common;
 
 namespace Home.Agents.Erza
 {
     internal static partial class PresenceHelper
     {
         private static DateTime _lastRun = DateTime.Now;
+        private static DateTime _lastRefreshLoc = DateTime.Now;
         private static Location _localLoc = null;
 
         public static void Start()
@@ -27,11 +29,17 @@ namespace Home.Agents.Erza
         {
             while (!_stop)
             {
-                _localLoc = AgentHelper.GetLocalMeshLocation("erza");
+
+                if (Math.Abs((DateTime.Now - _lastRefreshLoc).TotalMinutes) > 1 || _localLoc == null)
+                {
+                    _lastRefreshLoc = DateTime.Now;
+                    _localLoc = AgentHelper.GetLocalMeshLocation("erza");
+                }
 
                 Thread.Sleep(250);
-                if (Math.Abs((DateTime.Now - _lastRun).TotalMinutes) > 5)
+                if (Math.Abs((DateTime.Now - _lastRun).TotalMinutes) > 2)
                 {
+
                     _lastRun = DateTime.Now;
                     try
                     {
