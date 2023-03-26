@@ -133,7 +133,7 @@ namespace Home.Agents.Sarah.Devices.Hue
                 // on push en timedb
                 if (light.state.on)
                 {
-                    TimeDBHelper.Trace("home", "devices", "brightness", light.state.bri, new Dictionary<string, string>()
+                    TimeDBHelper.Trace("home", "devices", "brightness", Math.Min(Math.Ceiling(light.state.bri / 2.54M), 100), new Dictionary<string, string>()
                         {
                             {"deviceId", GetLightDeviceName(light)},
                             {"roomId", ""},
