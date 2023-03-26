@@ -9,28 +9,38 @@ using System.Collections.Generic;
 using System.IO;
 using Home.Common.Messages;
 using Home.Common;
+using Microsoft.Azure.Amqp.Framing;
 
 namespace Home.Graph.Server.Controllers
 {
     partial class AutomationMeshController
     {
         [Route("local/integrations"), HttpGet()]
-        public List<Integration> GetIntegrations()
+        public List<Integration> GetIntegrations(bool includeHidden = false)
         {
             var coll = MongoDbHelper.GetClient<Integration>();
-            return coll.Find(x => true).ToList();
+
+            List<Integration> ret = null;
+            if (includeHidden)
+                return coll.Find(x => true).ToList();
+            else
+                return coll.Find(x => x.Hidden!=true).ToList();
         }
 
         [Route("local/integrations/byagent/{agentId}"), HttpGet()]
-        public List<Integration> GetIntegrations(string agentId, bool onlyActives = false)
+        public List<Integration> GetIntegrations(string agentId, bool onlyActives = false, bool includeHidden = false)
         {
             if (string.IsNullOrEmpty(agentId))
                 return null;
             agentId = agentId.ToLowerInvariant();
             var coll = MongoDbHelper.GetClient<Integration>();
-            var ret = coll.Find(x => x.AgentId!=null && x.AgentId == agentId).ToList();
+            List<Integration> ret = null;
+            if(includeHidden)
+                ret = coll.Find(x => x.AgentId != null && x.AgentId == agentId).ToList();
+            else
+                ret = coll.Find(x => x.AgentId != null && x.AgentId == agentId && x.Hidden!=true).ToList();
 
-            if(onlyActives)
+            if (onlyActives)
             {
                 ret = (from z in ret
                        where z.Instances != null && z.Instances.Count > 0
@@ -102,6 +112,129 @@ namespace Home.Graph.Server.Controllers
             return coll.Find(x => x.Id == integrationId).FirstOrDefault();
         }
 
+        [Route("local/integrations/{integrationId}/config"), HttpGet()]
+        public ActionResult ConfigureIntegration(string integrationId, bool forceNew = false)
+        {
+            if (integrationId == null)
+                return BadRequest();
+            integrationId = integrationId.ToLowerInvariant();
+            var coll = MongoDbHelper.GetClient<Integration>();
+            var integ = coll.Find(x => x.Id == integrationId).FirstOrDefault();
+
+            if (integ == null)
+                return NotFound();
+
+            IntegrationConfigurationData ret = new IntegrationConfigurationData()
+            {
+                Integration = integ
+            };
+
+            if (forceNew)
+            {
+                if (integ.Instances != null && integ.Instances.Count > 0
+                    && !integ.CanInstallMultipleTimes)
+                {
+                    return BadRequest("Already configured");
+                }
+            }
+            else
+            {
+                if (integ.Instances != null && integ.Instances.Count > 0)
+                {
+                    return BadRequest("Already configured");
+                }
+
+            }
+
+            ret.CurrentInstance = new IntegrationInstance()
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                IsSetup = false,
+                Label = integ.Label == null ? "New" : integ.Label,
+                Settings = new Dictionary<string, string>()
+            };
+            var msg = new IntegrationConfigurationMessage(integ.AgentId, integ, ret.CurrentInstance);
+            return SendConfigurationStepToAgent(coll, integ, ret, msg);
+        }
+
+
+        [Route("local/integrations/{integrationId}/config/{instanceId}"), HttpPost()]
+        public ActionResult ConfigureIntegration(string integrationId, string instanceId, [FromBody] Dictionary<string, string> configValues)
+        {
+            if (integrationId == null)
+                return BadRequest();
+            if (instanceId == null)
+                return BadRequest();
+
+            integrationId = integrationId.ToLowerInvariant();
+            var coll = MongoDbHelper.GetClient<Integration>();
+            var integ = coll.Find(x => x.Id == integrationId).FirstOrDefault();
+
+            if (integ == null)
+                return NotFound();
+
+            IntegrationConfigurationData ret = new IntegrationConfigurationData()
+            {
+                Integration = integ
+            };
+
+             
+            ret.CurrentInstance = (from z in integ.Instances
+                                   where z.Id.Equals(instanceId, StringComparison.InvariantCultureIgnoreCase)
+                                   select z).FirstOrDefault();
+            if (ret.CurrentInstance == null)
+                return NotFound();
+
+            var msg = new IntegrationConfigurationMessage(integ.AgentId, integ, ret.CurrentInstance);
+            if (configValues != null)
+                msg.SetupValues = configValues;
+            return SendConfigurationStepToAgent(coll, integ, ret, msg);
+        }
+
+        private static ActionResult SendConfigurationStepToAgent(IMongoCollection<Integration> coll, Integration integ, IntegrationConfigurationData ret, IntegrationConfigurationMessage msg)
+        {
+            var dm = MessagingHelper.RequestFromLocalAgent<IntegrationConfigurationResponse>(msg);
+            if (dm != null)
+            {
+                ret.ConfigurationCardFormat = dm.ConfigurationCardFormat;
+                ret.ConfigurationCard = dm.ConfigurationCard;
+                ret.IsFinalStep = dm.IsFinalStep;
+            }
+
+            foreach (var r in integ.Instances)
+            {
+                if (r.Id.Equals(dm.Instance.Id))
+                {
+                    integ.Instances.Remove(r);
+                    integ.Instances.Add(dm.Instance);
+                    break;
+                }
+            }
+
+            coll.ReplaceOne(x => x.Id.Equals(integ.Id),
+                integ);
+
+            if (dm.Instance.IsSetup)
+            {
+                MessagingHelper.PushToLocalAgent(new IntegrationInstancesListChangedMessage()
+                {
+                    
+                });
+            }
+
+            return new OkObjectResult(ret);
+        }
+
+        public class IntegrationConfigurationData
+        {
+            public Integration Integration { get; set; }
+            public IntegrationInstance CurrentInstance { get; set; }
+
+            public string ConfigurationCardFormat { get; set; }
+            public string ConfigurationCard { get; set; }
+            public bool IsFinalStep { get; set; }
+
+        }
 
     }
 }

@@ -8,10 +8,46 @@
 
 module HomeAutomation.Admin.Integrations {
 
-   
+
     export interface IIntegrationsPageScope extends ng.IScope {
         view: string;
         events: IntegrationsPage;
+
+        isSaving: boolean;
+
+        installed: Array<InstalledIntegration>;
+        inProgress: Array<InstalledIntegration>;
+        notInstalled: Array<Integration>;
+        all: Array<Integration>;
+
+        editedIntegration: InstalledIntegration;
+    }
+
+    export interface Integration {
+        id: string;
+        agentId: string;
+        hidden: boolean;
+        label: string;
+        image: string;
+        description: string;
+        category: string;
+        canInstallMultipleTimes: boolean;
+        instances: Array<IntegrationInstance>;
+    }
+    export interface IntegrationInstance {
+        id: string;
+        label: string;
+        isSetup: boolean;
+    }
+
+    export interface InstalledIntegration {
+        id: string;
+        agentId: string;
+        hidden: boolean;
+        label: string;
+        instanceId: string;
+        instanceLabel: string;
+        isSetup: boolean;
     }
 
 
@@ -27,12 +63,15 @@ module HomeAutomation.Admin.Integrations {
 
             self.scope.view = "systemIntegrations-list";
             self.scope.events = self;
-
-
+            self.scope.installed = new Array<InstalledIntegration>();
+            self.scope.inProgress = new Array<InstalledIntegration>();
+            self.scope.notInstalled = new Array<Integration>();
+            self.scope.all = new Array<Integration>();
+            self.scope.isSaving = false;
             self.init();
         }
 
-        
+
 
         public switchToView(newView: string): boolean {
             var sc = this.scope;
@@ -43,36 +82,83 @@ module HomeAutomation.Admin.Integrations {
             return false;
         }
 
-      
+        public switchToConfigPage(it: InstalledIntegration): boolean {
+            var sc = this.scope;
 
-       
+            sc.view = "config-page";
+
+            sc.editedIntegration = it;
+
+            sc.$applyAsync();
+            return false;
+        }
+
+
 
         public init(): void {
             var sc = this.scope;
             var self = this;
 
-           
-            //$.ajax({
-            //    url: '/v1.0/security/Integrations/self/foradmin',
-            //    type: 'GET',
-            //    dataType: "json",
-            //    contentType: "application/json"
-            //})
-            //    .done(function (data) {
-            //        sc.Integrations = new Array<Token>();
-            //        for (var a of data) {
-            //            var ag: Token = {
-            //                user : a.user,
-            //                tokenType: a.tokenType
-            //            };
-            //            if (a.user.toLocaleLowerCase() == "system")
-            //                sc.SystemIntegrations.push(ag);
+            var withHidden = false;
 
-            //        }
-            //        sc.$applyAsync();
-            //    })
-            //    .fail(function () {
-            //    });
+            $.ajax({
+                url: '/v1.0/system/mesh/local/integrations' + (withHidden ?"?includeHidden=true":""),
+                type: 'GET',
+                dataType: "json",
+                contentType: "application/json"
+            })
+                .done(function (data: Array<Integration>) {
+                    self.parseIntegrations(data);
+                    sc.$applyAsync();
+                })
+                .fail(function () {
+                });
+
+        }
+
+        parseIntegrations(data: Integration[]) {
+            var sc = this.scope;
+            var self = this;
+
+            var arr = new Array<InstalledIntegration>();
+            var arrEnCours = new Array<InstalledIntegration>();
+            var arrNot  = new Array<Integration>();
+            for (var i = 0; i < data.length; i++) {
+                var int = data[i];
+                if (int.instances != null && int.instances.length > 0) {
+                    for (var j = 0; j < int.instances.length; j++) {
+                        var toAdd: InstalledIntegration =  {
+                            id: int.id,
+                            agentId:int.agentId,
+                            label : int.label,
+                            hidden: int.hidden,
+                            instanceId: int.instances[j].id,
+                            instanceLabel: int.instances[j].label,
+                            isSetup: int.instances[j].isSetup
+                        };
+                        if (int.instances[j].isSetup)
+                            arr.push(toAdd);
+                        else
+                            arrEnCours.push(toAdd);
+                    }
+                }
+                else {
+                    arrNot.push(int);
+                }
+            }
+
+            arr.sort((a, b) => b.label.toLocaleLowerCase().localeCompare(a.label.toLocaleLowerCase()));
+            arrEnCours.sort((a, b) => b.label.toLocaleLowerCase().localeCompare(a.label.toLocaleLowerCase()));
+            arrNot.sort((a, b) => b.label.toLocaleLowerCase().localeCompare(a.label.toLocaleLowerCase()));
+
+            sc.notInstalled = arrNot;
+            sc.inProgress = arrEnCours;
+            sc.installed = arr;
+            sc.all = data;
+        }
+
+
+        public saveConfig() {
 
         }
     }

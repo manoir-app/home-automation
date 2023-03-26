@@ -22,7 +22,7 @@
     <None Remove="adminroot\extensions.htm" />
     <None Remove="adminroot\imgs\streamline-icon-real-estate-action-house-pin_24.png" />
     <None Remove="adminroot\index.htm" />
-    <None Remove="adminroot\integration.css" />
+    <None Remove="adminroot\integrations.css" />
     <None Remove="adminroot\integrations.htm" />
     <None Remove="adminroot\local-mesh.css" />
     <None Remove="adminroot\local-mesh.htm" />
@@ -124,7 +124,7 @@
     <Content Include="adminroot\settings\units.htm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="adminroot\integration.css">
+    <Content Include="adminroot\integrations.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="adminroot\integrations.htm">
