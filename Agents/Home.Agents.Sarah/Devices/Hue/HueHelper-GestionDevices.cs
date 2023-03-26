@@ -55,7 +55,6 @@ namespace Home.Agents.Sarah.Devices.Hue
                 var dvb = GetDeviceBase(lightId, dev);
                 if (dvb != null)
                 {
-                    Console.WriteLine($"Hue - Adding {lightId} as hue device");
                     ret.Add(dvb);
                 }
             }
@@ -75,7 +74,8 @@ namespace Home.Agents.Sarah.Devices.Hue
                 }
             }
 
-            Console.WriteLine($"Hue - Registering {toRegister.Count} hue devices");
+            if(toRegister.Count>0)
+                Console.WriteLine($"Hue - Registering {toRegister.Count} hue devices");
 
             if (toRegister != null && toRegister.Count > 0)
                 RegisterHueDevice(toRegister.ToArray());

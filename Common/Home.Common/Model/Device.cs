@@ -168,6 +168,7 @@ namespace Home.Common.Model
         public string MinValue { get; set; }
         public string MaxValue { get; set; }
         public string[] ValidValues { get; set; }
+        public DateTimeOffset LastUpdated { get; set; } = DateTimeOffset.Now;
 
     }
 }

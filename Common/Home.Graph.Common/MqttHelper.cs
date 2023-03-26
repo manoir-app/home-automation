@@ -146,10 +146,7 @@ namespace Home.Graph.Common
                 {
                     t = msg.ConvertPayloadToString();
                     if (t != null)
-                    {
-                        Console.WriteLine("MQTTHelper - raising event on subscription to " + msg.Topic + " : " + t);
                         handler.Invoke(msg.Topic, t);
-                    }
                 }
             }
 

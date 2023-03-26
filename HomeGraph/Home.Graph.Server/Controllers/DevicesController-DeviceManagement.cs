@@ -180,19 +180,24 @@ namespace Home.Graph.Server.Controllers
                 .Set("Datas", datas)
                 .Set("MainStatusInfo", status);
 
+            foreach(var dt in datas)
+                dt.LastUpdated = DateTimeOffset.Now;
+
             var t = ctl.UpdateOne(x => x.Id.Equals(deviceId), upd);
 
             return t.MatchedCount == 1;
         }
 
         [Route("all/{deviceId}/status/data"), HttpPost]
-        public bool ChangeData(string deviceId, DeviceData data, string mainStatus=null)
+        public bool ChangeData(string deviceId, [FromBody] DeviceData data, string mainStatus=null)
         {
             var ctl = MongoDbHelper.GetClient<Device>();
 
             var dev = ctl.Find(x => x.Id.Equals(deviceId)).FirstOrDefault();
             if (dev == null)
                 return false;
+
+            Console.WriteLine($"Devices - Setting {data.Name} on {deviceId} = {data.Value}");
 
             var dt = (from z in dev.Datas
                       where z.Name.Equals(data.Name)
@@ -203,9 +208,14 @@ namespace Home.Graph.Server.Controllers
                         & Builders<Device>.Filter.Eq("Datas.Name", data.Name);
 
                 var upd = Builders<Device>.Update
+                    .Set("Datas.$.LastUpdated", DateTimeOffset.Now)
                     .Set("Datas.$.Value", data.Value)
                     .Set("Datas.$.StandardDataType", data.StandardDataType)
                     .Set("Datas.$.IsMainData", data.IsMainData);
+
+                if (!string.IsNullOrEmpty(data.ValueUnit))
+                    upd = upd.Set("Datas.$.ValueUnit", data.ValueUnit);
+
 
                 if (!string.IsNullOrEmpty(mainStatus))
                     upd = upd.Set("MainStatusInfo", mainStatus);

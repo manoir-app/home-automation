@@ -58,12 +58,12 @@ namespace Home.Agents.Sarah.Devices.Wled
             {
                 if (dev.Vendor != null && dev.Vendor.Contains("Espressif", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Console.WriteLine($"w-led - Found {dev.IpV4} as a potential w-led device");
+                    //Console.WriteLine($"w-led - Found {dev.IpV4} as a potential w-led device");
 
                     var dvb = GetWledDevice(dev);
                     if (dvb != null)
                     {
-                        Console.WriteLine($"w-led - Adding {dev.IpV4} as w-led device : {dvb.DeviceName}");
+                        //Console.WriteLine($"w-led - Adding {dev.IpV4} as w-led device : {dvb.DeviceName}");
                         ret.Add(dvb);
                     }
                 }
@@ -132,7 +132,7 @@ namespace Home.Agents.Sarah.Devices.Wled
 
             if (sdi == null)
             {
-                Console.WriteLine($"Wled - {ipV4} is not a w-led device");
+                //Console.WriteLine($"Wled - {ipV4} is not a w-led device");
                 return null;
             }
             return GetWledDevice(sdi, ipV4);

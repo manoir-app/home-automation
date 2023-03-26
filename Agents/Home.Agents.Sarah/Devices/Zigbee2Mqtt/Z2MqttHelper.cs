@@ -25,7 +25,8 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
 
         private static Z2MqttBridge _bridge = null;
         private static Dictionary<string, Z2MqttDeviceBase> _allDevices = new Dictionary<string, Z2MqttDeviceBase>();
-
+        private static DateTimeOffset _lastStart = DateTimeOffset.Now;
+        private static DateTimeOffset _lastDeviceInfo = DateTimeOffset.MinValue;
 
         public static bool _stop = false;
         public static void Start()
@@ -64,6 +65,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             if (subPath.Equals("bridge/devices"))
             {
                 var tmp = JsonConvert.DeserializeObject<DeviceInfo[]>(data);
+                _lastDeviceInfo = DateTimeOffset.Now;
                 Console.WriteLine($"Zigbee2MQTT - update of device list");
                 if (tmp != null)
                     ParseDevices(tmp);
@@ -72,16 +74,40 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
 
             foreach (var t in _allDevices.Values)
             {
-                if(t._mqttPath.Equals(topic))
+                var pth = t._mqttPath;
+                if (pth.EndsWith("/"))
+                    pth = pth.Substring(pth.Length - 1);
+                var tpc = topic;
+                if (tpc.EndsWith("/"))
+                    tpc = tpc.Substring(tpc.Length - 1);
+
+                if (pth.Equals(tpc, StringComparison.InvariantCultureIgnoreCase))
                 {
                     Console.WriteLine($"Zigbee2MQTT - update of device " + t._deviceIeeeID);
                     t.RefreshStatusFromTopic(JsonConvert.DeserializeObject<Dictionary<string, object>>(data));
-
                     return;
+                }
+
+            }
+
+            // on détecte le fait que le /bridge/devices soit KO
+            if(_allDevices.Count==0)
+            {
+                // si on a pas reçu de bridge/devices et qu'on
+                // est démarré depuis 5 min, on restart zigbee2mqtt
+                if(_lastDeviceInfo < _lastStart 
+                    && Math.Abs((DateTimeOffset.Now - _lastStart).TotalMinutes) > 5)
+                {
+                    string pth = _root;
+                    if (!pth.EndsWith("/"))
+                        pth = pth + "/";
+                    pth += "bridge/request/restart";
+                    _lastStart= DateTimeOffset.Now;
+                    MqttHelper.PublishJson(pth, "");
                 }
             }
 
-                Console.WriteLine($"Zigbee2MQTT - update of {subPath} => unknown");
+            //Console.WriteLine($"Zigbee2MQTT - update of {topic} => unknown");
         }
 
         private static void ParseDevices(DeviceInfo[] allDevices)
@@ -174,7 +200,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                                 }
                                 break;
                             default:
-                                if(exp.name != null)
+                                if (exp.name != null)
                                 {
                                     if (Z2MqttSensor.IsManagedProperty(exp))
                                         return "sensor";
@@ -270,7 +296,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
         }
 
 
-      
+
 
     }
 }

@@ -33,6 +33,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
         {
             _deviceIeeeID = deviceIeeeID;
             _mqttPath = mqttPath;
+            Console.WriteLine($"Zigbee2MQTT - found device {deviceIeeeID} on {mqttPath}");
         }
 
         internal virtual void ForceRefresh()

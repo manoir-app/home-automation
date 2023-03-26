@@ -60,12 +60,12 @@ namespace Home.Agents.Sarah.Devices.Shelly
             {
                 if (dev.Vendor != null && dev.Vendor.Contains("Espressif", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Console.WriteLine($"Shelly - Found {dev.IpV4} as a potential shelly device");
+                    //Console.WriteLine($"Shelly - Found {dev.IpV4} as a potential shelly device");
 
                     var dvb = GetDeviceBase(dev);
                     if (dvb != null)
                     {
-                        Console.WriteLine($"Shelly - Adding {dev.IpV4} as shelly device : {dvb.DeviceName}");
+                        //Console.WriteLine($"Shelly - Adding {dev.IpV4} as shelly device : {dvb.DeviceName}");
                         ret.Add(dvb);
                     }
                 }
@@ -198,7 +198,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
             if (sdi == null)
             {
-                Console.WriteLine($"Shelly - {ipV4} is not a shelly device");
+                //Console.WriteLine($"Shelly - {ipV4} is not a shelly device");
                 return null;
             }
             return GetDeviceBase(sdi, ipV4);
