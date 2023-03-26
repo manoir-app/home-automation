@@ -188,6 +188,18 @@ namespace Home.Agents.Sarah.Devices.Shelly
         }
 
 
+        public class MqttAnnounce
+        {
+            public string id { get; set; }
+            public string model { get; set; }
+            public string mac { get; set; }
+            public string ip { get; set; }
+            public bool new_fw { get; set; }
+            public string fw_ver { get; set; }
+        }
+
+
+
         #endregion
 
         public static GetStatusResponse GetStatus(string IpV4)
@@ -213,6 +225,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
             }
         }
 
+
         public static GetSettingsResponse GetSettings(string IpV4)
         {
             return GetSettings<GetSettingsResponse>(IpV4);
@@ -236,7 +249,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
             }
         }
 
-        public static GetLoginSettingsResponse GetLoginSettings(string IpV4) 
+        public static GetLoginSettingsResponse GetLoginSettings(string IpV4)
         {
             string url = $"http://{IpV4}/settings/login";
             using (var cli = new ShellyWebClient())

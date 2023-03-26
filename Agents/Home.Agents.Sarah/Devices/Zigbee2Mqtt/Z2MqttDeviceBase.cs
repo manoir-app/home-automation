@@ -128,6 +128,14 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                             {"locationId", ""},
                         });
                     }
+                    else if (decimal.TryParse(values[k], out decimal val2))
+                    {
+                        TimeDBHelper.Trace("home", "devices", k, val2, new Dictionary<string, string>()
+                        {
+                            {"roomId", ""},
+                            {"locationId", ""},
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -76,6 +76,8 @@ namespace Home.Agents.Sarah.Devices.Shelly
         }
 
 
+       
+
         private GetRelayResponse GetRelayStatus()
         {
             string url = $"http://{IpV4}/relay/0";

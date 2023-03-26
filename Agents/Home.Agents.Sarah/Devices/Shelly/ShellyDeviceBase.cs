@@ -1,10 +1,13 @@
 ﻿using Home.Common;
 using Home.Common.HomeAutomation;
+using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -31,6 +34,73 @@ namespace Home.Agents.Sarah.Devices.Shelly
             this.IpV4 = ipv4;
             this.DeviceId = deviceId;
         }
+
+        protected internal virtual void RefreshFromMqttTopic(string topicName, string value)
+        {
+            if (topicName.Equals("relay/0/energy"))
+            {
+                UpdateInTimeDb(new Dictionary<string, string>()
+                {
+                    {"power_consumption_total", value}
+                });
+            }
+            else if (topicName.Equals("relay/energy"))
+            {
+                UpdateInTimeDb(new Dictionary<string, string>()
+                {
+                    {"power_consumption_total", value}
+                });
+            }
+        }
+
+
+        internal void RefreshSensors(Dictionary<string, string> values)
+        {
+            UpdateInTimeDb(values);
+
+            var changed = new List<DeviceStateChangedMessage.DeviceStateValue>();
+            foreach (var k in values.Keys)
+            {
+                changed.Add(new DeviceStateChangedMessage.DeviceStateValue() { Name = k, Value = values[k] });
+            }
+            Console.WriteLine($"Shelly - changing properties {string.Join(',', (from z in changed select z.Name).ToArray())}");
+            DeviceManager.OnDeviceStateChanged("Shelly", DeviceName, Device.HomeAutomationMainRoleSensors, "", changed.ToArray());
+        }
+
+        protected void UpdateInTimeDb(Dictionary<string, string> values)
+        {
+            foreach (var k in values.Keys)
+            {
+
+                try
+                {
+                    // on push en timedb
+                    if (decimal.TryParse(values[k], System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out decimal val))
+                    {
+                        TimeDBHelper.Trace("home", "devices", k, val, new Dictionary<string, string>()
+                        {
+                            {"deviceId", DeviceId},
+                            {"roomId", ""},
+                            {"locationId", ""},
+                        });
+                    }
+                    else if (decimal.TryParse(values[k], out decimal val2))
+                    {
+                        TimeDBHelper.Trace("home", "devices", k, val2, new Dictionary<string, string>()
+                        {
+                            {"deviceId", DeviceId},
+                            {"roomId", ""},
+                            {"locationId", ""},
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Err updating timedb for Shelly : " + ex);
+                }
+            }
+        }
+
 
         public void ApplyStandardConfig()
         {

@@ -9,17 +9,31 @@ using System.Net;
 using System.Text;
 using Home.Common.Model;
 using System.Threading;
+using Home.Graph.Common;
 
 namespace Home.Agents.Sarah.Devices.Shelly
 {
     partial class ShellyDeviceHelper
     {
+        private static string _root = "shellies";
+
         public static bool _stop = false;
         public static void Start()
         {
+            string pth = _root;
+            if (!pth.EndsWith("/"))
+                pth = pth + "/";
+            pth = pth + "#";
+
+            MqttHelper.AddChangeHandler(pth, HandleChange);
+
+
             var t = new Thread(() => ShellyDeviceHelper.Run());
             t.Name = "Shelly devices";
             t.Start();
+
+
+
         }
 
         private static void Run()
@@ -43,6 +57,75 @@ namespace Home.Agents.Sarah.Devices.Shelly
         public static void Stop()
         {
             _stop = true;
+
+            string pth = _root;
+            if (!pth.EndsWith("/"))
+                pth = pth + "/";
+            pth = pth + "#";
+            MqttHelper.RemoveChangeHandler(pth, HandleChange);
+
+        }
+
+
+        private static void HandleChange(string topic, string data)
+        {
+            string subPath = topic;
+            if (subPath.StartsWith(_root))
+                subPath = subPath.Substring(_root.Length);
+            if (subPath.StartsWith("/"))
+                subPath = subPath.Substring(1);
+
+            if (subPath.Equals("announce", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // on regarde si le device existe, sinon on
+                // va le créer pour une prochaine execution
+                // et on essaie de le configurer
+                var announce = JsonConvert.DeserializeObject<MqttAnnounce>(data);
+                if (announce != null)
+                {
+                    var dev = (from z in _allDevices.Values
+                               where z.DeviceId.Equals(announce.id, StringComparison.InvariantCultureIgnoreCase)
+                               select z).FirstOrDefault();
+                    if (dev == null)
+                    {
+                        // identifions le modèle pour savoir si c'est
+                        // un device tout le temps connecté ou non
+                        var mdl = IdentifyModel(announce.model);
+                        if (mdl != null)
+                        {
+                            if (mdl.AlwaysConnected.GetValueOrDefault(false))
+                            {
+                                dev = GetDeviceBase(announce.ip) as ShellyDeviceBase;
+                            }
+                            else
+                            {
+                                dev = InstanciateDevice(announce.ip, announce.model, announce.id, null) as ShellyDeviceBase;
+                            }
+
+                            if(dev!=null)
+                            {
+                                List<Device> reg = new List<Device>();
+                                List<ShellyDeviceBase> conf = new List<ShellyDeviceBase>();
+                                Add(reg, conf, dev);
+                                RegisterDevices(reg, conf);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (subPath.Contains("/")) // très probablement un device
+            {
+                var devId = subPath.Substring(0, subPath.IndexOf("/"));
+                foreach (var dev in _allDevices.Values)
+                {
+                    if (dev.DeviceId.Equals(devId, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        subPath = subPath.Substring(subPath.IndexOf("/") + 1);
+                        dev.RefreshFromMqttTopic(subPath, data);
+                    }
+                }
+            }
         }
 
 
@@ -75,29 +158,8 @@ namespace Home.Agents.Sarah.Devices.Shelly
             var toConfigure = new List<ShellyDeviceBase>();
             foreach (ShellyDeviceBase r in ret)
             {
-                ShellyDeviceBase already = null;
-                if (!_allDevices.TryGetValue(r.DeviceName, out already))
-                {
-                    _allDevices.Add(r.DeviceName, r);
-                    var devreg = new Device(r);
-                    devreg.DeviceRoles.Add("shelly");
-                    devreg.DeviceAddresses.Add(r.IpV4);
-                    devreg.DeviceGivenName = r.DeviceName;
-                    toRegister.Add(devreg);
-                    toConfigure.Add(r);
-                }
-                else
-                {
-
-
-                    if (already.IpV4 != r.IpV4)
-                    {
-                        already.IpV4 = r.IpV4;
-                    }
-                }
+                Add(toRegister, toConfigure, r);
             }
-
-            Console.WriteLine($"Shelly - Registering {toRegister.Count} shelly devices");
 
             if (toRegister != null && toRegister.Count > 0)
             {
@@ -114,6 +176,36 @@ namespace Home.Agents.Sarah.Devices.Shelly
                         Console.WriteLine($"Shelly - Registering devices - get name failed with : {ex.Message}");
                     }
                 }
+            
+                RegisterDevices(toRegister, toConfigure);
+            }
+
+            var t = _allDevices.Values.ToArray();
+            foreach (ShellyDeviceBase r in t)
+            {
+                if (r != null && r.DeviceName != null)
+                {
+                    var detected = (from z in ret
+                                    where z.DeviceName.Equals(r.DeviceName)
+                                    select z).FirstOrDefault();
+                    if (detected == null)
+                    {
+                        _allDevices.Remove(r.DeviceName);
+                    }
+                }
+                else if (r.DeviceName == null)
+                    _allDevices.Remove(r.DeviceName);
+            }
+
+            return ret.ToArray();
+        }
+
+        private static void RegisterDevices(List<Device> toRegister, List<ShellyDeviceBase> toConfigure)
+        {
+            Console.WriteLine($"Shelly - Registering {toRegister.Count} shelly devices");
+
+            if (toRegister != null && toRegister.Count > 0)
+            {
                 RegisterDevice(toRegister.ToArray());
                 ThreadPool.QueueUserWorkItem((o) =>
                 {
@@ -140,25 +232,30 @@ namespace Home.Agents.Sarah.Devices.Shelly
                     }
                 });
             }
+        }
 
-            var t = _allDevices.Values.ToArray();
-            foreach (ShellyDeviceBase r in t)
+        private static void Add(List<Device> toRegister, List<ShellyDeviceBase> toConfigure, ShellyDeviceBase r)
+        {
+            ShellyDeviceBase already = null;
+            if (!_allDevices.TryGetValue(r.DeviceName, out already))
             {
-                if (r != null && r.DeviceName != null)
-                {
-                    var detected = (from z in ret
-                                    where z.DeviceName.Equals(r.DeviceName)
-                                    select z).FirstOrDefault();
-                    if (detected == null)
-                    {
-                        _allDevices.Remove(r.DeviceName);
-                    }
-                }
-                else if (r.DeviceName == null)
-                    _allDevices.Remove(r.DeviceName);
+                _allDevices.Add(r.DeviceName, r);
+                var devreg = new Device(r);
+                devreg.DeviceRoles.Add("shelly");
+                devreg.DeviceAddresses.Add(r.IpV4);
+                devreg.DeviceGivenName = r.DeviceName;
+                toRegister.Add(devreg);
+                toConfigure.Add(r);
             }
+            else
+            {
 
-            return ret.ToArray();
+
+                if (already.IpV4 != r.IpV4)
+                {
+                    already.IpV4 = r.IpV4;
+                }
+            }
         }
 
         private static void RegisterDevice(params Device[] devices)
@@ -204,6 +301,41 @@ namespace Home.Agents.Sarah.Devices.Shelly
             return GetDeviceBase(sdi, ipV4);
         }
 
+        private static bool IsPermanentConnectModel(string model)
+        {
+            if (model == null)
+                return false;
+            if (_models.TryGetValue(model, out var result))
+                return result.AlwaysConnected.GetValueOrDefault(false);
+
+            return false;
+        }
+
+        private static ShellyModel IdentifyModel(string model)
+        {
+            if (model == null)
+                return null;
+            if (_models.TryGetValue(model, out var result))
+                return result;
+            return null;
+        }
+
+        private static Dictionary<string, ShellyModel> _models = new Dictionary<string, ShellyModel>()
+        {
+            { "SHBTN-1", new ShellyModel() {Name = "Shelly Button 1", Type=typeof(ShellyButton1), AlwaysConnected = null } },
+            { "SHPLG-S", new ShellyModel() {Name = "Shelly Plug S", Type=typeof(ShellySimpleSwitch), AlwaysConnected = true } },
+            { "SHSW-25", new ShellyModel() {Name = "Shelly Plug S", Type=null, AlwaysConnected = true } },
+            { "SHHT-1", new ShellyModel() {Name = "Shelly Temp & Humidity Sensor", Type=null, AlwaysConnected = false } },
+        };
+
+        private class ShellyModel
+        {
+            public string Name { get; set; }
+            public Type Type { get; set; }
+
+            public bool? AlwaysConnected { get; set; }
+        }
+
 
         private static DeviceBase GetDeviceBase(GetShellyDeviceInfo sdi, string ipv4)
         {
@@ -219,32 +351,44 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
             Console.WriteLine($"{ipv4} is a {sdi.type}");
 
-            switch (sdi.type?.ToUpperInvariant())
+            string model = sdi.type?.ToUpperInvariant();
+            string hostname = tmp.device.hostname;
+            string mode = tmp.mode;
+
+            return InstanciateDevice(ipv4, model, hostname, mode);
+        }
+
+        private static DeviceBase InstanciateDevice(string ipv4, string model, string hostname, string mode)
+        {
+            // pour l'instant, on instancie "en dur"
+            // TODO : faire propre dans ce coin ci :)
+            switch (model)
             {
+                case "SHHT-1":
+                    return new ShellyTemperatureSensor(ipv4, hostname);
                 case "SHBTN-1":
-                    return new ShellyButton1(ipv4, tmp.device.hostname);
+                    return new ShellyButton1(ipv4, hostname);
                 case "SHPLG-S":
-                    return new ShellySimpleSwitch(ipv4, tmp.device.hostname);
+                    return new ShellySimpleSwitch(ipv4, hostname);
                 case "SHSW-25":
-                    if (tmp.mode == null)
+                    if (mode == null)
                     {
-                        Console.WriteLine($"{ipv4} is a {sdi.type} and should have a mode");
-                        return new UnknowShellyDevice(ipv4, tmp.device.hostname);
+                        Console.WriteLine($"{ipv4} is a {model} and should have a mode");
+                        return new UnknowShellyDevice(ipv4, hostname);
                     }
-                    switch (tmp.mode.ToLowerInvariant())
+                    switch (mode.ToLowerInvariant())
                     {
                         case "roller":
                         case "shutter":
-                            return new Shelly25Roller(ipv4, tmp.device.hostname);
+                            return new Shelly25Roller(ipv4, hostname);
                         case "relay":
-                            return new Shelly25MultiRelay(ipv4, tmp.device.hostname);
+                            return new Shelly25MultiRelay(ipv4, hostname);
                         default:
-                            return new UnknowShellyDevice(ipv4, sdi.mac);
+                            return new UnknowShellyDevice(ipv4, hostname);
                     }
             }
 
             return null;
         }
-
     }
 }
