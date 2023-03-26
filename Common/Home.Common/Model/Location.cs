@@ -43,6 +43,8 @@ namespace Home.Common.Model
 
         public LocationElementProperties Properties { get; set; }
 
+        public List<MeasureAggregationRule> MeasureAggregationRules { get; set; } = new List<MeasureAggregationRule>();
+
     }
 
     public class LocationZone
@@ -59,6 +61,9 @@ namespace Home.Common.Model
         {
             Rooms = new List<LocationRoom>();
         }
+
+        public List<MeasureAggregationRule> MeasureAggregationRules { get; set; } = new List<MeasureAggregationRule>();
+
     }
 
     public enum RoomKind
@@ -100,6 +105,9 @@ namespace Home.Common.Model
 
         public List<LocationPoint> Shape { get; set; }
         public List<LocationWall> Walls { get; set; }
+
+        public List<MeasureAggregationRule> MeasureAggregationRules { get; set; } = new List<MeasureAggregationRule>();
+
     }
 
 
@@ -107,6 +115,7 @@ namespace Home.Common.Model
     {
         public decimal? Temperature { get; set; }
         public decimal? Humidity { get; set; }
+        public decimal? Pressure { get; set; }
         public OccupancyState? Occupancy { get; set; }
 
         public Dictionary<string, string> MoreProperties { get; set; }

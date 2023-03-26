@@ -12,6 +12,7 @@ namespace Home.Agents.Sarah
     public static class SarahMessageHandler
     {
         public static string[] AllTopics = new string[] { "sarah.>",
+                "home.measures.>",
                 "homeautomation.scenario.>",
                 "pim.scheduler.update.wakeuptime",
                 SystemScriptExecuteMessage.ExecuteScriptTopic,

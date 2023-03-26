@@ -1,4 +1,5 @@
-﻿using Home.Common.HomeAutomation;
+﻿using Home.Common;
+using Home.Common.HomeAutomation;
 using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
@@ -149,12 +150,15 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting temperature to {decVal}");
                         room.Properties.Temperature = decVal;
-                        TimeDBHelper.Trace("home", "source", "temperature",
+                        TimeDBHelper.Trace("home", "graph", "temperature",
                             decVal, new Dictionary<string, string>() {
                                 {"locationId", locs.Id},
                                 {"roomId", room.Id},
                                 {"roomLevel", room.FloorLevel.ToString()}
                             });
+                        NatsMessageThread.Push(new SensorValueChangedMessage(SensorValueChangedMessage.TopicTemperature,
+                            SensorValueChangedMessage.ItemTypeRoom,
+                            room.Id, decVal));
                     }
 
                     break;
@@ -163,12 +167,31 @@ namespace Home.Graph.Server.Controllers
                     {
                         Console.WriteLine($"Room {t.RoomId} : setting humidity to {decVal}");
                         room.Properties.Humidity = decVal;
-                        TimeDBHelper.Trace("home", "source", "humidity",
+                        TimeDBHelper.Trace("home", "graph", "humidity",
                             decVal, new Dictionary<string, string>() {
                                 {"locationId", locs.Id},
                                 {"roomId", room.Id},
                                 {"roomLevel", room.FloorLevel.ToString()}
                             });
+                        NatsMessageThread.Push(new SensorValueChangedMessage(SensorValueChangedMessage.TopicHumidity,
+                            SensorValueChangedMessage.ItemTypeRoom,
+                            room.Id, decVal));
+                    }
+                    break;
+                case "pressure":
+                    if (decimal.TryParse(data, out decVal))
+                    {
+                        Console.WriteLine($"Room {t.RoomId} : setting pressure to {decVal}");
+                        room.Properties.Pressure = decVal;
+                        TimeDBHelper.Trace("home", "graph", "pressure",
+                            decVal, new Dictionary<string, string>() {
+                                {"locationId", locs.Id},
+                                {"roomId", room.Id},
+                                {"roomLevel", room.FloorLevel.ToString()}
+                            });
+                        NatsMessageThread.Push(new SensorValueChangedMessage(SensorValueChangedMessage.TopicPressure,
+                            SensorValueChangedMessage.ItemTypeRoom,
+                            room.Id, decVal));
                     }
                     break;
                 case "occupancy":
@@ -177,12 +200,15 @@ namespace Home.Graph.Server.Controllers
                         var occ = JsonConvert.DeserializeObject<OccupancyState>(data);
                         Console.WriteLine($"Room {t.RoomId} : setting occupancy to {occ}");
                         room.Properties.Occupancy = occ;
-                        TimeDBHelper.Trace("home", "source", "occupancy",
+                        TimeDBHelper.Trace("home", "graph", "occupancy",
                             occ.ToString(), new Dictionary<string, string>() {
                                 {"locationId", locs.Id},
                                 {"roomId", room.Id},
                                 {"roomLevel", room.FloorLevel.ToString()}
                             });
+                        NatsMessageThread.Push(new SensorValueChangedMessage(SensorValueChangedMessage.TopicOccupancy,
+                            SensorValueChangedMessage.ItemTypeRoom,
+                            room.Id, occ == OccupancyState.NoPresence ? 0 : 1));
 
                     }
                     catch (JsonSerializationException)

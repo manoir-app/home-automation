@@ -148,6 +148,10 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<Page>();
                 MongoDbHelper.CreateCollection<PageSection>();
                 MongoDbHelper.CreateCollection<PageTheme>();
+
+                // les éléments de structure de la maison
+                MongoDbHelper.CreateCollection<HomeCircuit>();
+
             }
             catch (Exception ex)
             {

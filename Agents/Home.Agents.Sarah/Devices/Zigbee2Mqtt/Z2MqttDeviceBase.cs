@@ -121,7 +121,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                     // on push en timedb
                     if (decimal.TryParse(values[k], System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out decimal val))
                     {
-                        TimeDBHelper.Trace("home", "entities", k, val, new Dictionary<string, string>()
+                        TimeDBHelper.Trace("home", "devices", k, val, new Dictionary<string, string>()
                         {
                             {"deviceId", DeviceName},
                             {"roomId", ""},
@@ -143,7 +143,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                 // on push en timedb
                 if (on)
                 {
-                    TimeDBHelper.Trace("home", "entities", "brightness", intensity.GetValueOrDefault(100), new Dictionary<string, string>()
+                    TimeDBHelper.Trace("home", "devices", "brightness", intensity.GetValueOrDefault(100), new Dictionary<string, string>()
                         {
                             {"deviceId", DeviceName},
                             {"roomId", ""},
@@ -152,7 +152,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                 }
                 else
                 {
-                    TimeDBHelper.Trace("home", "entities", "brightness", 0, new Dictionary<string, string>()
+                    TimeDBHelper.Trace("home", "devices", "brightness", 0, new Dictionary<string, string>()
                         {
                             {"deviceId", DeviceName},
                             {"roomId", ""},
