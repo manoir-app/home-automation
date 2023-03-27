@@ -26,7 +26,7 @@ namespace Home.Agents.Erza
 
         private static void MaintenanceUserPresent(bool sendNotificationForChanges = true)
         {
-            var usrs = GetLocalPresentUsers();
+            var usrs = AgentHelper.GetLocalPresentUsers("erza");
             List<string> newOuts = null;
 
             if (usrs != null)
@@ -101,25 +101,7 @@ namespace Home.Agents.Erza
 
         }
 
-        private static List<User> GetLocalPresentUsers()
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-                    using (var cli = new MainApiAgentWebClient("erza"))
-                    {
-                        return cli.DownloadData<List<User>>("v1.0/users/presence/mesh/local/all");
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
-
-            return new List<User>();
-        }
+        
 
 
     }

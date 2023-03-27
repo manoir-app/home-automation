@@ -319,6 +319,26 @@ namespace Home.Common
             }
             return null;
         }
+
+        public static List<User> GetLocalPresentUsers(string agentId)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    using (var cli = new MainApiAgentWebClient(agentId))
+                    {
+                        return cli.DownloadData<List<User>>("v1.0/users/presence/mesh/local/all");
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            return new List<User>();
+        }
         public static User GetUser(string agentId, string userId)
         {
             for (int i = 0; i < 3; i++)

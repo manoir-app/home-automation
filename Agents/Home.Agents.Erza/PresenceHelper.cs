@@ -65,7 +65,7 @@ namespace Home.Agents.Erza
         {
             Dictionary<string, Exception> exceptions = new Dictionary<string, Exception>();
 
-            var usrs = GetLocalPresentUsers();
+            var usrs = AgentHelper.GetLocalPresentUsers("erza");
             foreach (var c in usrs)
             {
                 DecoterLesPresences(c);

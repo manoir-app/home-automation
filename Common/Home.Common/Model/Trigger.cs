@@ -115,6 +115,7 @@ namespace Home.Common.Model
 
     public class TriggerRaisedMessage
     {
+        public Condition Condition { get; set; }
         public string MessageTopic { get; set; }
         public string MessageContent { get; set; }
     }
