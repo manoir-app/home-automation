@@ -20,7 +20,7 @@ namespace Home.Agents.Erza
 #if DEBUG
             NetworkChecker.RunPublicServerCheck();
 #endif
-
+            AgentHelper.SetupReporting("erza");
             AgentHelper.SetupLocaleFromServer("erza");
             AgentHelper.ReportStart("erza", "monitoring", "security");
 

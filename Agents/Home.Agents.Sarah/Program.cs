@@ -29,6 +29,7 @@ namespace Home.Agents.Sarah
             return;
 #endif
 
+            AgentHelper.SetupReporting("sarah");
             AgentHelper.SetupLocaleFromServer("sarah");
             AgentHelper.ReportStart("sarah", "home-automation");
 

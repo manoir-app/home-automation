@@ -25,6 +25,7 @@ namespace Home.Agents.Alexandra
 
             AgentHelper.WriteStartupMessage("Alexandra", typeof(Program).Assembly);
 
+            AgentHelper.SetupReporting("alexandra");
             AgentHelper.SetupLocaleFromServer("alexandra");
             AgentHelper.ReportStart("alexandra", "amazon", "alexa", "integration");
             

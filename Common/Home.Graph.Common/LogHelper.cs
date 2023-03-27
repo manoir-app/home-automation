@@ -29,9 +29,31 @@ namespace Home.Graph.Common
                       //.Enrich.With<HttpContextEnricher>()
                       .WriteTo.GrafanaLoki(
                             $"http://{ip}:{port}",
-                            propertiesAsLabels: new string[] { "SourceKind", "SourceId" }
+                            propertiesAsLabels: new string[] { "SourceKind", "SourceId", "Application" }
                       )
                       .CreateLogger();
+            }
+        }
+
+        public static void LogException(string source, string sourceId, Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            if (_log == null)
+                return;
+
+            try
+            {
+                using (LogContext.PushProperty("Application", "manoir.app"))
+                using (LogContext.PushProperty("SourceKind", source))
+                using (LogContext.PushProperty("SourceId", sourceId))
+                using (LogContext.PushProperty("Picture", GetImageUrl("log-error")))
+                    _log.Error(ex, ex.Message);
+            }
+            catch
+            {
+                // il s'agit de log, tant pis si on arrive
+                // pas à le stocker.
             }
         }
 
@@ -44,6 +66,7 @@ namespace Home.Graph.Common
 
             try
             {
+                using (LogContext.PushProperty("Application", "manoir.app"))
                 using (LogContext.PushProperty("SourceKind", l.Source))
                 using (LogContext.PushProperty("SourceId", l.SourceId))
                 using (LogContext.PushProperty("Picture", l.ImageUrl))

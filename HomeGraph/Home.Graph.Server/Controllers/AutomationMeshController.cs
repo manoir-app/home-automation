@@ -201,7 +201,7 @@ namespace Home.Graph.Server.Controllers
                 Message = "Agent restarted",
                 MessageDate = DateTimeOffset.Now
             });
-            LogHelper.Log("agent", reg.AgentName, "Agent started");
+            LogHelper.Log("agent", reg.AgentName, "Agent report as started : " + reg.AgentName);
 
             return lst;
         }

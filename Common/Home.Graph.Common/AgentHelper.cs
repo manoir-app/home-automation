@@ -2,6 +2,7 @@
 using Home.Graph.Common;
 using k8s;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -199,7 +200,7 @@ namespace Home.Common
                     Thread.Sleep(1000);
                 }
             }
-
+            LogHelper.Log("agent", agentName, "Agent started : " + agentName);
         }
 
         public static Agent GetAgent(string agentName)
@@ -404,6 +405,25 @@ namespace Home.Common
             {
 
             }
+        }
+
+        private static string _agentName = null;
+
+        public static void SetupReporting(string agentName)
+        {
+            _agentName = agentName;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var exc = e.ExceptionObject as Exception;
+            if (exc != null)
+            {
+                LogHelper.LogException("agent", _agentName, exc);
+            }
+            else
+                LogHelper.LogException("agent", _agentName, new ApplicationException("Crash"));
         }
     }
 }

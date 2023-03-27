@@ -58,6 +58,7 @@
 
                                             <tr ng-repeat="ag in Logs track by ag.id">
                                                 <td class="img"><img ng-src="{{ag.imageUrl}}"></td>
+                                                <td class="date"><span ng-bind="ag.formatedDate"></span></td>
                                                 <td class="source"><span ng-bind="ag.source"></span></td>
                                                 <td class="sourceId"><span ng-bind="ag.sourceId"></span></td>
                                                 <td class="message"><span ng-bind="ag.message"></span></td>

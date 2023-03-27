@@ -14,6 +14,7 @@ namespace Home.Agents.Gaia
             AgentHelper.WriteStartupMessage("Gaïa", typeof(Program).Assembly);
 
 
+            AgentHelper.SetupReporting("gaia");
             AgentHelper.SetupLocaleFromServer("gaia");
             AgentHelper.ReportStart("gaia", "monitoring", "system");
 

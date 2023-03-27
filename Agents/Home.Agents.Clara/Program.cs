@@ -18,6 +18,7 @@ namespace Home.Agents.Clara
 
             AgentHelper.WriteStartupMessage("Clara", typeof(Program).Assembly);
 
+            AgentHelper.SetupReporting("clara");
             AgentHelper.SetupLocaleFromServer("clara");
             AgentHelper.ReportStart("clara", "pim");
 

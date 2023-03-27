@@ -13,6 +13,7 @@ namespace Home.Agents.Freeia
         {
             AgentHelper.WriteStartupMessage("Freeia", typeof(Program).Assembly);
 
+            AgentHelper.SetupReporting("freeia");
             AgentHelper.SetupLocaleFromServer("freeia");
             AgentHelper.ReportStart("freeia", "monitoring");
 

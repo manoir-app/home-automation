@@ -16,6 +16,7 @@ namespace Home.Agents.Aurore
         {
             AgentHelper.WriteStartupMessage("Aurore", typeof(Program).Assembly);
 
+            AgentHelper.SetupReporting("aurore");
             AgentHelper.SetupLocaleFromServer("aurore");
 
 #if DEBUG

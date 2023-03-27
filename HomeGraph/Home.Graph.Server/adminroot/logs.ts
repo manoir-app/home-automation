@@ -13,6 +13,7 @@ module HomeAutomation.Admin.Logs {
         sourceId: string;
         imageUrl: string;
         message: string;
+        formatedDate: string;
     }
 
     export interface ILogsPageScope extends ng.IScope {

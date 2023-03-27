@@ -12,6 +12,7 @@ namespace Home.Agents.Erina
         {
             AgentHelper.WriteStartupMessage("Erina", typeof(Program).Assembly);
 
+            AgentHelper.SetupReporting("erina");
             AgentHelper.SetupLocaleFromServer("erina");
             AgentHelper.ReportStart("erina", "pim");
 
