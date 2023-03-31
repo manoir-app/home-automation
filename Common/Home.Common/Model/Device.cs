@@ -151,6 +151,9 @@ namespace Home.Common.Model
         public const string DataTypeSensorTemperature = "temperature";
         public const string DataTypeSensorHumidity = "humidity";
         public const string DataTypeSensorPressure = "pressure";
+        
+        public const string DataTypePowerTotal = "powerconsumptiontotal";
+        public const string DataTypePowerCurrentConsumption = "powerconsumption";
 
 
         // les propriétés secondaires

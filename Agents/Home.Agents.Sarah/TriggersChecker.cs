@@ -130,6 +130,23 @@ namespace Home.Agents.Sarah
                     break;
                 }
             }
+
+            if (todayminWakeUp == null || todayminWakeUp.Value.Date < DateTime.Today)
+            {
+                if (nextminWakeUp.HasValue && nextminWakeUp.Value.Date != nextminWakeUp.Value)
+                {
+                    todayminWakeUp = nextminWakeUp;
+                    Console.Write($"Min wakeuptime : {todayminWakeUp.GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss")}");
+                }
+            }
+            if (todaymaxWakeUp == null || todaymaxWakeUp.Value.Date < DateTime.Today)
+            {
+                if (todaymaxWakeUp.HasValue && todaymaxWakeUp.Value.Date != nextminWakeUp.Value)
+                {
+                    todaymaxWakeUp = nextmaxWakeUp;
+                    Console.Write($"Max wakeuptime : {todaymaxWakeUp.GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss")}");
+                }
+            }
         }
 
         private static List<Trigger> _triggers = new List<Trigger>();
@@ -137,6 +154,10 @@ namespace Home.Agents.Sarah
 
         internal static DateTimeOffset? nextminWakeUp = null;
         internal static DateTimeOffset? nextmaxWakeUp = null;
+
+        internal static DateTimeOffset? todayminWakeUp = null;
+        internal static DateTimeOffset? todaymaxWakeUp = null;
+
 
         internal static Location GetLocation()
         {
@@ -255,9 +276,9 @@ namespace Home.Agents.Sarah
                     }
                     break;
                 case TimeOffsetKind.FromEarliestWakeup:
-                    if (nextminWakeUp.HasValue)
+                    if (todayminWakeUp.HasValue)
                     {
-                        if (nextminWakeUp.Value.Add(offset) < DateTimeOffset.Now)
+                        if (todayminWakeUp.Value.Add(offset) < DateTimeOffset.Now)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
                             Raise(t, null);
@@ -269,9 +290,9 @@ namespace Home.Agents.Sarah
                     }
                     break;
                 case TimeOffsetKind.FromLatestWakeup:
-                    if (nextmaxWakeUp.HasValue)
+                    if (todaymaxWakeUp.HasValue)
                     {
-                        if (nextmaxWakeUp.Value.Add(offset) < DateTimeOffset.Now)
+                        if (todaymaxWakeUp.Value.Add(offset) < DateTimeOffset.Now)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
                             Raise(t, null);

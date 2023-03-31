@@ -100,6 +100,10 @@ namespace Home.Common.Model
                             return $"Après {this.Offset.GetValueOrDefault().ToString()} après le lever du soleil";
                         case TimeOffsetKind.FromSunset:
                             return $"Après {this.Offset.GetValueOrDefault().ToString()} après le coucher du soleil";
+                        case TimeOffsetKind.FromEarliestWakeup:
+                            return $"Après {this.Offset.GetValueOrDefault().ToString()} après l'heure de lever la plus tôt";
+                        case TimeOffsetKind.FromLatestWakeup:
+                            return $"Après {this.Offset.GetValueOrDefault().ToString()} après l'heure de lever la plus tard";
                     }
                     break;
                 case TriggerKind.NetworkDeviceConnectionChanged:
