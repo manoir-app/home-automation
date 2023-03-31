@@ -26,31 +26,34 @@ namespace Home.Agents.Sarah
             //MqttHelper.Start("agents-sarah");
             //Z2MqttHelper.Start();
 
-            Condition cond = new Condition()
-            {
-                Kind = ConditionKind.And,
-                SubConditions = new Condition[] {
-                    new Condition()
-                    {
-                        PropertyName = "IsPresent",
-                        ElementId = "mwaroquier",
-                        Kind = ConditionKind.UserCheck,
-                        Operator = "!=",
-                        Value = "true"
-                    },
-                    new Condition()
-                    {
-                        PropertyName = "IsPresent",
-                        ElementId = "mcarbenay",
-                        Kind = ConditionKind.UserCheck,
-                        Operator = "!=",
-                        Value = "true"
-                    }
-                }
-            };
-            Console.WriteLine(cond);
+            //Condition cond = new Condition()
+            //{
+            //    Kind = ConditionKind.And,
+            //    SubConditions = new Condition[] {
+            //        new Condition()
+            //        {
+            //            PropertyName = "IsPresent",
+            //            ElementId = "mwaroquier",
+            //            Kind = ConditionKind.UserCheck,
+            //            Operator = "!=",
+            //            Value = "true"
+            //        },
+            //        new Condition()
+            //        {
+            //            PropertyName = "IsPresent",
+            //            ElementId = "mcarbenay",
+            //            Kind = ConditionKind.UserCheck,
+            //            Operator = "!=",
+            //            Value = "true"
+            //        }
+            //    }
+            //};
+            //Console.WriteLine(cond);
 
-            Console.WriteLine("result = " + ConditionHelper.GetForAgent("sarah").Evaluate(cond));
+            //Console.WriteLine("result = " + ConditionHelper.GetForAgent("sarah").Evaluate(cond));
+
+            TriggersChecker.RefreshRoutines();
+            TriggersChecker.Run();
 
             Console.ReadLine();
             return;

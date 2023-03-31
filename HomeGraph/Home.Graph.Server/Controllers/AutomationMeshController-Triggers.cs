@@ -5,6 +5,7 @@ using Home.Common.Model;
 using Home.Graph.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -58,6 +59,36 @@ namespace Home.Graph.Server.Controllers
         {
             var coll = MongoDbHelper.GetClient<Trigger>();
             return coll.Find(x => x.Id == triggerId).FirstOrDefault();
+        }
+
+        [Route("local/triggers/{triggerId}/settings"), HttpGet]
+        public bool SetSettings(string triggerId, 
+            DateTimeOffset? probableNextOccurrence = null)
+        {
+            var coll = MongoDbHelper.GetClient<Trigger>();
+            string source = User.Identity.Name;
+
+            var tmp = coll.Find(x => x.Id == triggerId).FirstOrDefault();
+
+            if (tmp != null)
+            {
+                var t = Builders<Trigger>.Update
+                    .Set("Label", tmp.Label);
+
+                if (probableNextOccurrence.HasValue)
+                    t = t.Set("ProbableNextOccurence", probableNextOccurrence.Value);
+                else
+                {
+                    if (tmp.ProbableNextOccurence.HasValue && tmp.ProbableNextOccurence.Value < DateTimeOffset.Now)
+                        t = t.Unset("ProbableNextOccurence");
+                }
+
+                var res = coll.UpdateOne(x => x.Id == triggerId, t);
+
+                return true;
+            }
+
+            return false;
         }
 
         [Route("local/triggers/{triggerId}/raise"), HttpGet, HttpPost, AllowAnonymous]

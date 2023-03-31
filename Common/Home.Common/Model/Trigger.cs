@@ -75,6 +75,7 @@ namespace Home.Common.Model
 
 
         public DateTimeOffset? LatestOccurence { get; set; }
+        public DateTimeOffset? ProbableNextOccurence { get; set; }
 
         public string ReplaceContent(string messageContent, string source, string data = null)
         {

@@ -1,6 +1,7 @@
 ﻿using Home.Common;
 using Home.Common.Model;
 using Home.Graph.Common;
+using Microsoft.Azure.Amqp.Framing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -202,7 +203,7 @@ namespace Home.Agents.Sarah
             }
         }
 
-        private static void Run()
+        internal static void Run()
         {
             Reload();
 
@@ -241,10 +242,16 @@ namespace Home.Agents.Sarah
                     if (_loc != null && _loc.Coordinates != null)
                     {
                         DateTimeOffset sunrise = SunCalculator.CalculateSunRise((double)_loc.Coordinates.Latitude, (double)_loc.Coordinates.Longitude, DateTime.Today);
-                        if (sunrise.Add(offset) < DateTimeOffset.Now)
+                        sunrise = sunrise.Add(offset);
+                        if (sunrise < DateTimeOffset.Now && Math.Abs((sunrise - DateTimeOffset.Now).TotalMinutes) < 15)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
                             Raise(t, null);
+                        }
+                        else if (!t.ProbableNextOccurence.HasValue
+                            || t.ProbableNextOccurence.Value != sunrise)
+                        {
+                            SetProbable(t, sunrise);
                         }
                     }
                     else
@@ -256,10 +263,16 @@ namespace Home.Agents.Sarah
                     if (_loc != null && _loc.Coordinates != null)
                     {
                         DateTimeOffset sunset = SunCalculator.CalculateSunSet((double)_loc.Coordinates.Latitude, (double)_loc.Coordinates.Longitude, DateTime.Today);
-                        if (sunset.Add(offset) < DateTimeOffset.Now)
+                        sunset = sunset.Add(offset);
+                        if (sunset < DateTimeOffset.Now && Math.Abs((sunset - DateTimeOffset.Now).TotalMinutes) < 15)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
                             Raise(t, null);
+                        }
+                        else if (!t.ProbableNextOccurence.HasValue
+                            || t.ProbableNextOccurence.Value != sunset)
+                        {
+                            SetProbable(t, sunset);
                         }
                     }
                     else
@@ -269,20 +282,33 @@ namespace Home.Agents.Sarah
                     break;
                 case TimeOffsetKind.FromMidnight:
                     var today = DateTime.Today;
-                    if (new DateTimeOffset(today.Year, today.Month, today.Day, 0, 0, 0, tzOffset).Add(offset) < DateTimeOffset.Now)
+                    var dt = new DateTimeOffset(today.Year, today.Month, today.Day, 0, 0, 0, tzOffset).Add(offset);
+                    if (dt< DateTimeOffset.Now && Math.Abs((dt - DateTimeOffset.Now).TotalMinutes) < 15)
                     {
                         t.LatestOccurence = DateTimeOffset.Now;
                         Raise(t, null);
+                    }
+                    else if (!t.ProbableNextOccurence.HasValue
+                            || t.ProbableNextOccurence.Value != dt)
+                    {
+                        SetProbable(t, dt);
                     }
                     break;
                 case TimeOffsetKind.FromEarliestWakeup:
                     if (todayminWakeUp.HasValue)
                     {
-                        if (todayminWakeUp.Value.Add(offset) < DateTimeOffset.Now)
+                        var tmp = todayminWakeUp.Value.Add(offset);
+                        if (tmp < DateTimeOffset.Now && Math.Abs((tmp - DateTimeOffset.Now).TotalMinutes) < 15)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
                             Raise(t, null);
                         }
+                        else if (!t.ProbableNextOccurence.HasValue
+                            || t.ProbableNextOccurence.Value != tmp)
+                        {
+                            SetProbable(t, tmp);
+                        }
+
                     }
                     else
                     {
@@ -292,10 +318,16 @@ namespace Home.Agents.Sarah
                 case TimeOffsetKind.FromLatestWakeup:
                     if (todaymaxWakeUp.HasValue)
                     {
-                        if (todaymaxWakeUp.Value.Add(offset) < DateTimeOffset.Now)
+                        var tmp = todaymaxWakeUp.Value.Add(offset);
+                        if (tmp < DateTimeOffset.Now && Math.Abs((tmp - DateTimeOffset.Now).TotalMinutes) < 15)
                         {
                             t.LatestOccurence = DateTimeOffset.Now;
                             Raise(t, null);
+                        }
+                        else if (!t.ProbableNextOccurence.HasValue
+                            || t.ProbableNextOccurence.Value != tmp)
+                        {
+                            SetProbable(t, tmp);
                         }
                     }
                     else
@@ -308,6 +340,29 @@ namespace Home.Agents.Sarah
 
 
 
+        }
+
+        private static void SetProbable(Trigger t, DateTimeOffset value)
+        {
+            if (!t.ProbableNextOccurence.HasValue
+                   || t.ProbableNextOccurence.Value != value)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    using (var cli = new MainApiAgentWebClient("sarah"))
+                    {
+                        string url = $"v1.0/system/mesh/local/triggers/{t.Id}/settings?probableNextOccurrence=";
+                        url += value.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+
+                        var done = cli.DownloadData<bool>(url);
+                        if (done)
+                        {
+                            break;
+                        }
+                    }
+                }
+                t.ProbableNextOccurence = value;
+            }
         }
 
         private static void Raise(Trigger t, string data)
