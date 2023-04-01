@@ -65,9 +65,13 @@ namespace Home.Graph.Common
                     return false;
                 case ConditionKind.UserCheck:
                     return EvaluateForUser(condition);
+                case ConditionKind.SceneCheck:
+                    return EvaluateForScene(condition);
             }
 
             return false;
         }
+
+      
     }
 }
