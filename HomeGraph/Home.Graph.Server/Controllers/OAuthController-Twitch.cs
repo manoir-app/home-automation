@@ -35,7 +35,7 @@ namespace Home.Graph.Server.Controllers
             var clientid = ConfigurationSettingsHelper.GetTwitchClientId();
             var req = this.HttpContext.Request;
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-                "http://localhost:51237/oauth/twitch/return" :
+                "https://localhost:5001/oauth/twitch/return" :
                 $"https://{req.Host}/oauth/twitch/return";
 
 
@@ -72,7 +72,7 @@ namespace Home.Graph.Server.Controllers
             var req = this.HttpContext.Request;
 
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-               "http://localhost:51237/oauth/twitch/return" :
+               "https://localhost:5001/oauth/twitch/return" :
                $"https://{req.Host}/oauth/twitch/return";
 
             var clientid = ConfigurationSettingsHelper.GetTwitchClientId();

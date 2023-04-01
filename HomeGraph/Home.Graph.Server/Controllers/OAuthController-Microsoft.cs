@@ -2,7 +2,6 @@
 using Home.Common.Model;
 using Home.Graph.Common;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -13,7 +12,6 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Home.Graph.Server.Controllers
@@ -28,7 +26,7 @@ namespace Home.Graph.Server.Controllers
             if (string.IsNullOrEmpty(resource))
                 resource = "graph";
 
-            string scopes = "", resourceUri = ""; 
+            string scopes = "", resourceUri = "";
 
 
             switch (resource)
@@ -71,15 +69,15 @@ namespace Home.Graph.Server.Controllers
             var clientid = ConfigurationSettingsHelper.GetAzureAdClientId();
             var req = this.HttpContext.Request;
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-                "http://localhost:51237/oauth/microsoft/return" :
+                "https://localhost:5001/oauth/microsoft/return" :
                 $"https://{req.Host}/oauth/microsoft/return";
 
 
-            if (_states.ContainsKey(userId))
-                _states.Remove(userId);
+            if (_states.ContainsKey(resource + userId))
+                _states.Remove(resource + userId);
 
             Guid g = Guid.NewGuid();
-            _states.Add(userId, g);
+            _states.Add(resource + userId, g);
 
 
 
@@ -100,7 +98,7 @@ namespace Home.Graph.Server.Controllers
                 blr.Append("&scope=");
                 blr.Append(scopes.Replace(" ", "%20"));
             }
-            if(!string.IsNullOrEmpty(resourceUri))
+            if (!string.IsNullOrEmpty(resourceUri))
             {
                 blr.Append("&resource=");
                 blr.Append(resourceUri);
@@ -136,7 +134,7 @@ namespace Home.Graph.Server.Controllers
             var req = this.HttpContext.Request;
 
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-               "http://localhost:51237/oauth/microsoft/return" :
+               "https://localhost:5001/oauth/microsoft/return" :
                $"https://{req.Host}/oauth/microsoft/return";
 
             var clientid = ConfigurationSettingsHelper.GetAzureAdClientId();
@@ -148,21 +146,19 @@ namespace Home.Graph.Server.Controllers
             string resourceUri = "https://graph.microsoft.com/";
             string tokentype = "azuread";
 
-            if (parts.Length >= 2)
+            if (parts.Length >= 3)
             {
                 user = parts[1];
                 Guid g;
-                if (_states.TryGetValue(parts[1], out g))
+                if (_states.TryGetValue(parts[2]+parts[1], out g))
                 {
                     if (g.ToString("N").Equals(parts[0], StringComparison.InvariantCultureIgnoreCase))
                     {
                         okState = true;
                     }
                 }
-            }
-            if(parts.Length>=3)
-            {
-                switch(parts[2].ToLowerInvariant())
+
+                switch (parts[2].ToLowerInvariant())
                 {
                     case "azuremgmt":
                         resourceUri = "https://management.core.windows.net/";
@@ -253,7 +249,7 @@ namespace Home.Graph.Server.Controllers
 
 
         [Route("microsoft/token/me"), HttpGet, Authorize(Roles = "Admin,User")]
-        public string GetMicrosoftAcessToken(string type="azuread")
+        public string GetMicrosoftAcessToken(string type = "azuread")
         {
             if (User.IsInRole("Admin") || User.IsInRole("User"))
             {
@@ -266,7 +262,7 @@ namespace Home.Graph.Server.Controllers
 
         [Route("microsoft/token/{user}"), HttpGet
             , Authorize(Roles = "Agent,Device")]
-        public string GetMicrosoftAccessToken(string user, string type="azuread")
+        public string GetMicrosoftAccessToken(string user, string type = "azuread")
         {
             var collection = MongoDbHelper.GetClient<ExternalToken>();
             var lst = collection.Find(x =>

@@ -6,13 +6,14 @@ namespace Home.Common.Model
 {
     public enum ConditionKind
     {
-        Or,
-        And,
-        EntityCheck,
-        UserCheck,
-        DeviceCheck,
-        RoomPropertyCheck,
-        MeshPropertyCheck
+        Or,                     // 0
+        And,                    // 1
+        EntityCheck,            // 2
+        UserCheck,              // 3
+        DeviceCheck,            // 4
+        RoomPropertyCheck,      // 5
+        MeshPropertyCheck,      // 6
+        SceneCheck,             // 7
     }
 
     public class Condition
@@ -122,6 +123,12 @@ namespace Home.Common.Model
                     blr.Append(")");
                     AddOperatorAndValues(blr);
                     break;
+                case ConditionKind.SceneCheck:
+                    blr.Append("Scene(");
+                    blr.Append(ElementId == null ? "??" : ElementId);
+                    blr.Append(")");
+                    AddOperatorAndValues(blr);
+                    break;
             }
         }
 
@@ -129,7 +136,10 @@ namespace Home.Common.Model
         {
             blr.Append(".");
             blr.Append(PropertyName);
-            blr.Append(Operator);
+            if(Operator!=null)
+                blr.Append(Operator);
+            else
+                blr.Append(" ");
             if (InValues != null && InValues.Length > 0)
             {
                 blr.Append("(");
