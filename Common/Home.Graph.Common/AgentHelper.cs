@@ -359,6 +359,33 @@ namespace Home.Common
             return null;
         }
 
+        public static ExternalToken GetUserExternalToken(string agentId, string username, string platform)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    using (var cli = new MainApiAgentWebClient(agentId))
+                    {
+                        var exts = cli.DownloadData<List<ExternalToken>>($"/v1.0/security/tokens/{username}/{platform}");
+                        if (exts != null && exts.Count >= 1)
+                            return exts[0];
+                        else
+                        {
+
+                        }
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
+
         public static List<User> GetMainUsers(string agentId)
         {
             for (int i = 0; i < 3; i++)

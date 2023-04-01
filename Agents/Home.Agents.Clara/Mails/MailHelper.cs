@@ -1,6 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using CsvHelper;
+using Home.Agents.Clara.SaaS;
+using Home.Common;
+using Home.Common.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Home.Agents.Clara.Mails
@@ -9,6 +14,15 @@ namespace Home.Agents.Clara.Mails
     {
         private static Regex rxIsHtml = new Regex(@"\<html\>(.|\n)*\<\/html\>");
         private static Regex rxJsonLD = new Regex(@"\<script(\n|.)*\>(\n|\w)*(?<json>(\n|.)*)(\n|\w)*\<\/script\>");
+
+
+
+
+
+
+
+
+
 
 
         public void ParseMail(string userID, string content)
@@ -149,5 +163,68 @@ namespace Home.Agents.Clara.Mails
         {
 
         }
+
+        internal static void CheckForNewMails()
+        {
+            List<MailServiceItem> mails = new List<MailServiceItem>();
+            try
+            {
+                var svcs = GetServices();
+                foreach (var svc in svcs)
+                {
+                    try
+                    {
+                        var tmp = svc.CheckForMails();
+                        if (tmp != null && tmp.Count > 0)
+                            mails.AddRange(tmp);
+                    }
+                    catch (NotImplementedException)
+                    {
+                        try
+                        {
+                            //svc.CheckForMails();
+                        }
+                        catch (NotImplementedException)
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("MailHelper-CheckMail error : " + ex.ToString());
+            }
+
+
+            foreach(var mailItem in mails)
+            {
+
+            }
+
+
+        }
+
+        private static List<IMailService> GetServices()
+        {
+            // pour l'instant en dur à partir des tokens
+
+            List<IMailService> ret = new List<IMailService>();
+
+            List<ExternalToken> tokens = new List<ExternalToken>();
+            var usrs = AgentHelper.GetMainUsers("clara");
+            foreach(var usr in usrs)
+            {
+                var tk = AgentHelper.GetUserExternalToken("clara", usr.Id, "azuread");
+                if (tk != null)
+                {
+                    tokens.Add(tk);
+                    ret.Add(new Microsoft365MailService(usr.Id, tk));
+                }
+            }
+
+            return ret;
+        }
+
     }
 }
