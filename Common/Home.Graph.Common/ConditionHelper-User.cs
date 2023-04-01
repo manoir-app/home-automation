@@ -50,14 +50,7 @@ namespace Home.Graph.Common
         {
             lock (this)
             {
-                List<User> tmp = null;
-                if (_cache.TryGetValue("LocalPresentUsers", out object fromCache))
-                    tmp = fromCache as List<User>;
-                if (tmp == null)
-                {
-                    tmp = AgentHelper.GetLocalPresentUsers(_agent);
-                    _cache.Add("LocalPresentUsers", tmp);
-                }
+                List<User> tmp = GetLocalPresentUsers();
 
                 // on teste si au moins une personne est là
                 if (string.IsNullOrEmpty(userName)
@@ -75,6 +68,20 @@ namespace Home.Graph.Common
             }
 
             return false;
+        }
+
+        private List<User> GetLocalPresentUsers()
+        {
+            List<User> tmp = null;
+            if (_cache.TryGetValue("LocalPresentUsers", out object fromCache))
+                tmp = fromCache as List<User>;
+            if (tmp == null)
+            {
+                tmp = UserHelper.GetLocalPresentUsers();
+                _cache.Add("LocalPresentUsers", tmp);
+            }
+
+            return tmp;
         }
     }
 }

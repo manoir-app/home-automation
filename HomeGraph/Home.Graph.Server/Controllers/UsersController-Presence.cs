@@ -15,17 +15,7 @@ namespace Home.Graph.Server.Controllers
         [Route("presence/mesh/local/all"), HttpGet]
         public List<User> GetLocalPresentUsers()
         {
-            var collMesh = MongoDbHelper.GetClient<AutomationMesh>();
-            var lst = collMesh.Find(x => x.Id == "local").FirstOrDefault();
-
-            if (string.IsNullOrEmpty(lst.LocationId))
-                return new List<User>();
-
-            var collection = MongoDbHelper.GetClient<User>();
-            var arrayFilters = Builders<User>.Filter.Eq("Presence.Location.LocationId", lst.LocationId);
-            var usrs = collection.Find(arrayFilters).ToList();
-            usrs.ForEach(x => x.ForPresence());
-            return usrs;
+            return UserHelper.GetLocalPresentUsers();
         }
 
         [Route("presence/notifyactivity"), HttpPost]

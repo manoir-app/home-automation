@@ -116,10 +116,19 @@ namespace Home.Graph.Server.Controllers
                         content = await st.ReadToEndAsync();
                 }
 
+                var cChecker = ConditionHelper.GetForServer();
+
                 if (tmp.RaisedMessages != null)
                 {
                     foreach (var t in tmp.RaisedMessages)
                     {
+                        // on vérifie les conditions
+                        if(t.Condition!=null)
+                        {
+                            if(!cChecker.Evaluate(t.Condition))
+                                continue;
+                        }
+
                         // on raise un event correspondant au webhook
                         if (!string.IsNullOrEmpty(t.MessageTopic))
                         {
@@ -129,6 +138,7 @@ namespace Home.Graph.Server.Controllers
                     }
                 }
 
+                // a rendre obsolète ?
                 if (tmp.ChangedProperties != null)
                 {
                     foreach (var t in tmp.ChangedProperties)

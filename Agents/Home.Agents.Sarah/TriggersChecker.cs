@@ -234,6 +234,8 @@ namespace Home.Agents.Sarah
             if (last >= DateTime.Today)
                 return;
 
+            //if(ConditionHelper.GetForAgent("sarah").Evaluate())
+
             var offset = t.Offset.GetValueOrDefault(TimeSpan.FromHours(48));
 
             switch (t.OffsetKind.GetValueOrDefault(TimeOffsetKind.FromMidnight))

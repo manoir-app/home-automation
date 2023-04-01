@@ -13,6 +13,12 @@ namespace Home.Graph.Common
             return new ConditionHelper(agentId);
         }
 
+        public static ConditionHelper GetForServer()
+        {
+            return new ConditionHelper(null);
+        }
+
+
         protected ConditionHelper(string agentId)
         {
             _agent = agentId;
