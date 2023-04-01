@@ -34,7 +34,7 @@ namespace Home.Graph.Server.Controllers
             var clientid = ConfigurationSettingsHelper.GetSpotifyClientId();
             var req = this.HttpContext.Request;
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-                "http://localhost:51237/oauth/spotify/return" :
+                "https://localhost:5001/oauth/spotify/return" :
                 $"https://{req.Host}/oauth/spotify/return";
 
 
@@ -79,7 +79,7 @@ namespace Home.Graph.Server.Controllers
             var req = this.HttpContext.Request;
 
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-               "http://localhost:51237/oauth/spotify/return" :
+               "https://localhost:5001/oauth/spotify/return" :
                $"https://{req.Host}/oauth/spotify/return";
 
             var clientid = ConfigurationSettingsHelper.GetSpotifyClientId();

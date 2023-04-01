@@ -34,7 +34,7 @@ namespace Home.Graph.Server.Controllers
             var clientid = ConfigurationSettingsHelper.GetSonosClientId();
             var req = this.HttpContext.Request;
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-                "http://localhost:51237/oauth/sonos/return" :
+                "https://localhost:5001/oauth/sonos/return" :
                 $"https://{req.Host}/oauth/sonos/return";
 
 
@@ -70,7 +70,7 @@ namespace Home.Graph.Server.Controllers
             var req = this.HttpContext.Request;
 
             string urlRet = req.Host.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ?
-               "http://localhost:51237/oauth/sonos/return" :
+               "https://localhost:5001/oauth/sonos/return" :
                $"https://{req.Host}/oauth/sonos/return";
 
             var clientid = ConfigurationSettingsHelper.GetSonosClientId();
