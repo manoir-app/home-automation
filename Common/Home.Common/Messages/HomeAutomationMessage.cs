@@ -7,7 +7,7 @@ namespace Home.Common.Messages
     public class HomeAutomationMessage : BaseMessage
     {
         public List<HomeAutomationMessageOperation> Operations { get; set; }
-        
+
         public HomeAutomationMessage() : base("homeautomation.global")
         {
             Operations = new List<HomeAutomationMessageOperation>();
@@ -20,13 +20,13 @@ namespace Home.Common.Messages
 
         public HomeAutomationMessage(string topic, string deviceName, string role, string elementName, string value) : this(topic)
         {
-            if(role!=null && elementName!=null && value!=null)
+            if (role != null && elementName != null && value != null)
             {
                 HomeAutomationMessageOperation ope = new HomeAutomationMessageOperation()
                 {
                     ElementName = elementName,
-                    DeviceName = deviceName, 
-                    Role = role, 
+                    DeviceName = deviceName,
+                    Role = role,
                     Value = value
                 };
                 Operations.Add(ope);

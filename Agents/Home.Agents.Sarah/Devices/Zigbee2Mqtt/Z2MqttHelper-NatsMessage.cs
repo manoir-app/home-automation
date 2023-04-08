@@ -6,6 +6,7 @@ using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
 using MongoDB.Bson;
+using NATS.Client;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,11 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
         {
                                     Console.WriteLine($"Handling message on  {topic} in Z2MqttHelper");
 
+            if (topic.Equals("homeautomation.zigbee2mqtt.directcommand"))
+            {
+                var msgDirect = JsonConvert.DeserializeObject<HomeAutomationPlatformCommandMessage>(messageBody);
+                return HandleDirectCommandMessage(msgDirect);
+            }
 
             if (topic.StartsWith("homeautomation.zigbee2mqtt"))
             {
@@ -105,6 +111,33 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
             }
             return MessageResponse.GenericFail;
         }
+
+        private static MessageResponse HandleDirectCommandMessage(HomeAutomationPlatformCommandMessage msg)
+        {
+            var resp = new HomeAutomationPlatformDirectCommandMessageResponse();
+
+            if (msg.Operations != null && msg.Operations.Count > 0)
+            {
+                foreach (var ope in msg.Operations)
+                {
+                    var devices = FindDeviceForOperation(ope.DeviceName);
+                    var topic = ope.Command;
+                    var value = ope.Data;
+                    if (devices != null)
+                    {
+                        foreach(var device in devices)
+                        {
+                            MqttHelper.PublishJson($"{device._mqttPath}/{topic}", value);
+                        }
+                    }
+
+                    resp.SucceededOperations.Add(ope);
+                }
+            }
+
+            return resp;
+        }
+
         private static Z2MqttDeviceBase[] FindDeviceForOperation(string deviceName)
         {
             Z2MqttDeviceBase dev = null;

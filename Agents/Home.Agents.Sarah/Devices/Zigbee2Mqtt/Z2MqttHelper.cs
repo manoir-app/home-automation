@@ -54,7 +54,7 @@ namespace Home.Agents.Sarah.Devices.Zigbee2Mqtt
                 try
                 {
                     Thread.Sleep(250);
-                    if (Math.Abs((DateTimeOffset.Now - lastRefresh).TotalMinutes) > 2)
+                    if (Math.Abs((DateTimeOffset.Now - lastRefresh).TotalMinutes) > 15)
                     {
                         foreach (var dev in _allDevices.Values)
                             dev.ForceRefresh();
