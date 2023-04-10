@@ -23,7 +23,9 @@ namespace Home.Agents.Erza.SourceIntegration
         {
             public GitFile GitFile { get; set; }
             public string Id { get; set; }
+            public string PathFromData { get; set; }
             public string ServerContent { get; set; }
+            public string ServerContentMore { get; set; }
             public string GitContent { get; set; }
         }
 

@@ -86,12 +86,20 @@ namespace Home.Agents.Erza.SourceIntegration
                 var tmp = JsonConvert.DeserializeObject<GiteaGetFileResponse[]>(content);
                 foreach(var t in tmp)
                 {
-                    ret.Add(new GitFileEntry()
+                    if (t.type.Equals("dir"))
                     {
-                        Path = t.path,
-                        ServerSignature = t.sha,
-                        Type = t.type
-                    });
+                        var sub = GetFiles(t.path);
+                        ret.AddRange(sub);
+                    }
+                    else
+                    {
+                        ret.Add(new GitFileEntry()
+                        {
+                            Path = t.path,
+                            ServerSignature = t.sha,
+                            Type = t.type
+                        });
+                    }
                 }
             }
 

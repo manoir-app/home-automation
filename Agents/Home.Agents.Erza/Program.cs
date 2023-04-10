@@ -1,4 +1,5 @@
-﻿using Home.Common;
+﻿using Home.Agents.Erza.SourceIntegration;
+using Home.Common;
 using Home.Common.Model;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Home.Agents.Erza
             DatabaseMaintenanceThread.CheckDb();
 
 #if DEBUG
-            NetworkChecker.RunPublicServerCheck();
+            GitSync.SyncPagesFromSources();
 #endif
             AgentHelper.SetupReporting("erza");
             AgentHelper.SetupLocaleFromServer("erza");
