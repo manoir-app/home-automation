@@ -115,6 +115,15 @@ namespace Home.Graph.Server.Controllers
 
         #region Sections
 
+        [Route("sections/all"), HttpGet]
+        public List<PageSection> GetAllSections()
+        {
+            var collection = MongoDbHelper.GetClient<PageSection>();
+            var lst = collection.Find(x => true).ToList();
+            return lst;
+        }
+
+
         [Route("pages/{pageId}/sections"), HttpGet]
         public List<PageSection> GetPageSections(string pageId)
         {
