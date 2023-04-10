@@ -149,9 +149,17 @@ namespace Home.Agents.Erza.SourceIntegration
                     blr.AppendLine();
 
                 blr.Append("[JournalApp.ContentModule]::");
-                blr.AppendLine(section.Kind);
+                blr.Append(section.Kind);
+                if (section.Source != null)
+                {
+                    blr.Append("@");
+                    blr.Append(section.Source);
+                }
+                blr.AppendLine();
+
                 blr.AppendLine();
                 blr.AppendLine(section.Data);
+
             }
 
             return blr.ToString();
@@ -376,6 +384,11 @@ namespace Home.Agents.Erza.SourceIntegration
                         current = new PageSection();
                         current.PageId = pageId;
                         current.Kind = line.Substring("[JournalApp.ContentModule]::".Length).Trim();
+                        if(current.Kind.Contains("@"))
+                        {
+                            current.Source = current.Kind.Substring(current.Kind.IndexOf("@")+1);
+                            current.Kind = current.Kind.Substring(0, current.Kind.IndexOf("@"));
+                        }    
                         current.Order = ret.Count;
                         blrCurrent = new StringBuilder();
                     }
