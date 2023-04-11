@@ -19,7 +19,7 @@ namespace Home.Agents.Aurore
             public PageSection Section { get; set; }
         }
 
-        public static PageSection UploadSection(PageSection sc)
+        public static PageSection UploadProperties(PageSection sc)
         {
             for (int i = 0; i < 3; i++)
             {
@@ -27,7 +27,7 @@ namespace Home.Agents.Aurore
                 {
                     using (var cli = new MainApiAgentWebClient("aurore"))
                     {
-                        var pg = cli.UploadData<PageSection, PageSection>($"/v1.0/journal/pages/{sc.PageId}/sections", "POST", sc);
+                        var pg = cli.UploadData<PageSection, Dictionary<string, string>>($"/v1.0/journal/sections/{sc.Id}/properties", "POST", sc.Properties);
                         return pg;
                     }
                 }
@@ -73,7 +73,7 @@ namespace Home.Agents.Aurore
             return null;
         }
 
-        public static List<SectionDataForUpdate> Update(string source, Func<SectionDataForUpdate, bool> update)
+        public static List<SectionDataForUpdate> UpdateProperties(string source, Func<SectionDataForUpdate, bool> update)
         {
             var ret = new List<SectionDataForUpdate>();
 
@@ -94,7 +94,7 @@ namespace Home.Agents.Aurore
             }
 
             foreach (var r in ret)
-                UploadSection(r.Section);
+                UploadProperties(r.Section);
 
             return ret;
 

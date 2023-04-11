@@ -323,7 +323,7 @@ namespace Home.Agents.Erza.SourceIntegration
 
 
                         Console.WriteLine($"Upserting Page : {p.Path}");
-                        //PushPage(p);
+                        PushPage(p, sections);
                     }
                     else if (!string.IsNullOrEmpty(s.ServerContent))
                     {
@@ -344,7 +344,7 @@ namespace Home.Agents.Erza.SourceIntegration
             p.Id = GetFrontMatterProp("id", bs);
             p.Title = GetFrontMatterProp("title", bs);
             p.ThemeId = GetFrontMatterProp("theme", bs);
-            p.ThemeId = GetFrontMatterProp("pageIcon", bs);
+            p.PageIcon = GetFrontMatterProp("pageIcon", bs);
             p.ParentId = GetFrontMatterProp("parentId", bs);
             p.IsPublic = false;
             string tmp = GetFrontMatterProp("public", bs);
@@ -373,7 +373,7 @@ namespace Home.Agents.Erza.SourceIntegration
                     string line = sr.ReadLine();
                     if (line == null)
                         break;
-                    if(line.StartsWith("[JournalApp.ContentModule]::"))
+                    if (line.StartsWith("[JournalApp.ContentModule]::"))
                     {
                         if (current != null)
                         {
@@ -384,11 +384,11 @@ namespace Home.Agents.Erza.SourceIntegration
                         current = new PageSection();
                         current.PageId = pageId;
                         current.Kind = line.Substring("[JournalApp.ContentModule]::".Length).Trim();
-                        if(current.Kind.Contains("@"))
+                        if (current.Kind.Contains("@"))
                         {
-                            current.Source = current.Kind.Substring(current.Kind.IndexOf("@")+1);
+                            current.Source = current.Kind.Substring(current.Kind.IndexOf("@") + 1);
                             current.Kind = current.Kind.Substring(0, current.Kind.IndexOf("@"));
-                        }    
+                        }
                         current.Order = ret.Count;
                         blrCurrent = new StringBuilder();
                     }
@@ -398,7 +398,7 @@ namespace Home.Agents.Erza.SourceIntegration
                     }
                 }
             }
-            if(current!=null && !ret.Contains(current))
+            if (current != null && !ret.Contains(current))
             {
                 current.Data = blrCurrent.ToString();
                 ret.Add(current);
@@ -431,7 +431,15 @@ namespace Home.Agents.Erza.SourceIntegration
                     blr.Append(parts[i]);
                 }
             }
-            return blr.ToString();
+
+            string ret = blr.ToString();
+            
+            if (!ret.StartsWith("/"))
+                ret = "/" + ret;
+
+            ret = Path.ChangeExtension(ret, ".html");
+
+            return ret;
         }
 
         private static string[] GetPageUsers(string pathFromData)
@@ -453,8 +461,9 @@ namespace Home.Agents.Erza.SourceIntegration
         }
 
 
-        private static Page PushPage(Page grp)
+        private static Page PushPage(Page grp, List<PageSection> sections)
         {
+            Page retPage = null;
             for (int i = 0; i < 3; i++)
             {
                 try
@@ -463,7 +472,10 @@ namespace Home.Agents.Erza.SourceIntegration
                     {
                         var tmp = cli.UploadData<Page, Page>("/v1.0/journal/pages", "POST", grp);
                         if (tmp != null)
-                            return tmp;
+                        {
+                            retPage = tmp;
+                            break;
+                        }
                     }
                 }
                 catch (WebException ex)
@@ -471,7 +483,27 @@ namespace Home.Agents.Erza.SourceIntegration
                     Thread.Sleep(1000);
                 }
             }
-            return null;
+
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    using (var cli = new MainApiAgentWebClient("erza"))
+                    {
+                        var tmp = cli.UploadData<PageSection[], PageSection[]>($"/v1.0/journal/pages/{retPage.Id}/sections/all", "PATCH", sections.ToArray());
+                        if (tmp != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+                catch (WebException ex)
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+
+            return retPage;
         }
 
 

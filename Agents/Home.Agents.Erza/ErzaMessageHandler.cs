@@ -24,6 +24,7 @@ namespace Home.Agents.Erza
                                     IntegrationListChangedMessage.ListChangedTopic,
                                     ScenarioContentChangedMessage.ScenarioChangedTopic,
                                     SourceCodeChangedMessage.SourceCodeChangedTopic,
+                                    JournalPageChangedMessage.PageUpdatedTopic,
                                     "security.>", "monitoring.>"},
             ErzaMessageHandler.HandleMessage));
             t.Name = "NatsThread";
@@ -77,6 +78,10 @@ namespace Home.Agents.Erza
                     case "system.triggers.change":
                         SourceIntegration.GitSync.SyncTriggersFromServer(messageBody);
                         break;
+                    
+                    case JournalPageChangedMessage.PageUpdatedTopic:
+                        SourceIntegration.GitSync.SyncPagesFromServer(messageBody);
+                        return MessageResponse.OK;
                     case ScenarioContentChangedMessage.ScenarioChangedTopic:
                         SourceIntegration.GitSync.SyncSceneGroupsFromServer(messageBody);
                         return MessageResponse.OK;

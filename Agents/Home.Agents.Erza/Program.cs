@@ -19,7 +19,9 @@ namespace Home.Agents.Erza
             DatabaseMaintenanceThread.CheckDb();
 
 #if DEBUG
+            GitSync.SyncPagesFromServer();
             GitSync.SyncPagesFromSources();
+            GitSync.SyncPagesFromServer();
 #endif
             AgentHelper.SetupReporting("erza");
             AgentHelper.SetupLocaleFromServer("erza");

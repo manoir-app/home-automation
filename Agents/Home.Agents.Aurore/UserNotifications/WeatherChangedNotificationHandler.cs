@@ -18,9 +18,16 @@ namespace Home.Agents.Aurore.UserNotifications
             var data = JsonConvert.DeserializeObject<WeatherChangeMessage>(messageBody);
             if (data != null && data.CurrentWeather != null)
             {
-                JournalHelper.Update("https://manoir.app/agents/aurore#weather", (upd) =>
+                JournalHelper.UpdateProperties("https://manoir.app/agents/aurore#weather", (upd) =>
                 {
-                    upd.Section.Data = $"Méteo : {data.CurrentWeather.Label} : {data.CurrentWeather.Temperature}°C";
+                    if (upd.Section.Properties == null)
+                        upd.Section.Properties = new Dictionary<string, string>();
+
+                    //upd.Section.Data = $"Méteo : {data.CurrentWeather.Label} : {data.CurrentWeather.Temperature}°C";
+
+                    upd.Section.Properties["WEATHER"] = data.CurrentWeather.Label;
+                    upd.Section.Properties["TEMPERATURE"] = $"{data.CurrentWeather.Temperature}°C";
+
                     return true;
                 });
             }

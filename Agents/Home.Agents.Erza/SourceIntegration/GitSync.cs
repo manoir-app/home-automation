@@ -37,6 +37,7 @@ namespace Home.Agents.Erza.SourceIntegration
                 SyncIntegrationsFromSources(messageBody);
                 SyncSceneGroupsFromSources(messageBody);
                 SyncTriggersFromSources(messageBody);
+                SyncPagesFromSources(messageBody);
             }
             catch(Exception ex)
             {

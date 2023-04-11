@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System;
-    using System.Linq;
+using System.Linq;
 using Home.Graph.Common;
 using Home.Journal.Common.Model;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.AspNetCore.Http.Metadata;
+using Home.Common.Messages;
 
 namespace Home.Graph.Server.Controllers
 {
@@ -54,8 +56,8 @@ namespace Home.Graph.Server.Controllers
             }
             else
             {
-                userId = userId.ToLowerInvariant(); 
-                var lst = collection.Find(x => x.Path == pagePath && !x.IsPublic && x.UserIds!=null && x.UserIds.Contains(userId)).FirstOrDefault();
+                userId = userId.ToLowerInvariant();
+                var lst = collection.Find(x => x.Path == pagePath && !x.IsPublic && x.UserIds != null && x.UserIds.Contains(userId)).FirstOrDefault();
                 return lst;
             }
         }
@@ -81,6 +83,14 @@ namespace Home.Graph.Server.Controllers
             }
 
             lst = collection.Find(x => x.Id == page.Id).FirstOrDefault();
+
+
+            MessagingHelper.PushToLocalAgent(new JournalPageChangedMessage()
+            {
+                PageId = lst.Id,
+                SectionId = null
+            });
+
             return lst;
         }
 
@@ -88,7 +98,7 @@ namespace Home.Graph.Server.Controllers
         public bool DeletePage(string pageId, string pageIdRemplacement)
         {
             pageId = pageId.ToLowerInvariant();
-            if(pageIdRemplacement!=null)
+            if (pageIdRemplacement != null)
                 pageIdRemplacement = pageIdRemplacement.ToLowerInvariant();
             var collection = MongoDbHelper.GetClient<Page>();
             var lst = collection.Find(x => x.Id == pageId).FirstOrDefault();
@@ -109,6 +119,13 @@ namespace Home.Graph.Server.Controllers
             }
 
             collection.DeleteOne(x => x.Id == lst.Id);
+
+            MessagingHelper.PushToLocalAgent(new JournalPageChangedMessage()
+            {
+                PageId = lst.Id,
+                SectionId = null
+            });;
+
             return true;
         }
         #endregion
@@ -142,14 +159,68 @@ namespace Home.Graph.Server.Controllers
             return lst;
         }
 
+
+        [Route("pages/{pageId}/sections/all"), HttpPatch]
+        public List<PageSection> UpsertPageSection(string pageId, [FromBody] PageSection[] sections)
+        {
+            List<PageSection> ret = new List<PageSection>();
+            bool hasId = (from z in sections where !string.IsNullOrEmpty(z.Id) select z).Count() > 0;
+
+            var collection = MongoDbHelper.GetClient<PageSection>();
+
+            var allSections = collection.Find(x => x.PageId.Equals(pageId)).ToList();
+            var allproperties = new Dictionary<string, Dictionary<string, string>>();
+
+            foreach(var section in allSections)
+            {
+                if(section.Source!=null && section.Properties !=null && section.Properties.Count>0)
+                {
+                    allproperties[section.Source] = section.Properties;
+                }
+            }
+
+            if (!hasId) // on remplace tout, vu qu'aucun id dans les sections
+                collection.DeleteMany(x => x.PageId.Equals(pageId));
+
+            foreach (var section in sections)
+            {
+                ret.Add(UpdatePageSection(pageId, section, collection, allproperties));
+            }
+
+            MessagingHelper.PushToLocalAgent(new JournalPageChangedMessage()
+            {
+                PageId = pageId,
+                SectionId = null
+            });
+
+            return ret;
+        }
+
         [Route("pages/{pageId}/sections"), HttpPost]
         public PageSection UpsertPageSection(string pageId, [FromBody] PageSection section)
+        {
+            var collection = MongoDbHelper.GetClient<PageSection>();
+
+            var tmp = UpdatePageSection(pageId, section, collection, null);
+
+            MessagingHelper.PushToLocalAgent(new JournalPageChangedMessage()
+            {
+                PageId = pageId,
+                SectionId = tmp.Id
+            });
+
+
+            return tmp;
+        }
+
+        private static PageSection UpdatePageSection(string pageId, PageSection section,
+            IMongoCollection<PageSection> collection, Dictionary<string, Dictionary<string, string>> allproperties)
         {
             if (section.Id == null)
                 section.Id = Guid.NewGuid().ToString("D").ToLowerInvariant();
             else
                 section.Id = section.Id.ToLowerInvariant();
-            
+
             if (pageId != null)
                 section.PageId = pageId;
 
@@ -159,15 +230,22 @@ namespace Home.Graph.Server.Controllers
                 section.PageId = section.PageId.ToLowerInvariant();
 
 
-            var collection = MongoDbHelper.GetClient<PageSection>();
             var lst = collection.Find(x => x.Id == section.Id).FirstOrDefault();
 
             if (lst == null)
             {
+                if((section.Properties==null || section.Properties.Count == 0)
+                    && !string.IsNullOrEmpty(section.Source)
+                    && allproperties!=null)
+                {
+                    if(allproperties.TryGetValue(section.Source, out var props))
+                        section.Properties = props;
+                }
                 collection.InsertOne(section);
             }
             else
             {
+                section.Properties = lst.Properties;
                 collection.ReplaceOne(x => x.Id == lst.Id, section);
             }
 
@@ -176,7 +254,7 @@ namespace Home.Graph.Server.Controllers
         }
 
         [Route("pages/{pageId}/sections/{sectionId}"), HttpDelete]
-        public bool DeletePageSection(string pageId,string sectionId)
+        public bool DeletePageSection(string pageId, string sectionId)
         {
             pageId = pageId.ToLowerInvariant();
             sectionId = sectionId.ToLowerInvariant();
@@ -188,6 +266,14 @@ namespace Home.Graph.Server.Controllers
                 return true;
 
             collection.DeleteOne(x => x.Id == lst.Id);
+
+
+            MessagingHelper.PushToLocalAgent(new JournalPageChangedMessage()
+            {
+                PageId = lst.PageId,
+                SectionId = lst.Id
+            });
+
             return true;
         }
 
@@ -230,7 +316,7 @@ namespace Home.Graph.Server.Controllers
             var pgcollection = MongoDbHelper.GetClient<Page>();
             var lstPg = pgcollection.Find(x => pageIds.Contains(x.Id)).ToList();
             var ret = new List<FindSectionBySourceResult>();
-            foreach(var r in lst)
+            foreach (var r in lst)
             {
                 var pg = (from z in lstPg where z.Id.Equals(r.PageId) select z).FirstOrDefault();
                 ret.Add(new FindSectionBySourceResult()

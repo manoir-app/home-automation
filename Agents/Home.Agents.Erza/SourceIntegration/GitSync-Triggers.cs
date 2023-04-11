@@ -96,7 +96,10 @@ namespace Home.Agents.Erza.SourceIntegration
                     {
                         var tmp = cli.DownloadData<Trigger[]>("v1.0/system/mesh/local/triggers");
                         foreach (var r in tmp)
+                        {
                             r.LatestOccurence = null;
+                            r.ProbableNextOccurence = null;
+                        }
                         if (tmp != null)
                             return tmp;
                     }

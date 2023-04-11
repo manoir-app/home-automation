@@ -26,7 +26,7 @@ namespace Home.Agents.Aurore.Greetings
             {
                 var users = AgentHelper.GetMainUsers("aurore");
 
-                JournalHelper.Update("https://manoir.app/agents/aurore#greetings", (secUpd) =>
+                JournalHelper.UpdateProperties("https://manoir.app/agents/aurore#greetings", (secUpd) =>
                 {
                     var t = RefreshJournalPage(new PageToUpdate(secUpd.Page, secUpd.Section), users);
                     if (t != null)
@@ -66,23 +66,30 @@ namespace Home.Agents.Aurore.Greetings
             if(resp!=null)
             {
                 PageSection sc = pg.Section;
+
                 if(sc!=null)
                 {
-                    string olddata = sc.Data;
-                    sc.Data = "";
+                    if (sc.Properties == null)
+                        sc.Properties = new Dictionary<string, string>();
+
+                    string oldGreetings;
+                    if (!sc.Properties.TryGetValue("GREETINGS", out oldGreetings))
+                        oldGreetings = "";
                     resp.ConvertTo("md");
-                    foreach(var r in resp.Items)
+                    string newGreetings = "";
+
+                    foreach (var r in resp.Items)
                     {
-                        if (sc.Data.Length > 0) sc.Data += "\r\n\r\n";
+                        if (newGreetings.Length > 0) newGreetings += "\r\n\r\n";
                         if (r.ContentKind == GreetingsMessageResponseItem.GreetingsMessageResponseItemKind.HeaderContent)
-                            sc.Data += "# ";
-                        sc.Data += r.Content;
+                            newGreetings += "# ";
+                        newGreetings += r.Content;
                     }
 
-                    if (sc.Data.Equals(olddata))
+                    if (newGreetings.Equals(oldGreetings))
                         return null;
 
-                    sc.Source = "https://manoir.app/agents/aurore#greetings";
+                    sc.Properties["GREETINGS"] = newGreetings;
                 }
                 return sc;
             }

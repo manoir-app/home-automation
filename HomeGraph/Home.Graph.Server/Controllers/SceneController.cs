@@ -113,7 +113,7 @@ namespace Home.Graph.Server.Controllers
             MessagingHelper.PushToLocalAgent(new ScenarioContentChangedMessage()
             {
                 SceneGroupId = group.Id
-            }); ;
+            });
 
             return lst;
         }
