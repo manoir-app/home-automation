@@ -40,6 +40,8 @@ namespace Home.Common.Model
 
         public Dictionary<string, string> Images { get; set; }
 
+        public List<string> InvocationStrings { get; set; } = new List<string>();
+
 
     }
 

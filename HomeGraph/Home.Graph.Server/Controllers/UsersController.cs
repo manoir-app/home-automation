@@ -132,6 +132,15 @@ namespace Home.Graph.Server.Controllers
 
         }
 
+        [Route("non-guests"), HttpGet]
+        public List<User> GetNonGuestUsers()
+        {
+            var collection = MongoDbHelper.GetClient<User>();
+            var lst = collection.Find(x => x.IsGuest==false);
+            return lst.ToList();
+        }
+
+
         [Route("guests"), HttpGet]
         public List<User> GetGuestUsers()
         {

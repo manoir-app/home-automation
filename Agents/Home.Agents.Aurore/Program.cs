@@ -1,4 +1,5 @@
 ﻿using Home.Agents.Aurore.Greetings;
+using Home.Agents.Aurore.Integrations.Rhasspy;
 using Home.Common;
 using System;
 using System.IO;
@@ -16,17 +17,16 @@ namespace Home.Agents.Aurore
         {
             AgentHelper.WriteStartupMessage("Aurore", typeof(Program).Assembly);
 
-            AgentHelper.SetupReporting("aurore");
-            AgentHelper.SetupLocaleFromServer("aurore");
-
+          
 #if DEBUG
 
-            Search.TypeSenseSearchProvider t = new Search.TypeSenseSearchProvider();
-            t.Prepare();
-
+            RhasspyService.FullRefresh();
 
             return;
 #endif
+
+            AgentHelper.SetupReporting("aurore");
+            AgentHelper.SetupLocaleFromServer("aurore");
 
             AgentHelper.ReportStart("aurore", "user-interaction");
 
