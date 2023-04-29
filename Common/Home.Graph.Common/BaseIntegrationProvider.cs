@@ -30,7 +30,16 @@ namespace Home.Graph.Common
         public static IntegrationConfigurationResponse GetDefaultResponse(IntegrationConfigurationMessage source, 
             string title, string description, Dictionary<string, string> properties, bool finalStep = true)
         {
+            if (source.SetupValues != null && source.SetupValues.Count > 0)
+            {
+                foreach (var cfg in source.SetupValues)
+                {
+                    source.Instance.Settings[cfg.Key] = cfg.Value;
+                }
+            }
+
             AdaptiveCard c = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
             c.Body.Add(new AdaptiveTextBlock()
             {
                 Size = AdaptiveTextSize.Medium,

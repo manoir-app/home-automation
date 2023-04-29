@@ -253,6 +253,15 @@ namespace Home.Graph.Server.Controllers
                 });
             }
 
+            ret.Integration = integ;
+            foreach (var r in integ.Instances)
+            {
+                if (r.Id.Equals(dm.Instance.Id))
+                {
+                    ret.CurrentInstance = r;
+                    break;
+                }
+            }
             return new OkObjectResult(ret);
         }
 
