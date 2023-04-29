@@ -1,4 +1,6 @@
-﻿using Home.Common;
+﻿using AdaptiveCards;
+using Home.Common;
+using Home.Common.Messages;
 using Home.Common.Model;
 using System;
 using System.Collections.Generic;
@@ -23,6 +25,38 @@ namespace Home.Graph.Common
                      where z.Id.Equals(integrationId, StringComparison.InvariantCultureIgnoreCase)
                      select z.Instances).FirstOrDefault();
             return i;
+        }
+
+        public static IntegrationConfigurationResponse GetDefaultResponse(IntegrationConfigurationMessage source, 
+            string title, string description, Dictionary<string, string> properties, bool finalStep = true)
+        {
+            AdaptiveCard c = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+            c.Body.Add(new AdaptiveTextBlock()
+            {
+                Size = AdaptiveTextSize.Medium,
+                Weight = AdaptiveTextWeight.Bolder,
+                Text = "${label}"
+            });
+            foreach (var prop in properties)
+            {
+                c.Body.Add(new AdaptiveTextInput()
+                {
+                    Label = prop.Value,
+                    IsRequired = true,
+                    Id = "settings_" +prop.Key,
+                    Value = "${settings." + prop.Key + "}"
+                });
+            }
+            c.Actions.Add(new AdaptiveSubmitAction()
+            {
+                Title = "Save"
+            });
+            return new IntegrationConfigurationResponse(source)
+            {
+                ConfigurationCardFormat = "adaptivecard+json",
+                ConfigurationCard = c.ToJson(),
+                IsFinalStep = finalStep
+            };
         }
 
 

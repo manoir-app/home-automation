@@ -98,6 +98,28 @@ namespace Home.Common
             }
         }
 
+
+        public static Integration GetIntegration(string agentName, string integrationId)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    using (var cli = new MainApiAgentWebClient(agentName))
+                    {
+                        var ret = cli.DownloadData<Integration>(
+                            $"v1.0/system/mesh/local/integrations/{integrationId}");
+                        return ret;
+                    }
+                }
+                catch (WebException)
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+            return null;
+        }
+
         public static List<Integration> GetMyIntegrations(string agentName, bool onlyActives)
         {
             for (int i = 0; i < 3; i++)
@@ -472,5 +494,7 @@ namespace Home.Common
             else
                 LogHelper.LogException("agent", _agentName, new ApplicationException("Crash"));
         }
+
+       
     }
 }
