@@ -5,6 +5,9 @@
 ///<reference path="../wwwroot/scripts/typings/angularjs/angular.d.ts" />
 ///<reference path="../node_modules/@microsoft/signalr/dist/esm/index.d.ts" />
 
+declare var AdaptiveCards: any;
+declare var ACData: any;
+
 
 module HomeAutomation.Admin.Integrations {
 
@@ -50,6 +53,13 @@ module HomeAutomation.Admin.Integrations {
         isSetup: boolean;
     }
 
+    export interface IntegrationConfigurationData {
+        integration: Integration,
+        currentInstance: IntegrationInstance,
+        configurationCardFormat: string;
+        configurationCard: string;
+        isFinalStep: boolean;
+    }
 
     export class IntegrationsPage {
 
@@ -84,15 +94,60 @@ module HomeAutomation.Admin.Integrations {
 
         public switchToConfigPage(it: InstalledIntegration): boolean {
             var sc = this.scope;
-
+            var self = this;
             sc.view = "config-page";
 
             sc.editedIntegration = it;
+
+            $.ajax({
+                url: '/v1.0/system/mesh/local/integrations/' + it.id + "/config/" + it.instanceId,
+                type: 'GET',
+                dataType: "json",
+                contentType: "application/json"
+            })
+                .done(function (data: IntegrationConfigurationData) {
+                    if (data != null && data.currentInstance != null && data.configurationCard != null) {
+                        if (data.configurationCardFormat == null) data.configurationCardFormat = "adaptivecard+json";
+                        switch (data.configurationCardFormat) {
+                            case "adaptivecard+json":
+                                self.SetupAdaptiveCard(data.configurationCard, data.currentInstance);
+                                break;
+                        }
+                    }
+                    sc.$applyAsync();
+                })
+                .fail(function () {
+                });
+
 
             sc.$applyAsync();
             return false;
         }
 
+        public SetupAdaptiveCard(cardData: string, configdata: IntegrationInstance) {
+
+            var template = new ACData.Template(JSON.parse(cardData));
+            var cardPayload = template.expand({
+                $root: configdata
+            });
+
+
+            //var cardPayload = JSON.parse(cardData);
+
+            var adaptiveCard = new AdaptiveCards.AdaptiveCard();
+
+            adaptiveCard.hostConfig = new AdaptiveCards.HostConfig({
+                fontFamily: "Segoe UI, Helvetica Neue, sans-serif"
+                // More host config options
+            });
+
+            adaptiveCard.parse(cardPayload);
+            var renderedCard = adaptiveCard.render();
+            var div = document.getElementById("adaptiveCardCanvas");
+            while (div.hasChildNodes())
+                div.removeChild(div.firstChild);
+            div.appendChild(renderedCard);
+        }
 
 
         public init(): void {

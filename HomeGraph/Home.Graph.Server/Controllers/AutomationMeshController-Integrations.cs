@@ -158,6 +158,37 @@ namespace Home.Graph.Server.Controllers
         }
 
 
+        [Route("local/integrations/{integrationId}/config/{instanceId}"), HttpGet()]
+        public ActionResult GetConfigureIntegration(string integrationId, string instanceId)
+        {
+            if (integrationId == null)
+                return BadRequest();
+            if (instanceId == null)
+                return BadRequest();
+
+            integrationId = integrationId.ToLowerInvariant();
+            var coll = MongoDbHelper.GetClient<Integration>();
+            var integ = coll.Find(x => x.Id == integrationId).FirstOrDefault();
+
+            if (integ == null)
+                return NotFound();
+
+            IntegrationConfigurationData ret = new IntegrationConfigurationData()
+            {
+                Integration = integ
+            };
+
+
+            ret.CurrentInstance = (from z in integ.Instances
+                                   where z.Id.Equals(instanceId, StringComparison.InvariantCultureIgnoreCase)
+                                   select z).FirstOrDefault();
+            if (ret.CurrentInstance == null)
+                return NotFound();
+
+            var msg = new IntegrationConfigurationMessage(integ.AgentId, integ, ret.CurrentInstance);
+            return SendConfigurationStepToAgent(coll, integ, ret, msg);
+        }
+
         [Route("local/integrations/{integrationId}/config/{instanceId}"), HttpPost()]
         public ActionResult ConfigureIntegration(string integrationId, string instanceId, [FromBody] Dictionary<string, string> configValues)
         {

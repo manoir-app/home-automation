@@ -31,10 +31,49 @@ var HomeAutomation;
                 }
                 switchToConfigPage(it) {
                     var sc = this.scope;
+                    var self = this;
                     sc.view = "config-page";
                     sc.editedIntegration = it;
+                    $.ajax({
+                        url: '/v1.0/system/mesh/local/integrations/' + it.id + "/config/" + it.instanceId,
+                        type: 'GET',
+                        dataType: "json",
+                        contentType: "application/json"
+                    })
+                        .done(function (data) {
+                        if (data != null && data.currentInstance != null && data.configurationCard != null) {
+                            if (data.configurationCardFormat == null)
+                                data.configurationCardFormat = "adaptivecard+json";
+                            switch (data.configurationCardFormat) {
+                                case "adaptivecard+json":
+                                    self.SetupAdaptiveCard(data.configurationCard, data.currentInstance);
+                                    break;
+                            }
+                        }
+                        sc.$applyAsync();
+                    })
+                        .fail(function () {
+                    });
                     sc.$applyAsync();
                     return false;
+                }
+                SetupAdaptiveCard(cardData, configdata) {
+                    var template = new ACData.Template(JSON.parse(cardData));
+                    var cardPayload = template.expand({
+                        $root: configdata
+                    });
+                    //var cardPayload = JSON.parse(cardData);
+                    var adaptiveCard = new AdaptiveCards.AdaptiveCard();
+                    adaptiveCard.hostConfig = new AdaptiveCards.HostConfig({
+                        fontFamily: "Segoe UI, Helvetica Neue, sans-serif"
+                        // More host config options
+                    });
+                    adaptiveCard.parse(cardPayload);
+                    var renderedCard = adaptiveCard.render();
+                    var div = document.getElementById("adaptiveCardCanvas");
+                    while (div.hasChildNodes())
+                        div.removeChild(div.firstChild);
+                    div.appendChild(renderedCard);
                 }
                 init() {
                     var sc = this.scope;
