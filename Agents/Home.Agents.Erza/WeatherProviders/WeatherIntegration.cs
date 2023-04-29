@@ -1,7 +1,9 @@
-﻿using Home.Common;
+﻿using AdaptiveCards;
+using Home.Common;
 using Home.Common.Messages;
 using Home.Common.Model;
 using Home.Graph.Common;
+using Microsoft.Azure.Amqp.Framing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -114,15 +116,83 @@ namespace Home.Agents.Erza.WeatherProviders
         }
 
 
-
-        internal static MessageResponse HandleConfigurationMessage(IntegrationConfigurationMessage integrationConfigurationMessage)
+        internal static AdaptiveCard GetConfigCard(IntegrationConfigurationMessage source)
         {
-            RefreshIntegrationData();
-            return IntegrationProviderHelper.GetDefaultResponse(integrationConfigurationMessage, "Weather info",
-                "Provides weather info", new Dictionary<string, string>()
+            AdaptiveCard c = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
+            c.Body.Add(new AdaptiveTextBlock()
+            {
+                Size = AdaptiveTextSize.Medium,
+                Weight = AdaptiveTextWeight.Bolder,
+                Text = "${label}"
+            });
+
+            c.Body.Add(new AdaptiveTextBlock()
+            {
+                Text = "Get weather data info from online service and publish it to entities and location data",
+                Wrap = true
+            });
+
+            c.Body.Add(new AdaptiveTextBlock()
+            {
+                Text = "[more info](https://manoir.app/integrations/erza.weather.html)",
+                HorizontalAlignment = AdaptiveHorizontalAlignment.Right,
+                IsSubtle = true
+            });
+
+            c.Body.Add(new AdaptiveChoiceSetInput()
+            {
+                Choices = new List<AdaptiveChoice>()
                 {
-                    { "provider" , "Main weather provider" }
-                });
+                    new AdaptiveChoice()
+                    {
+                        Title = "met.no (Norway Meteorologisk institutt)",
+                        Value = "met.no"
+                    }
+                },
+                Label = "Choose your weather provider",
+                Style = AdaptiveChoiceInputStyle.Expanded,
+                Id = "settings_provider",
+                IsRequired = true,
+                ErrorMessage  = "Please select a valid weather provider",
+                Spacing = AdaptiveSpacing.Large,
+                Separator = true,
+                Value = "${settings.provider}"
+            });
+
+            c.Actions.Add(new AdaptiveSubmitAction()
+            {
+                Title = "Save"
+            });
+
+            return c;
+        }
+
+
+        internal static MessageResponse HandleConfigurationMessage(IntegrationConfigurationMessage source)
+        {
+            if (source.SetupValues != null && source.SetupValues.Count > 0)
+            {
+                foreach (var cfg in source.SetupValues)
+                {
+                    source.Instance.Settings[cfg.Key] = cfg.Value;
+                }
+            }
+
+            var tmp = new IntegrationConfigurationResponse(source)
+            {
+                ConfigurationCardFormat = "adaptivecard+json",
+                ConfigurationCard = GetConfigCard(source).ToJson(),
+                IsFinalStep = true
+            };
+
+            new Thread(() =>
+            {
+                Thread.Sleep(5000);
+                RefreshIntegrationData();
+            }).Start();
+
+            return tmp;
         }
     }
 }
