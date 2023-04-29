@@ -78,7 +78,9 @@ namespace Home.Agents.Erza
                     case "system.triggers.change":
                         SourceIntegration.GitSync.SyncTriggersFromServer(messageBody);
                         break;
-                    
+                    case "erza.integration.configure":
+                        return Program.ConfigureIntegration(JsonConvert.DeserializeObject<IntegrationConfigurationMessage>(messageBody));
+
                     case JournalPageChangedMessage.PageUpdatedTopic:
                         SourceIntegration.GitSync.SyncPagesFromServer(messageBody);
                         return MessageResponse.OK;

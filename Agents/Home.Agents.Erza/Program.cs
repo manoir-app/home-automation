@@ -1,5 +1,6 @@
 ﻿using Home.Agents.Erza.SourceIntegration;
 using Home.Common;
+using Home.Common.Messages;
 using Home.Common.Model;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,24 @@ namespace Home.Agents.Erza
     class Program
     {
         public static bool _stop = false;
+
+        internal static MessageResponse ConfigureIntegration(IntegrationConfigurationMessage integrationConfigurationMessage)
+        {
+            if (integrationConfigurationMessage == null
+                || integrationConfigurationMessage.Integration == null
+                || integrationConfigurationMessage.Instance == null)
+            {
+                return MessageResponse.GenericFail;
+            }
+
+            switch (integrationConfigurationMessage.Integration.Id.ToLowerInvariant())
+            {
+                case "erza.weather":
+                    return WeatherProviders.WeatherIntegration.HandleConfigurationMessage(integrationConfigurationMessage);
+            }
+
+            return MessageResponse.GenericFail;
+        }
 
         static void Main(string[] args)
         {
@@ -30,7 +49,7 @@ namespace Home.Agents.Erza
             ErzaIntegrationsProvider.InitIntegrations();
 
             ErzaMessageHandler.Start();
-            WeatherChecker.Start();
+            WeatherProviders.WeatherIntegration.Start();
             NetworkChecker.Start();
             DatabaseMaintenanceThread.Start();
             SystemCleanup.Start();
@@ -48,7 +67,7 @@ namespace Home.Agents.Erza
             SystemCleanup.Stop();
             ErzaMessageHandler.Stop();
             NetworkChecker.Stop();
-            WeatherChecker.Stop();
+            WeatherProviders.WeatherIntegration.Stop();
             DatabaseMaintenanceThread.Stop();
 
         }

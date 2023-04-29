@@ -26,15 +26,101 @@ var HomeAutomation;
                 switchToView(newView) {
                     var sc = this.scope;
                     sc.view = newView;
+                    sc.editedIntegration = null;
+                    sc.editedIntegrationConfigurationData = null;
                     sc.$applyAsync();
                     return false;
                 }
                 switchToConfigPage(it) {
                     var sc = this.scope;
+                    var self = this;
                     sc.view = "config-page";
                     sc.editedIntegration = it;
+                    sc.editedIntegrationConfigurationData = null;
+                    $.ajax({
+                        url: '/v1.0/system/mesh/local/integrations/' + it.id + "/config/" + it.instanceId,
+                        type: 'GET',
+                        dataType: "json",
+                        contentType: "application/json"
+                    })
+                        .done(function (data) {
+                        if (data != null && data.currentInstance != null && data.configurationCard != null) {
+                            sc.editedIntegrationConfigurationData = data.currentInstance;
+                            if (data.configurationCardFormat == null)
+                                data.configurationCardFormat = "adaptivecard+json";
+                            switch (data.configurationCardFormat) {
+                                case "adaptivecard+json":
+                                    self.SetupAdaptiveCard(data.configurationCard, data.currentInstance);
+                                    break;
+                            }
+                        }
+                        sc.$applyAsync();
+                    })
+                        .fail(function () {
+                    });
                     sc.$applyAsync();
                     return false;
+                }
+                SetupAdaptiveCard(cardData, configdata) {
+                    var sc = this.scope;
+                    var self = this;
+                    var template = new ACData.Template(JSON.parse(cardData));
+                    var cardPayload = template.expand({
+                        $root: configdata
+                    });
+                    //var cardPayload = JSON.parse(cardData);
+                    var adaptiveCard = new AdaptiveCards.AdaptiveCard();
+                    adaptiveCard.hostConfig = new AdaptiveCards.HostConfig({
+                        fontFamily: "Segoe UI, Helvetica Neue, sans-serif"
+                        // More host config options
+                    });
+                    adaptiveCard.onExecuteAction = (action) => {
+                        if (action instanceof AdaptiveCards.SubmitAction) {
+                            self.parseActionData(action, sc.editedIntegrationConfigurationData);
+                            $.ajax({
+                                url: '/v1.0/system/mesh/local/integrations/' + sc.editedIntegration.id + "/config/" + sc.editedIntegration.instanceId,
+                                type: 'POST',
+                                dataType: "json",
+                                contentType: "application/json",
+                                data: JSON.stringify(sc.editedIntegrationConfigurationData.settings)
+                            })
+                                .done(function (data) {
+                                if (data != null && data.currentInstance != null && data.configurationCard != null) {
+                                    sc.editedIntegrationConfigurationData = data.currentInstance;
+                                    if (data.configurationCardFormat == null)
+                                        data.configurationCardFormat = "adaptivecard+json";
+                                    switch (data.configurationCardFormat) {
+                                        case "adaptivecard+json":
+                                            self.SetupAdaptiveCard(data.configurationCard, data.currentInstance);
+                                            break;
+                                    }
+                                }
+                                $("#divSaveOkConfig").fadeIn();
+                                setTimeout(() => { $("#divSaveOkConfig").fadeOut(); }, 2500);
+                                sc.$applyAsync();
+                            })
+                                .fail(function () {
+                                $("#divSaveKoConfig").fadeIn();
+                                setTimeout(() => { $("#divSaveKoConfig").fadeOut(); }, 2500);
+                            });
+                        }
+                    };
+                    adaptiveCard.parse(cardPayload);
+                    var renderedCard = adaptiveCard.render();
+                    var div = document.getElementById("adaptiveCardCanvas");
+                    while (div.hasChildNodes())
+                        div.removeChild(div.firstChild);
+                    div.appendChild(renderedCard);
+                }
+                parseActionData(action, editedIntegrationConfigurationData) {
+                    if (action.data != null) {
+                        for (var k in action.data) {
+                            if (k.startsWith("settings_")) {
+                                var settName = k.substr(9);
+                                editedIntegrationConfigurationData.settings[settName] = action.data[k];
+                            }
+                        }
+                    }
                 }
                 init() {
                     var sc = this.scope;
