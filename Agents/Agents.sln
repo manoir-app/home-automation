@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Erza", "Home.Agents.Erza\Home.Agents.Erza.csproj", "{F554BD98-7040-481D-83D5-E48CD6B5C473}"
 EndProject
@@ -29,7 +29,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Alexandra", "Ho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Sarah", "Home.Agents.Sarah\Home.Agents.Sarah.csproj", "{7C945654-728C-4F32-B439-74012422EE0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Home.Agents.Erina", "Home.Agents.Erina\Home.Agents.Erina.csproj", "{F7F8D067-E24D-42A0-9EDC-ADB0674CA186}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Home.Agents.Erina", "Home.Agents.Erina\Home.Agents.Erina.csproj", "{F7F8D067-E24D-42A0-9EDC-ADB0674CA186}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A06806CF-DCCB-4673-A787-2E328AC89067}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsForAgents", "TestsForAgents\TestsForAgents.csproj", "{16267F2F-66F8-45BA-9FE5-61734D67D4A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +81,10 @@ Global
 		{F7F8D067-E24D-42A0-9EDC-ADB0674CA186}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7F8D067-E24D-42A0-9EDC-ADB0674CA186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7F8D067-E24D-42A0-9EDC-ADB0674CA186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16267F2F-66F8-45BA-9FE5-61734D67D4A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16267F2F-66F8-45BA-9FE5-61734D67D4A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16267F2F-66F8-45BA-9FE5-61734D67D4A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16267F2F-66F8-45BA-9FE5-61734D67D4A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +100,7 @@ Global
 		{826CB12B-B7E3-4FAF-AA79-FDBB7BF29FEC} = {39742325-E757-4DF3-A85C-A9ADE938C51D}
 		{7C945654-728C-4F32-B439-74012422EE0F} = {F3D3DD48-6685-455A-858A-D679588A8D48}
 		{F7F8D067-E24D-42A0-9EDC-ADB0674CA186} = {19BBBF9E-7641-4837-88E6-A7E0E558080D}
+		{16267F2F-66F8-45BA-9FE5-61734D67D4A4} = {A06806CF-DCCB-4673-A787-2E328AC89067}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A01A3BDF-BD15-4B95-932E-2C8BDD508673}
