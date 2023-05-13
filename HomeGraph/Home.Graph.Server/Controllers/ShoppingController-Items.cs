@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 namespace Home.Graph.Server.Controllers
 {
-    [Route("v1.0/shopping")]
-    [ApiController]
     public partial class ShoppingController : ControllerBase
     {
     }

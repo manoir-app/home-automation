@@ -25,6 +25,7 @@ namespace Home.Agents.Aurore.Integrations.Rhasspy
             sentences.Merge(GetBasicHomeAutomationSentences());
             sentences.Merge(GetPresenceSentences());
             sentences.Merge(GetSceneSentences());
+            sentences.Merge(GetShoppingListSentences());
 
             using (var cli = new WebClient())
             {
@@ -39,6 +40,29 @@ namespace Home.Agents.Aurore.Integrations.Rhasspy
         private static Dictionary<string, string[]> GetConversationsSentences()
         {
             var ret = new Dictionary<string, string[]>();
+
+            ret.Add("Cancel", new string[] {
+                "annule",
+                "annuler",
+                "laisse tomber",
+                "pas la peine",
+                "arrête",
+                "stop",
+                "cancel",
+                "fais pas chier"
+            });
+
+            ret.Add("Yes", new string[] {
+                "oui",
+                "affirmatif",
+                "bien sûr",
+            });
+
+            ret.Add("No", new string[] {
+                "non",
+                "pas du tout",
+                "surtout pas",
+            });
 
             ret.Add("Agents:Aurore:Greetings", new string[] {
                 "(Hello | Salut | Bonjour | Coucou)",
@@ -130,6 +154,18 @@ namespace Home.Agents.Aurore.Integrations.Rhasspy
             return ret;
         }
 
+        private static Dictionary<string, string[]> GetShoppingListSentences()
+        {
+            var ret = new Dictionary<string, string[]>();
+
+            ret.Add("Agents:Erina:ShoppingList:AddItem", new string[] {
+                "ajoute [(du | de | des)] [la] ($manoir/products) (à | dans) [la | ma] liste de courses",
+                "[(je | nous)] [(vais | allons)] avoir besoin [acheter] [plus] [(du | de | des)] [la] ($manoir/products)",
+                "(rappelle moi | fais moi penser à) acheter [plus] [(du | de | des)] [la] ($manoir/products)",
+            });
+
+            return ret;
+        }
 
         private static Dictionary<string, string[]> GetBasicHomeAutomationSentences()
         {

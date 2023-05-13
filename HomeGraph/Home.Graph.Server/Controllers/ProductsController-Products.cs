@@ -28,7 +28,7 @@ namespace Home.Graph.Server.Controllers
         }
 
         [Route("find/all"), HttpGet]
-        public ProductSearchResult GetProducts(int page = 0)
+        public ProductSearchResult GetProducts(int page = 0, int pageSize = 250)
         {
             var ret = new ProductSearchResult();
             var collection = MongoDbHelper.GetClient<Product>();
@@ -37,8 +37,8 @@ namespace Home.Graph.Server.Controllers
             ret.TotalResults = qry.CountDocuments();
 
             if (page>0)
-                qry = qry.Skip(page*250);
-            qry.Limit(250);
+                qry = qry.Skip(page* pageSize);
+            qry.Limit(pageSize);
             ret.Items = qry.ToList();
 
             return ret;

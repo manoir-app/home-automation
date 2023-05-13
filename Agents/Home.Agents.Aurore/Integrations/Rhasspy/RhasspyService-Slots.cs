@@ -26,6 +26,7 @@ namespace Home.Agents.Aurore.Integrations.Rhasspy
             GetLocationSlots(slots);
             GetUserSlots(slots);
             GetBaseSlots(slots);
+            GetProductSlots(slots);
             GetScenesSlots(slots);
 
             using (var cli = new WebClient())
@@ -36,6 +37,42 @@ namespace Home.Agents.Aurore.Integrations.Rhasspy
                 cli.UploadString("/api/slots?overwriteAll=false", "POST", JsonConvert.SerializeObject(slots));
             }
 
+        }
+
+        private static void GetProductSlots(Dictionary<string, string[]> slots)
+        {
+            SetupCache();
+            var prods = _allProducts;
+            var lines = new List<string>();
+            foreach (var prod in prods)
+            {
+                if (!string.IsNullOrWhiteSpace(prod.GenericName))
+                {
+                    string tmp = $"{prod.GenericName}{{product:{prod.Id}}}";
+                    if (!lines.Contains(tmp))
+                        lines.Add(tmp);
+                }
+                if (!string.IsNullOrWhiteSpace(prod.Label))
+                {
+                    string tmp = $"{prod.Label}{{product:{prod.Id}}}";
+                    if (!lines.Contains(tmp))
+                        lines.Add(tmp);
+                }
+                if(prod.Packagings!=null)
+                {
+                    foreach(var pack in prod.Packagings)
+                    {
+                        if (!string.IsNullOrWhiteSpace(pack.Label))
+                        {
+                            string tmp = $"{pack.Label}{{product:{prod.Id}}}";
+                            if (!lines.Contains(tmp))
+                                lines.Add(tmp);
+                        }
+                    }
+                }
+            }
+
+            slots.Add("manoir/products", lines.ToArray());
         }
 
         private static void GetUserSlots(Dictionary<string, string[]> slots)

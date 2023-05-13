@@ -18,10 +18,6 @@ namespace Home.Agents.Aurore.Integrations.Rhasspy
     {
         private static string _mainRhasspyUrl = "http://192.168.2.128:12101/";
 
-        private static DateTime _lastUpdate = DateTime.MinValue;
-
-        private static List<Scene> _allScenes = null;
-        private static List<User> _allUsers = null;
 
         public static void Start()
         {
