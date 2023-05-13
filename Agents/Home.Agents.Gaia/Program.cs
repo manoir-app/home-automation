@@ -18,6 +18,15 @@ namespace Home.Agents.Gaia
             AgentHelper.SetupLocaleFromServer("gaia");
             AgentHelper.ReportStart("gaia", "monitoring", "system");
 
+            // au démarrage, on prépare un reboot de tous les agents
+            // dans 5 minutes.
+            new Thread(() =>
+            {
+                Thread.Sleep(5 * 60000);
+                KubernetesChecker.RestartAfterReboot();
+            }).Start();
+
+
 
             GaiaMessageHandler.Start();
             KubernetesChecker.Start();

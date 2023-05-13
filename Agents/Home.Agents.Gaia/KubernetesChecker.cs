@@ -181,6 +181,46 @@ namespace Home.Agents.Gaia
             }
         }
 
+        internal static void RestartAfterReboot()
+        {
+            try
+            {
+                if (DeploymentHelper._lastDeploy.AddMinutes(3) > DateTime.Now)
+                    return;
+
+                var agents = GetAgents();
+
+                var config = KubernetesClientConfiguration.InClusterConfig();
+                using (var client = new Kubernetes(config))
+                {
+                    var dps = client.ListNamespacedDeployment("default", limit: 200);
+                    foreach (var dp in dps.Items)
+                    {
+                        string depName = dp.Metadata.Name?.ToLowerInvariant();
+                        if (depName == null)
+                            continue;
+
+                        if (depName.Equals("agents-gaia"))
+                            continue;
+
+                        if (depName.StartsWith("agents-")
+                            || depName.StartsWith("webapp-")
+                            || depName.StartsWith("extensions-")
+                            || depName.StartsWith("personalapp-"))
+                        {
+                            DeploymentHelper.RestartDeployment(client, depName);
+                        }
+                    }
+                }
+
+            }
+            catch
+            {
+
+            }
+        }
+
+
         private static void CheckAgentState(Kubernetes client, k8s.Models.V1Deployment dp, string depName, List<Agent> agents)
         {
             string agNAme = depName.Substring("agents-".Length);

@@ -1094,7 +1094,7 @@ namespace Home.Agents.Gaia
             LogHelper.Log("agent", "gaia", $"Restarted {deploymentName}");
         }
 
-        private static void RestartDeployment(Kubernetes client, string deploymentName)
+        internal static void RestartDeployment(Kubernetes client, string deploymentName)
         {
             V1Deployment dp = null;
 
