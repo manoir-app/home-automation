@@ -144,6 +144,11 @@ namespace Home.Agents.Erza
                 MongoDbHelper.CreateCollection<RecipeCuisine>();
 
 
+                MongoDbHelper.CreateCollection<ShoppingItem>();
+                MongoDbHelper.CreateCollection<ShoppingLocation>();
+                MongoDbHelper.CreateCollection<ShoppingSession>();
+
+
                 // les pages de journalApp
                 MongoDbHelper.CreateCollection<Page>();
                 MongoDbHelper.CreateCollection<PageSection>();
