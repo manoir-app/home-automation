@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -308,22 +309,28 @@ namespace Home.Graph.Server.Controllers
                     SourceUrl = item.SourceUrl
                 });
 
-                if (ret != null && ret.WasQueued)
+                if (ret != null )
                 {
-                    var up = Builders<DownloadItem>.Update
-                            .Set("DownloadPrivateId", ret.Identifier)
-                            .Set("Status", DownloadItemStatus.InProgress);
+                    Console.WriteLine($"Download request for {item.SourceUrl} has response :");
+                    Console.WriteLine(JsonConvert.SerializeObject(ret));
 
-                    collection.UpdateOne(x => x.Id == item.Id, up);
-
-                    MessagingHelper.PushToLocalAgent(new DownloadItemProgressMessage(DownloadItemProgressMessage.StartedTopicName)
+                    if (ret.WasQueued)
                     {
-                        DownloadId = item.Id,
-                        SourceUrl = item.SourceUrl
-                    });
-                    MessagingHelper.PushItemChange<DownloadItem>(item.Id, ItemChangeKind.Update);
+                        var up = Builders<DownloadItem>.Update
+                                .Set("DownloadPrivateId", ret.Identifier)
+                                .Set("Status", DownloadItemStatus.InProgress);
 
-                    return true;
+                        collection.UpdateOne(x => x.Id == item.Id, up);
+
+                        MessagingHelper.PushToLocalAgent(new DownloadItemProgressMessage(DownloadItemProgressMessage.StartedTopicName)
+                        {
+                            DownloadId = item.Id,
+                            SourceUrl = item.SourceUrl
+                        });
+                        MessagingHelper.PushItemChange<DownloadItem>(item.Id, ItemChangeKind.Update);
+
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)

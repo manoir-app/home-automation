@@ -68,8 +68,6 @@ namespace Home.Agents.Freeia
             {
                 Console.WriteLine("MQTT * Erreur - " + JsonConvert.SerializeObject(arg.ApplicationMessage.ApplicationMessage) + arg.Exception?.ToString());
             }
-            else
-                Console.WriteLine("MQTT * OK - " + JsonConvert.SerializeObject(arg.ApplicationMessage.ApplicationMessage));
 
             return Task.CompletedTask;
         }

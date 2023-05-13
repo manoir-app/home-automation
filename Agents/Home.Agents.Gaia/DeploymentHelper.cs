@@ -864,7 +864,7 @@ namespace Home.Agents.Gaia
             return dp;
         }
 
-        private static V1PersistentVolume GetVolume(Kubernetes client, string volumeName)
+        internal static V1PersistentVolume GetVolume(Kubernetes client, string volumeName)
         {
             V1PersistentVolume dp = null;
             try
@@ -882,7 +882,7 @@ namespace Home.Agents.Gaia
             return dp;
         }
 
-        private static V1PersistentVolumeClaim GetVolumeClaim(Kubernetes client, string volumeClaimName)
+        internal static V1PersistentVolumeClaim GetVolumeClaim(Kubernetes client, string volumeClaimName)
         {
             V1PersistentVolumeClaim dp = null;
             try

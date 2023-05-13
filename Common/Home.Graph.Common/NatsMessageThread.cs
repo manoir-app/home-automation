@@ -8,6 +8,18 @@ using System.Threading;
 
 namespace Home.Common
 {
+
+    [Serializable]
+    public class NatsNoResponseException : Exception
+    {
+        public NatsNoResponseException() { }
+        public NatsNoResponseException(string message) : base(message) { }
+        public NatsNoResponseException(string message, Exception inner) : base(message, inner) { }
+        protected NatsNoResponseException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+    }
+
     public static class NatsMessageThread
     {
         private static bool _shouldStop = false;
@@ -127,12 +139,24 @@ namespace Home.Common
                                 var messagebody = Encoding.UTF8.GetString(args.Message.Data, 0, args.Message.Data.Length);
                                 try
                                 {
+                                    Console.WriteLine("------------------------");
+                                    Console.Write("Message Recu:");
+                                    Console.WriteLine(args.Message.Subject);
+                                    Console.WriteLine("------------------------");
+
                                     var hdl = hndl.Invoke(MessageOrigin.Local, args.Message.Subject, messagebody);
                                     if (hdl != null)
                                     {
                                         hdl.Topic = args.Message.Subject;
+                                        
                                         try
                                         {
+                                            Console.WriteLine("------------------------");
+                                            Console.Write("Message Recu:");
+                                            Console.Write(args.Message.Subject);
+                                            Console.Write(" => ");
+                                            Console.WriteLine(hdl.Response);
+                                            Console.WriteLine("------------------------");
                                             args.Message.Respond(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(hdl)));
                                         }
                                         catch (Exception ex)
@@ -141,6 +165,22 @@ namespace Home.Common
                                         }
                                     }
 
+                                }
+                                catch(NatsNoResponseException)
+                                {
+                                    Console.WriteLine("------------------------");
+                                    Console.Write("Message Recu:");
+                                    Console.Write(args.Message.Subject);
+                                    Console.Write(" => NO RESPONSE");
+                                    Console.WriteLine("------------------------");
+                                }
+                                catch (NotImplementedException)
+                                {
+                                    Console.WriteLine("------------------------");
+                                    Console.Write("Message Recu:");
+                                    Console.Write(args.Message.Subject);
+                                    Console.Write(" => NOT IMPLEMENTED");
+                                    Console.WriteLine("------------------------");
                                 }
                                 catch (Exception ex)
                                 {
@@ -154,6 +194,10 @@ namespace Home.Common
                             Thread.Sleep(500);
                         }
                     }
+                }
+                catch(NotImplementedException)
+                {
+
                 }
                 catch (Exception ex)
                 {

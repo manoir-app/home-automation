@@ -16,7 +16,8 @@ namespace Home.Agents.Gaia
         {
             Thread t = new Thread(() => NatsMessageThread.Run(new string[] {"gaia.>",
                                     "system.extensions.>",
-                                    "security.>", "monitoring.>"},
+                                    "security.>", "monitoring.>",
+                                    DownloadItemMessage.TopicName},
             GaiaMessageHandler.HandleMessage));
             t.Name = "NatsThread";
             t.Start();
@@ -81,7 +82,11 @@ namespace Home.Agents.Gaia
                         return MessageResponse.GenericFail;
                     DeploymentHelper.DeleteExtension(deploymentName);
                     return MessageResponse.OK;
-                    
+
+                case DownloadItemMessage.TopicName:
+                    var dataDownload = DownloadItemMessage.ReadAs<DownloadItemMessage>(messageBody);
+                    return DownloadHelper.TryDownload(dataDownload);
+
                 case SystemDeploymentMessage.TopicName:
                     var t = SystemDeploymentMessage.ReadAs<SystemDeploymentMessage>(messageBody);
                     if (t != null)

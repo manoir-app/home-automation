@@ -37,10 +37,6 @@ namespace Home.Agents.Freeia
                 return MessageResponse.GenericFail;
 
             messageBody = messageBody.Trim();
-            Console.WriteLine("------------------------");
-            Console.WriteLine("Message Recu:");
-            Console.WriteLine(messageBody);
-            Console.WriteLine("------------------------");
 
             switch (topic.ToLowerInvariant())
             {
@@ -60,23 +56,7 @@ namespace Home.Agents.Freeia
                     return MessageResponse.OK;
                 case DownloadItemMessage.TopicName:
                     var dataDownload = JsonConvert.DeserializeObject<DownloadItemMessage>(messageBody);
-                    var retDownload = new DownloadItemMessageResponse()
-                    {
-                        Topic = DownloadItemMessage.TopicName,
-                        Response = "ok",
-                        SourceUrl = dataDownload.SourceUrl,
-                        WasQueued = false
-                    };
-                    if (dataDownload != null)
-                    {
-                        var dl = FreeboxHelper.StartDownload(dataDownload.SourceUrl);
-                        if (dl != null)
-                        {
-                            retDownload.WasQueued = true;
-                            retDownload.Identifier = "freebox:downloadmgr:" + dl.id;
-                        }
-                    }
-                    return retDownload;
+                    return DownloadHelper.TryDownload(dataDownload);
             }
 
             return MessageResponse.OK;
