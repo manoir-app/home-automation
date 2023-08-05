@@ -25,3 +25,17 @@ jobs:
       run: dotnet restore Agents/Agents.sln
     - name: Build Agents
       run: dotnet build  Agents/Agents.sln --no-restore
+
+    - name: Set tag var
+      id: vars
+      run: echo "nugetver=$(date +%y.%m%d.%H)" >> $GITHUB_OUTPUT
+    - name: Publish Nuget To Nuget
+      uses: wahinekai/actions-publish-nuget@v3.0.1
+      with:
+        version: ${{ steps.vars.outputs.nugetver }}
+        project-path: Common/Home.Common/Home.Common.csproj
+        solution-path: Agents/Agents.sln
+        nuget-feed-name: mynugetorg
+        nuget-feed-password: ${{ secrets.NUGETORG_TOKEN }}
+        nuget-feed-url: https://www.nuget.org/api/v2/package
+

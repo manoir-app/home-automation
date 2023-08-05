@@ -11,9 +11,9 @@
   <ItemGroup>
     <PackageReference Include="GeoTimeZone" Version="4.1.0" />
     <PackageReference Include="Google.Protobuf" Version="3.21.5" />
-    <PackageReference Include="JournalApp.Common" Version="1.1.0" />
     <PackageReference Include="Ical.Net" Version="4.2.0" />
     <PackageReference Include="KubernetesClient" Version="3.0.7" />
+    <PackageReference Include="Manoir.Journal.Common" Version="23.805.8" />
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.0.0" />
     <PackageReference Include="Microsoft.Playwright" Version="1.22.0" />
