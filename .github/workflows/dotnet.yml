@@ -25,7 +25,6 @@ jobs:
       run: dotnet restore Agents/Agents.sln
     - name: Build Agents
       run: dotnet build  Agents/Agents.sln --no-restore
-
     - name: Set tag var
       id: vars
       run: echo "nugetver=$(date +%y.%m%d.%H)" >> $GITHUB_OUTPUT
