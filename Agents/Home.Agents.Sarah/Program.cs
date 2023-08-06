@@ -11,6 +11,7 @@ using Home.Graph.Common.Scripting;
 using System.Diagnostics;
 using Home.Graph.Common;
 using Home.Agents.Sarah.Devices.Zigbee2Mqtt;
+using Home.Agents.Sarah.Devices.Shelly;
 
 namespace Home.Agents.Sarah
 {
@@ -23,37 +24,7 @@ namespace Home.Agents.Sarah
 
             AgentHelper.WriteStartupMessage("Sarah", typeof(Program).Assembly);
 #if DEBUG
-            //MqttHelper.Start("agents-sarah");
-            //Z2MqttHelper.Start();
-
-            //Condition cond = new Condition()
-            //{
-            //    Kind = ConditionKind.And,
-            //    SubConditions = new Condition[] {
-            //        new Condition()
-            //        {
-            //            PropertyName = "IsPresent",
-            //            ElementId = "mwaroquier",
-            //            Kind = ConditionKind.UserCheck,
-            //            Operator = "!=",
-            //            Value = "true"
-            //        },
-            //        new Condition()
-            //        {
-            //            PropertyName = "IsPresent",
-            //            ElementId = "mcarbenay",
-            //            Kind = ConditionKind.UserCheck,
-            //            Operator = "!=",
-            //            Value = "true"
-            //        }
-            //    }
-            //};
-            //Console.WriteLine(cond);
-
-            //Console.WriteLine("result = " + ConditionHelper.GetForAgent("sarah").Evaluate(cond));
-
-            TriggersChecker.RefreshRoutines();
-            TriggersChecker.Run();
+            var t = ShellyDeviceHelper.
 
             Console.ReadLine();
             return;

@@ -15,7 +15,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
         }
 
-        public class GetShelly25StatusResponse : ShellyDeviceHelper.GetStatusResponse
+        public class GetShelly25StatusResponse : ShellyDeviceHelperGen1.GetStatusResponse
         {
             public GetShelly25StatusRelay[] relays { get; set; }
             public GetShelly25StatusMeter[] meters { get; set; }
@@ -64,7 +64,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
         }
 
 
-        public class GetShelly25SettingsResponse : ShellyDeviceHelper.GetSettingsResponse
+        public class GetShelly25SettingsResponse : ShellyDeviceHelperGen1.GetSettingsResponse
         {
             public bool factory_reset_from_switch { get; set; }
             public string mode { get; set; }

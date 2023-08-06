@@ -1,273 +1,337 @@
 ﻿using Home.Common;
 using Home.Common.HomeAutomation;
 using Home.Common.Messages;
+using Home.Common.Model;
+using Home.Graph.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
+using static Home.Agents.Sarah.Devices.Shelly.ShellyDeviceHelperGen1;
 
 namespace Home.Agents.Sarah.Devices.Shelly
 {
     public static partial class ShellyDeviceHelper
     {
-        #region DataObjects
-        public class GetShellyDeviceInfo
+
+
+        private static Dictionary<string, ShellyDeviceBase> _allDevices = new Dictionary<string, ShellyDeviceBase>();
+
+
+        internal static DeviceBase[] GetDevices(NetworkDeviceEnumerateMessageResponse alldevs)
         {
-            public string type { get; set; }
-            public string mac { get; set; }
-            public bool auth { get; set; }
-            public string fw { get; set; }
-            public int longid { get; set; }
-            public bool sleep_mode { get; set; }
+            if (!alldevs.Response.Equals("ok", StringComparison.InvariantCultureIgnoreCase))
+                return null;
+
+            List<DeviceBase> ret = new List<DeviceBase>();
+
+            foreach (var dev in alldevs.ActiveDevices)
+            {
+                if (dev.Vendor != null && dev.Vendor.Contains("Espressif", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    //Console.WriteLine($"Shelly - Found {dev.IpV4} as a potential shelly device");
+
+                    var dvb = GetDeviceBase(dev);
+                    if (dvb != null)
+                    {
+                        //Console.WriteLine($"Shelly - Adding {dev.IpV4} as shelly device : {dvb.DeviceName}");
+                        ret.Add(dvb);
+                    }
+                }
+            }
+
+            var toRegister = new List<Device>();
+            var toConfigure = new List<ShellyDeviceBase>();
+            foreach (ShellyDeviceBase r in ret)
+            {
+                Add(toRegister, toConfigure, r);
+            }
+
+            if (toRegister != null && toRegister.Count > 0)
+            {
+                foreach (var r in toRegister)
+                {
+                    try
+                    {
+                        var settings = ShellyDeviceHelperGen1.GetSettings(r.DeviceAddresses[0]);
+                        if (!string.IsNullOrEmpty(settings.name))
+                            r.DeviceGivenName = settings.name;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Shelly - Registering devices - get name failed with : {ex.Message}");
+                    }
+                }
+
+                RegisterDevices(toRegister, toConfigure);
+            }
+
+            var t = _allDevices.Values.ToArray();
+            foreach (ShellyDeviceBase r in t)
+            {
+                if (r != null && r.DeviceName != null)
+                {
+                    var detected = (from z in ret
+                                    where z.DeviceName.Equals(r.DeviceName)
+                                    select z).FirstOrDefault();
+                    if (detected == null)
+                    {
+                        _allDevices.Remove(r.DeviceName);
+                    }
+                }
+                else if (r.DeviceName == null)
+                    _allDevices.Remove(r.DeviceName);
+            }
+
+            return ret.ToArray();
         }
 
-        public class GetStatusResponse
+        private static void RegisterDevices(List<Device> toRegister, List<ShellyDeviceBase> toConfigure)
         {
-            public GetStatusWifiState wifi_sta { get; set; }
-            public GetStatusCloudConfig cloud { get; set; }
-            public GetStatusMqttStatus mqtt { get; set; }
-            public string time { get; set; }
-            public int unixtime { get; set; }
-            public int serial { get; set; }
-            public bool has_update { get; set; }
-            public string mac { get; set; }
-            public GetStatusUpdateStatus update { get; set; }
-            public int ram_total { get; set; }
-            public int ram_free { get; set; }
-            public int ram_lwm { get; set; }
-            public int fs_size { get; set; }
-            public int fs_free { get; set; }
-            public int uptime { get; set; }
+            Console.WriteLine($"Shelly - Registering {toRegister.Count} shelly devices");
+
+            if (toRegister != null && toRegister.Count > 0)
+            {
+                RegisterDevice(toRegister.ToArray());
+                ThreadPool.QueueUserWorkItem((o) =>
+                {
+                    foreach (var dev in toConfigure)
+                    {
+                        try
+                        {
+                            if (dev is IAutoSetupDevice)
+                            {
+                                var sw = dev as Common.HomeAutomation.IAutoSetupDevice;
+                                var resSetup = sw.GetSetupStatus();
+                                if (resSetup == Common.HomeAutomation.AutoSetupDeviceStatus.NewDevice)
+                                {
+                                    Console.WriteLine($"Shelly - {dev.DeviceId} is a new device !");
+                                    sw.InitialSetup();
+                                    Console.WriteLine($"Shelly - {dev.DeviceId} configured !");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Shelly - {dev.DeviceId} error in autoconfig : " + ex);
+                        }
+                    }
+                });
+            }
         }
 
-        public class GetStatusWifiState
+        private static void Add(List<Device> toRegister, List<ShellyDeviceBase> toConfigure, ShellyDeviceBase r)
         {
-            public bool connected { get; set; }
-            public string ssid { get; set; }
-            public string ip { get; set; }
-            public int rssi { get; set; }
+            ShellyDeviceBase already = null;
+            if (!_allDevices.TryGetValue(r.DeviceName, out already))
+            {
+                _allDevices.Add(r.DeviceName, r);
+                var devreg = new Device(r);
+                devreg.DeviceRoles.Add("shelly");
+                devreg.DeviceAddresses.Add(r.IpV4);
+                devreg.DeviceGivenName = r.DeviceName;
+                toRegister.Add(devreg);
+                toConfigure.Add(r);
+            }
+            else
+            {
+
+
+                if (already.IpV4 != r.IpV4)
+                {
+                    already.IpV4 = r.IpV4;
+                }
+            }
         }
 
-        public class GetStatusCloudConfig
+        private static void RegisterDevice(params Device[] devices)
         {
-            public bool enabled { get; set; }
-            public bool connected { get; set; }
-        }
+            foreach (var dev in devices)
+                dev.DevicePlatform = "shelly";
 
-        public class GetStatusMqttStatus
-        {
-            public bool connected { get; set; }
-        }
-
-        public class GetStatusUpdateStatus
-        {
-            public string status { get; set; }
-            public bool has_update { get; set; }
-            public string new_version { get; set; }
-            public string old_version { get; set; }
-        }
-
-
-
-        public class GetSettingsResponse
-        {
-            public GetSettingsDeviceInfo device { get; set; }
-            public GetSettingsWifiAp wifi_ap { get; set; }
-            public GetSettingsWifi wifi_sta { get; set; }
-            public GetSettingsAPRoaming ap_roaming { get; set; }
-            public GetSettingsMqtt mqtt { get; set; }
-            public GetSettingsCoiot coiot { get; set; }
-            public GetSettingsSntp sntp { get; set; }
-            public GetSettingsLogin login { get; set; }
-            public string pin_code { get; set; }
-            public string name { get; set; }
-            public string fw { get; set; }
-            public bool discoverable { get; set; }
-            public GetSettingsBuildInfo build_info { get; set; }
-            public GetSettingsCloudConfig cloud { get; set; }
-            public string timezone { get; set; }
-            public float lat { get; set; }
-            public float lng { get; set; }
-            public bool tzautodetect { get; set; }
-            public int tz_utc_offset { get; set; }
-            public bool tz_dst { get; set; }
-            public bool tz_dst_auto { get; set; }
-            public string time { get; set; }
-            public int unixtime { get; set; }
-            public bool debug_enable { get; set; }
-            public bool allow_cross_origin { get; set; }
-            public bool wifirecovery_reboot_enabled { get; set; }
-        }
-
-        public class GetSettingsDeviceInfo
-        {
-            public string type { get; set; }
-            public string mac { get; set; }
-            public string hostname { get; set; }
-        }
-
-        public class GetSettingsWifiAp
-        {
-            public bool enabled { get; set; }
-            public string ssid { get; set; }
-            public string key { get; set; }
-        }
-
-        public class GetSettingsWifi
-        {
-            public bool enabled { get; set; }
-            public string ssid { get; set; }
-            public string ipv4_method { get; set; }
-            public object ip { get; set; }
-            public object gw { get; set; }
-            public object mask { get; set; }
-            public object dns { get; set; }
-        }
-
-        public class GetSettingsAPRoaming
-        {
-            public bool enabled { get; set; }
-            public int threshold { get; set; }
-        }
-
-        public class GetSettingsMqtt
-        {
-            public bool enable { get; set; }
-            public string server { get; set; }
-            public string user { get; set; }
-            public string id { get; set; }
-            public decimal reconnect_timeout_max { get; set; }
-            public decimal reconnect_timeout_min { get; set; }
-            public bool clean_session { get; set; }
-            public int keep_alive { get; set; }
-            public int max_qos { get; set; }
-            public bool retain { get; set; }
-            public int update_period { get; set; }
-        }
-
-        public class GetSettingsCoiot
-        {
-            public bool enabled { get; set; }
-            public int update_period { get; set; }
-            public string peer { get; set; }
-        }
-
-        public class GetSettingsSntp
-        {
-            public string server { get; set; }
-            public bool enabled { get; set; }
-        }
-
-        public class GetSettingsLogin
-        {
-            public bool enabled { get; set; }
-            public bool unprotected { get; set; }
-            public string username { get; set; }
-        }
-
-        public class GetSettingsBuildInfo
-        {
-            public string build_id { get; set; }
-            public DateTime build_timestamp { get; set; }
-            public string build_version { get; set; }
-        }
-
-        public class GetSettingsCloudConfig
-        {
-            public bool enabled { get; set; }
-            public bool connected { get; set; }
-        }
-
-
-        public class GetLoginSettingsResponse
-        {
-            public bool enabled { get; set; }
-            public bool unprotected { get; set; }
-            public string username { get; set; }
-        }
-
-
-        public class MqttAnnounce
-        {
-            public string id { get; set; }
-            public string model { get; set; }
-            public string mac { get; set; }
-            public string ip { get; set; }
-            public bool new_fw { get; set; }
-            public string fw_ver { get; set; }
-        }
-
-
-
-        #endregion
-
-        public static GetStatusResponse GetStatus(string IpV4)
-        {
-            return GetStatus<GetStatusResponse>(IpV4);
-        }
-
-        public static T GetStatus<T>(string IpV4) where T : GetStatusResponse, new()
-        {
-            string url = $"http://{IpV4}/status";
-            using (var cli = new ShellyWebClient())
+            for (int i = 0; i < 3; i++)
             {
                 try
                 {
-                    string json = cli.DownloadString(url);
-                    var sdi = JsonConvert.DeserializeObject<T>(json);
-                    return sdi;
+                    using (var cli = new MainApiAgentWebClient("sarah"))
+                    {
+                        var exts = cli.UploadData<List<Device>, Device[]>(
+                            $"/v1.0/devices/register/sarah",
+                            "POST", devices);
+                        break;
+                    }
                 }
-                catch (WebException)
+                catch (Exception ex)
                 {
-                    return null;
+                    Console.WriteLine(ex);
+                }
+
+            }
+        }
+
+
+        private static string _root = "shellies";
+
+        public static bool _stop = false;
+        public static void Start()
+        {
+            string pth = _root;
+            if (!pth.EndsWith("/"))
+                pth = pth + "/";
+            pth = pth + "#";
+
+            MqttHelper.AddChangeHandler(pth, HandleChange);
+
+
+            var t = new Thread(() => ShellyDeviceHelper.Run());
+            t.Name = "Shelly devices";
+            t.Start();
+
+
+
+        }
+
+        private static void Run()
+        {
+            while (!_stop)
+            {
+                try
+                {
+                    Thread.Sleep(10000);
+
+                    Thread.Sleep(20000);
+                }
+                catch (Exception ex)
+                {
+                    Console.Write("Shelly - ERR in ShellyThread - ");
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        public static void Stop()
+        {
+            _stop = true;
+
+            string pth = _root;
+            if (!pth.EndsWith("/"))
+                pth = pth + "/";
+            pth = pth + "#";
+            MqttHelper.RemoveChangeHandler(pth, HandleChange);
+
+        }
+
+
+        public static void HandleChange(string topic, string data)
+        {
+            string subPath = topic;
+            if (subPath.StartsWith(_root))
+                subPath = subPath.Substring(_root.Length);
+            if (subPath.StartsWith("/"))
+                subPath = subPath.Substring(1);
+
+            if (subPath.Equals("announce", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // on regarde si le device existe, sinon on
+                // va le créer pour une prochaine execution
+                // et on essaie de le configurer
+                var announce = JsonConvert.DeserializeObject<MqttAnnounce>(data);
+                if (announce != null)
+                {
+                    var dev = (from z in _allDevices.Values
+                               where z.DeviceId.Equals(announce.id, StringComparison.InvariantCultureIgnoreCase)
+                               select z).FirstOrDefault();
+                    if (dev == null)
+                    {
+                        // identifions le modèle pour savoir si c'est
+                        // un device tout le temps connecté ou non
+                        var mdl = IdentifyModel(announce.model);
+                        if (mdl != null)
+                        {
+                            if (mdl.AlwaysConnected.GetValueOrDefault(false))
+                            {
+                                dev = GetDeviceBase(announce.ip) as ShellyDeviceBase;
+                            }
+                            else
+                            {
+                                switch(mdl.Gen)
+                                {
+                                    case 1:
+                                        dev = ShellyDeviceHelperGen1.InstanciateDevice(announce.ip, announce.model, announce.id, null) as ShellyDeviceBase;
+                                        break;
+                                }
+                                
+                            }
+
+                            if (dev != null)
+                            {
+                                List<Device> reg = new List<Device>();
+                                List<ShellyDeviceBase> conf = new List<ShellyDeviceBase>();
+                                Add(reg, conf, dev);
+                                RegisterDevices(reg, conf);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (subPath.Contains("/")) // très probablement un device
+            {
+                var devId = subPath.Substring(0, subPath.IndexOf("/"));
+                foreach (var dev in _allDevices.Values)
+                {
+                    if (dev.DeviceId.Equals(devId, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        subPath = subPath.Substring(subPath.IndexOf("/") + 1);
+                        dev.RefreshFromMqttTopic(subPath, data);
+                    }
                 }
             }
         }
 
 
-        public static GetSettingsResponse GetSettings(string IpV4)
+        private static bool IsPermanentConnectModel(string model)
         {
-            return GetSettings<GetSettingsResponse>(IpV4);
+            if (model == null)
+                return false;
+            if (_models.TryGetValue(model, out var result))
+                return result.AlwaysConnected.GetValueOrDefault(false);
+
+            return false;
         }
 
-        public static T GetSettings<T>(string IpV4) where T : GetSettingsResponse, new()
+        private static ShellyModel IdentifyModel(string model)
         {
-            string url = $"http://{IpV4}/settings";
-            using (var cli = new ShellyWebClient())
-            {
-                try
-                {
-                    string json = cli.DownloadString(url);
-                    var sdi = JsonConvert.DeserializeObject<T>(json);
-                    return sdi;
-                }
-                catch (WebException)
-                {
-                    return null;
-                }
-            }
+            if (model == null)
+                return null;
+            if (_models.TryGetValue(model, out var result))
+                return result;
+            return null;
         }
 
-        public static GetLoginSettingsResponse GetLoginSettings(string IpV4)
+        private static Dictionary<string, ShellyModel> _models = new Dictionary<string, ShellyModel>()
         {
-            string url = $"http://{IpV4}/settings/login";
-            using (var cli = new ShellyWebClient())
-            {
-                try
-                {
-                    string json = cli.DownloadString(url);
-                    var sdi = JsonConvert.DeserializeObject<GetLoginSettingsResponse>(json);
-                    return sdi;
-                }
-                catch (WebException)
-                {
-                    return null;
-                }
-            }
+            { "SHBTN-1", new ShellyModel() {Name = "Shelly Button 1", Type=typeof(ShellyButton1), AlwaysConnected = null, Gen = 1 } },
+            { "SHPLG-S", new ShellyModel() {Name = "Shelly Plug S", Type=typeof(ShellySimpleSwitch), AlwaysConnected = true , Gen = 1} },
+            { "SHSW-25", new ShellyModel() {Name = "Shelly Plug S", Type=null, AlwaysConnected = true, Gen = 1 } },
+            { "SHHT-1", new ShellyModel() {Name = "Shelly Temp & Humidity Sensor", Type=null, AlwaysConnected = false, Gen = 1 } },
+        };
+
+        private class ShellyModel
+        {
+            public string Name { get; set; }
+            public Type Type { get; set; }
+
+            public bool? AlwaysConnected { get; set; }
+
+            public int Gen { get; set; }
         }
 
-        internal static GetShellyDeviceInfo GetDeviceInfo(string ipV4)
+
+        internal static ShellyInfoDataObject GetDeviceInfo(string ipV4)
         {
             using (WebClient cli = new WebClient())
             {
@@ -275,13 +339,37 @@ namespace Home.Agents.Sarah.Devices.Shelly
                 try
                 {
                     string json = cli.DownloadString(url);
-                    return JsonConvert.DeserializeObject<GetShellyDeviceInfo>(json);
+                    return ShellyInfoDataObject.FromJson(json);
                 }
                 catch (WebException)
                 {
                     return null;
                 }
             }
+        }
+
+        internal static DeviceBase GetDeviceBase(NetworkDeviceData dev)
+        {
+            string ipV4 = dev.IpV4;
+            return GetDeviceBase(ipV4);
+        }
+
+        internal static DeviceBase GetDeviceBase(string ipV4)
+        {
+            var sdi = ShellyDeviceHelper.GetDeviceInfo(ipV4);
+
+            if (sdi == null)
+            {
+                //Console.WriteLine($"Shelly - {ipV4} is not a shelly device");
+                return null;
+            }
+
+            if (sdi is ShellyInfoDataObjectGen1)
+                return ShellyDeviceHelperGen1.GetDeviceBase(sdi as ShellyInfoDataObjectGen1, ipV4);
+
+
+            return null;
+
         }
 
     }
