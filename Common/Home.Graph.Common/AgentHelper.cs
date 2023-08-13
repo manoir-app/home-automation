@@ -175,6 +175,8 @@ namespace Home.Common
                 {"agentId", agentName }
             });
 
+            MqttHelper.PublishAgentStatus(agentName, null, DateTime.Now);
+
             _lastPing = DateTimeOffset.Now;
 
             try

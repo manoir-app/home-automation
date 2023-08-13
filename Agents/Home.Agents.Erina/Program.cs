@@ -1,4 +1,5 @@
 ﻿using Home.Common;
+using Home.Graph.Common;
 using System;
 using System.Threading;
 
@@ -16,6 +17,7 @@ namespace Home.Agents.Erina
             AgentHelper.SetupLocaleFromServer("erina");
             AgentHelper.ReportStart("erina", "pim");
 
+            MqttHelper.Start("agents-erian");
 
             ErinaMessageHandler.Start();
 
@@ -26,6 +28,8 @@ namespace Home.Agents.Erina
             }
 
             ErinaMessageHandler.Stop();
+            MqttHelper.Stop();
+
         }
     }
 }

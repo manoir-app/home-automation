@@ -1,4 +1,5 @@
 ﻿using Home.Common;
+using Home.Graph.Common;
 using System;
 using System.IO;
 using System.Threading;
@@ -18,7 +19,7 @@ namespace Home.Agents.Freeia
             AgentHelper.ReportStart("freeia", "monitoring");
 
 
-            MqttHandler.Start();
+            MqttHelper.Start("agents-freeia");
             FreeiaMessageHandler.Start();
             FreeboxHelper.Start();
             while (!_stop)
@@ -29,7 +30,7 @@ namespace Home.Agents.Freeia
 
             FreeiaMessageHandler.Stop();
             FreeboxHelper.Stop();
-            MqttHandler.Stop();
+            MqttHelper.Stop();
         }
     }
 }

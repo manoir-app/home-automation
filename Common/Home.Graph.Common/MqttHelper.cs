@@ -17,6 +17,11 @@ namespace Home.Graph.Common
     {
         static IManagedMqttClient _client = null;
 
+        public static IManagedMqttClient Client
+        {
+            get { return _client; }
+        }
+
         public static void Start(string name)
         {
             if (_client != null)
@@ -327,7 +332,7 @@ namespace Home.Graph.Common
             _devices.Add(deviceName, stat);
 
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/reachable")
+                .WithTopic($"manoir/network/appliances/" + deviceName + "/reachable")
                 .WithPayload(isReachable.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
@@ -336,7 +341,7 @@ namespace Home.Graph.Common
             if (!string.IsNullOrEmpty(mainIpv4))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/ipv4")
+                .WithTopic($"manoir/network/appliances/" + deviceName + "/ipv4")
                 .WithPayload(mainIpv4.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -346,7 +351,7 @@ namespace Home.Graph.Common
             if (!string.IsNullOrEmpty(mainIpv6))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/ipv6")
+                .WithTopic($"manoir/network/appliances/" + deviceName + "/ipv6")
                 .WithPayload(mainIpv6.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -358,17 +363,22 @@ namespace Home.Graph.Common
 
         public static void PublishAgentStatus(string agent, string status, DateTimeOffset lastPing)
         {
-            _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/agents/{agent}/status")
-                .WithPayload(status)
-                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                .WithRetainFlag().Build()).Wait();
+            // on peut l'appeler alors que l'init n'est pas encore terminée
+            if (_client == null)
+                return;
+
+            if(status != null)
+                _client.EnqueueAsync(new MqttApplicationMessageBuilder()
+                    .WithTopic($"manoir/mesh/agents/{agent}/status")
+                    .WithPayload(status)
+                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithRetainFlag().Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
                 .WithTopic($"manoir/mesh/agents/{agent}/lastPing")
                 .WithPayload(lastPing.ToString("u"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                .WithRetainFlag().Build()).Wait();
+                .Build()).Wait();
 
         }
 

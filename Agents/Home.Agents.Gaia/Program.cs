@@ -1,4 +1,5 @@
 ﻿using Home.Common;
+using Home.Graph.Common;
 using k8s;
 using System;
 using System.Threading;
@@ -26,6 +27,7 @@ namespace Home.Agents.Gaia
                 KubernetesChecker.RestartAfterReboot();
             }).Start();
 
+            MqttHelper.Start("agents-gaia");
 
 
             GaiaMessageHandler.Start();
@@ -39,7 +41,7 @@ namespace Home.Agents.Gaia
             MqttHandler.Stop();
             KubernetesChecker.Stop();
             GaiaMessageHandler.Stop();
-
+            MqttHelper.Stop();
         }
     }
 }

@@ -135,7 +135,7 @@ namespace Home.Agents.Freeia
                                 Content = cn.result.state,
                                 Up = isUp
                             };
-                            MqttHandler.PublishNetworkStatus(cn.result.state, isUp, cn.result.bandwidth_up, cn.result.bandwidth_down, cn.result.rate_up, cn.result.rate_down, r.Ssids);
+                            NetworkConnectionHelper.PublishNetworkStatus("freebox", cn.result.state, isUp, cn.result.bandwidth_up, cn.result.bandwidth_down, cn.result.rate_up, cn.result.rate_down, r.Ssids);
                         }
 
 
@@ -181,7 +181,7 @@ namespace Home.Agents.Freeia
                         foreach(var key in externassids.Keys)
                         {
                             var nei = externassids[key];
-                            MqttHandler.PublishExternalSsid(nei.ssid, nei.signal);
+                            NetworkConnectionHelper.PublishExternalSsid(nei.ssid, nei.signal);
 
                             if (!_externalSsids.Contains(key))
                             {
