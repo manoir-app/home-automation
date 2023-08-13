@@ -2,6 +2,7 @@
 using Home.Common;
 using Home.Common.Messages;
 using Home.Common.Model;
+using Home.Graph.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +50,7 @@ namespace Home.Agents.Erza
             ErzaIntegrationsProvider.InitIntegrations();
 
             ErzaMessageHandler.Start();
+            MqttHelper.Start("agents-erza");
             WeatherProviders.WeatherIntegration.Start();
             NetworkChecker.Start();
             DatabaseMaintenanceThread.Start();
@@ -69,7 +71,7 @@ namespace Home.Agents.Erza
             NetworkChecker.Stop();
             WeatherProviders.WeatherIntegration.Stop();
             DatabaseMaintenanceThread.Stop();
-
+            MqttHelper.Stop();
         }
 
 

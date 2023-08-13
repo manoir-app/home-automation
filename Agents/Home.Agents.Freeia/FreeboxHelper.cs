@@ -1,6 +1,7 @@
 ﻿using Home.Common;
 using Home.Common.Messages;
 using Home.Common.Model;
+using Home.Graph.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -66,6 +67,8 @@ vxo6c0dSSNrr7dDN+m2/dRvgoIpGL2GauOGqDFY=";
 
         public static void Start()
         {
+            NetworkConnectionHelper.Init("freeia");
+
             var t = new Thread(() => FreeboxHelper.Run());
             t.Name = "Connection status checker";
             t.Start();
@@ -151,7 +154,7 @@ vxo6c0dSSNrr7dDN+m2/dRvgoIpGL2GauOGqDFY=";
                     _devices.Add(dev.Id, stat);
 
 
-                    MqttHandler.PublishDeviceStatus(dev.Id, true, dev.IpV4, dev.IpV6, dev.Name);
+                    NetworkConnectionHelper.PublishDeviceStatus(dev.Id, true, dev.IpV4, dev.IpV6, dev.Name);
                 }
                 foreach (var dev in allDevs.InactiveDevices)
                 {
@@ -179,7 +182,7 @@ vxo6c0dSSNrr7dDN+m2/dRvgoIpGL2GauOGqDFY=";
 
                     _devices.Add(dev.Id, stat);
 
-                    MqttHandler.PublishDeviceStatus(dev.Id, false, dev.IpV4, dev.IpV6, dev.Name);
+                    NetworkConnectionHelper.PublishDeviceStatus(dev.Id, false, dev.IpV4, dev.IpV6, dev.Name);
                 }
             }
         }

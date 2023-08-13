@@ -22,6 +22,7 @@ namespace Home.Agents.Clara
             AgentHelper.SetupLocaleFromServer("clara");
             AgentHelper.ReportStart("clara", "pim");
 
+            MqttHelper.Start("agents-clara");
             MainScheduleThread.Start();
             PimSchedulerThread.Start();
             ClaraMessageHandler.Start();
@@ -46,6 +47,7 @@ namespace Home.Agents.Clara
             ClaraMessageHandler.Stop();
             PimSchedulerThread.Stop();
             MainScheduleThread.Stop();
+            MqttHelper.Stop();
         }
     }
 }

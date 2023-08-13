@@ -1,6 +1,7 @@
 ﻿using Home.Agents.Aurore.Greetings;
 using Home.Agents.Aurore.Integrations.Rhasspy;
 using Home.Common;
+using Home.Graph.Common;
 using System;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,7 @@ namespace Home.Agents.Aurore
 
             AgentHelper.ReportStart("aurore", "user-interaction");
 
+            MqttHelper.Start("agents-aurore");
             AuroreMessageHandler.Start();
             AuroreNewsItemService.Start();
             CommonAppGreetingsUpdater.Start();
@@ -42,6 +44,7 @@ namespace Home.Agents.Aurore
             CommonAppGreetingsUpdater.Stop();
             AuroreNewsItemService.Stop();
             AuroreMessageHandler.Stop();
+            MqttHelper.Stop();
 
         }
 
