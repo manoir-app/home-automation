@@ -184,7 +184,7 @@ namespace Home.Graph.Common
 
 
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/users/{user.Id}/activity/login/{where}")
+                    .WithTopic($"manoir/mesh/users/{user.Id}/activity/login/{where}")
                     .WithPayload(DateTimeOffset.Now.ToString("u"))
                     .WithRetainFlag().Build()).Wait();
             }
@@ -197,12 +197,12 @@ namespace Home.Graph.Common
         private static void AddRefreshUserMessages(User user)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/users/{user.Id}/name")
+                .WithTopic($"manoir/mesh/users/{user.Id}/name")
                 .WithPayload(user.CommonName)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/users/{user.Id}/role")
+                .WithTopic($"manoir/mesh/users/{user.Id}/role")
                 .WithPayload(user.IsMain ? "main" : "user")
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -224,12 +224,12 @@ namespace Home.Graph.Common
                     if (loc == null)
                     {
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/id")
+                            .WithTopic($"manoir/mesh/users/{user.Id}/presence/currentLocation/id")
                             .WithPayload("")
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/name")
+                            .WithTopic($"manoir/mesh/users/{user.Id}/presence/currentLocation/name")
                             .WithPayload("")
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();
@@ -237,12 +237,12 @@ namespace Home.Graph.Common
                     else
                     {
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/id")
+                            .WithTopic($"manoir/mesh/users/{user.Id}/presence/currentLocation/id")
                             .WithPayload(loc.Id)
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/users/{user.Id}/presence/currentLocation/name")
+                            .WithTopic($"manoir/mesh/users/{user.Id}/presence/currentLocation/name")
                             .WithPayload(loc.Name)
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();
@@ -261,13 +261,13 @@ namespace Home.Graph.Common
             {
 
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/triggers/{triggerId}/lastRun")
+                    .WithTopic($"manoir/mesh/triggers/{triggerId}/lastRun")
                     .WithPayload(triggerExecutionDate.ToString("O"))
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
 
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/triggers/{triggerId}/desc")
+                    .WithTopic($"manoir/mesh/triggers/{triggerId}/desc")
                     .WithPayload(description)
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
@@ -327,7 +327,7 @@ namespace Home.Graph.Common
             _devices.Add(deviceName, stat);
 
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/reachable")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/reachable")
                 .WithPayload(isReachable.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
@@ -336,7 +336,7 @@ namespace Home.Graph.Common
             if (!string.IsNullOrEmpty(mainIpv4))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/ipv4")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/ipv4")
                 .WithPayload(mainIpv4.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -346,7 +346,7 @@ namespace Home.Graph.Common
             if (!string.IsNullOrEmpty(mainIpv6))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/ipv6")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/ipv6")
                 .WithPayload(mainIpv6.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -359,13 +359,13 @@ namespace Home.Graph.Common
         public static void PublishAgentStatus(string agent, string status, DateTimeOffset lastPing)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/agents/{agent}/status")
+                .WithTopic($"manoir/mesh/agents/{agent}/status")
                 .WithPayload(status)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/agents/{agent}/lastPing")
+                .WithTopic($"manoir/mesh/agents/{agent}/lastPing")
                 .WithPayload(lastPing.ToString("u"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -375,24 +375,24 @@ namespace Home.Graph.Common
         public static void PublishSceneGroupStatus(string sceneGroupId, string sceneGroupName, DateTimeOffset lastChange, string sceneId, string sceneName, bool isActive)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/scenes/{sceneGroupId}/name")
+                .WithTopic($"manoir/mesh/scenes/{sceneGroupId}/name")
                 .WithPayload(sceneGroupName)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/scenes/{sceneGroupId}/lastChange")
+                .WithTopic($"manoir/mesh/scenes/{sceneGroupId}/lastChange")
                 .WithPayload(lastChange.ToString("u"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce).Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/scenes/{sceneGroupId}/{sceneId}/name")
+                .WithTopic($"manoir/mesh/scenes/{sceneGroupId}/{sceneId}/name")
                 .WithPayload(sceneName)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/scenes/{sceneGroupId}/{sceneId}/active")
+                .WithTopic($"manoir/mesh/scenes/{sceneGroupId}/{sceneId}/active")
                 .WithPayload(isActive.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -402,7 +402,7 @@ namespace Home.Graph.Common
         public static void PublishRoom(string zoneId, LocationRoom room)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/name")
+                .WithTopic($"manoir/mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/name")
                 .WithPayload(room.Name)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -411,19 +411,19 @@ namespace Home.Graph.Common
             {
                 if (room.Properties.Temperature != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/temperature")
+                        .WithTopic($"manoir/mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/temperature")
                         .WithPayload(room.Properties.Temperature.GetValueOrDefault().ToString("0.00"))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                 if (room.Properties.Humidity != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/humidity")
+                    .WithTopic($"manoir/mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/humidity")
                     .WithPayload(room.Properties.Humidity.GetValueOrDefault().ToString("0.00"))
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
                 if (room.Properties.Occupancy != null)
                     _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                    .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/occupancy")
+                    .WithTopic($"manoir/mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/occupancy")
                     .WithPayload(room.Properties.Occupancy.Value.ToString())
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                     .WithRetainFlag().Build()).Wait();
@@ -433,7 +433,7 @@ namespace Home.Graph.Common
                     foreach (var t in room.Properties.MoreProperties.Keys)
                     {
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                            .WithTopic($"mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
+                            .WithTopic($"manoir/mesh/zones/{EscapeName(zoneId)}/rooms/{EscapeName(room.Id)}/{EscapeName(t)}")
                             .WithPayload(room.Properties.MoreProperties[t])
                             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                             .WithRetainFlag().Build()).Wait();
@@ -446,17 +446,17 @@ namespace Home.Graph.Common
         public static void PublishEntity(Entity entity)
         {
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/name")
+                .WithTopic($"manoir/mesh/entities/{EscapeName(entity.Id)}/name")
                 .WithPayload(entity.Name)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/kind")
+                .WithTopic($"manoir/mesh/entities/{EscapeName(entity.Id)}/kind")
                 .WithPayload(entity.EntityKind)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/entities/{EscapeName(entity.Id)}/currentImage")
+                .WithTopic($"manoir/mesh/entities/{EscapeName(entity.Id)}/currentImage")
                 .WithPayload(entity.CurrentImageUrl == null ? entity.DefaultImageUrl : entity.CurrentImageUrl)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -476,28 +476,28 @@ namespace Home.Graph.Common
                 {
                     case "system.decimal":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.DecimalSimpleValue.GetValueOrDefault().ToString("0.00", CultureInfo.InvariantCulture))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.int64":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.IntSimpleValue.GetValueOrDefault().ToString("0", CultureInfo.InvariantCulture))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.datetimeoffset":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.DateSimpleValue.GetValueOrDefault().ToUniversalTime().ToString("yyyyMMdd-HHmmssZ", CultureInfo.InvariantCulture))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.string":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
                         .WithPayload(t.SimpleValue)
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
@@ -525,7 +525,7 @@ namespace Home.Graph.Common
         public static void PublishMeshProperty(string property, string value)
         {
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
-                .WithTopic($"mesh/properties/{property}")
+                .WithTopic($"manoir/mesh/properties/{property}")
                 .WithPayload(value)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
