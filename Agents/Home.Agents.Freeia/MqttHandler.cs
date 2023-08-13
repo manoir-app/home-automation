@@ -87,42 +87,42 @@ namespace Home.Agents.Freeia
         {
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/freebox/status")
+                .WithTopic($"manoir/mesh/network/freebox/status")
                 .WithPayload(content)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/freebox/up")
+                .WithTopic($"manoir/mesh/network/freebox/up")
                 .WithPayload(isUp.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/freebox/bandwidth/used/up")
+                .WithTopic($"manoir/mesh/network/freebox/bandwidth/used/up")
                 .WithPayload(rate_up.ToString("0"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/freebox/bandwidth/used/down")
+                .WithTopic($"manoir/mesh/network/freebox/bandwidth/used/down")
                 .WithPayload(rate_down.ToString("0"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce).Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/freebox/bandwidth/up")
+                .WithTopic($"manoir/mesh/network/freebox/bandwidth/up")
                 .WithPayload(bandwith_up.ToString("0"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce).Build()).Wait();
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/freebox/bandwidth/down")
+                .WithTopic($"manoir/mesh/network/freebox/bandwidth/down")
                 .WithPayload(bandwith_down.ToString("0"))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce).Build()).Wait();
 
             if (ssids != null && ssids.Length > 0)
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/wifi/mainSsid")
+                .WithTopic($"manoir/mesh/network/wifi/mainSsid")
                 .WithPayload(ssids.FirstOrDefault())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -132,19 +132,10 @@ namespace Home.Agents.Freeia
 
         }
 
-        public static void PublishTest(string pth, string content)
-        {
-            MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
-                .WithTopic("tests/" + pth)
-                .WithPayload(content);
-
-            _client.EnqueueAsync(msg1.Build()).Wait();
-        }
-
         public static void PublishDeviceStatus(string deviceName, bool isReachable, string mainIpv4, string mainIpv6, string name)
         {
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/reachable")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/reachable")
                 .WithPayload(isReachable.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag();
@@ -154,7 +145,7 @@ namespace Home.Agents.Freeia
             if (!string.IsNullOrEmpty(mainIpv4))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/ipv4")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/ipv4")
                 .WithPayload(mainIpv4.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -164,7 +155,7 @@ namespace Home.Agents.Freeia
             if (!string.IsNullOrEmpty(name))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/name")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/name")
                 .WithPayload(name.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -174,7 +165,7 @@ namespace Home.Agents.Freeia
             if (!string.IsNullOrEmpty(mainIpv6))
             {
                 _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/appliances/" + deviceName + "/ipv6")
+                .WithTopic($"manoir/mesh/network/appliances/" + deviceName + "/ipv6")
                 .WithPayload(mainIpv6.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag()
@@ -187,14 +178,14 @@ namespace Home.Agents.Freeia
         public static void PublishExternalSsid(string ssid, int signal)
         {
             MqttApplicationMessageBuilder msg1 = new MqttApplicationMessageBuilder()
-                .WithTopic("mesh/network/wifi/otherSsid/" + ssid + "/ssid")
+                .WithTopic($"manoir/mesh/network/wifi/otherSsid/" + ssid + "/ssid")
                 .WithPayload(ssid.ToString())
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
             List<MqttApplicationMessage> msgs = new List<MqttApplicationMessage>();
             _client.EnqueueAsync(msg1.Build());
 
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-            .WithTopic("mesh/network/wifi/otherSsid/" + ssid + "/signal")
+            .WithTopic($"manoir/mesh/network/wifi/otherSsid/" + ssid + "/signal")
             .WithPayload(signal.ToString())
             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
             .Build()).Wait();
