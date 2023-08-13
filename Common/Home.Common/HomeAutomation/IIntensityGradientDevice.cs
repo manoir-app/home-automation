@@ -7,7 +7,7 @@ namespace Home.Common.HomeAutomation
 {
     public interface IIntensityGradientDevice
     {
-        DeviceData ChangeIntensity(string elementName, decimal intensity);
+        DeviceData ChangeIntensity(string elementName, string instanceId, decimal intensity);
         IEnumerable<DeviceData> GetIntensities();
 
     }

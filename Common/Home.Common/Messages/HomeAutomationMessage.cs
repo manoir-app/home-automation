@@ -44,6 +44,7 @@ namespace Home.Common.Messages
     {
         public string Role { get; set; }
         public string DeviceName { get; set; }
+        public string InstanceId { get; set; }
         public string ElementName { get; set; }
         public string Value { get; set; }
     }

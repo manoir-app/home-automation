@@ -10,6 +10,6 @@ namespace Home.Common.HomeAutomation
     {
         IEnumerable<DeviceData> GetColors();
 
-        DeviceData ChangeColor(string elementName, Color newColor);
+        DeviceData ChangeColor(string elementName, string instanceId, Color newColor);
     }
 }

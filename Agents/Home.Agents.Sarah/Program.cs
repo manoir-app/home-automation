@@ -24,8 +24,8 @@ namespace Home.Agents.Sarah
 
             AgentHelper.WriteStartupMessage("Sarah", typeof(Program).Assembly);
 #if DEBUG
-            var t = ShellyDeviceHelper.
-
+            var dev = ShellyDeviceHelper.GetDeviceBase("192.168.2.229");
+                
             Console.ReadLine();
             return;
 #endif

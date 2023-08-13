@@ -10,7 +10,7 @@ namespace Home.Agents.Sarah.Devices.Shelly
         {
         }
 
-        public DeviceActionnable Configure(string name, DeviceActionnableActionType type, string parameter)
+        public DeviceActionnable Configure(string name, string instanceId, DeviceActionnableActionType type, string parameter)
         {
             return null;
         }

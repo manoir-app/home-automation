@@ -167,10 +167,13 @@ namespace Home.Agents.Sarah.Devices.Shelly
             return ret;
         }
 
-        public DeviceData ChangeSwitchValue(string switchName, string switchNewValue)
+        public DeviceData ChangeSwitchValue(string switchName, string instanceId, string switchNewValue)
         {
             if (string.IsNullOrEmpty(switchNewValue))
                 throw new ArgumentNullException(nameof(switchName));
+
+            if (instanceId == null)
+                instanceId = "0";
 
             var state = 0;
             if (switchName.Equals("open") && !string.IsNullOrEmpty(switchNewValue))

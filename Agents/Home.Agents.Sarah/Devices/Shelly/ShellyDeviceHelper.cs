@@ -366,7 +366,8 @@ namespace Home.Agents.Sarah.Devices.Shelly
 
             if (sdi is ShellyInfoDataObjectGen1)
                 return ShellyDeviceHelperGen1.GetDeviceBase(sdi as ShellyInfoDataObjectGen1, ipV4);
-
+            else if (sdi is ShellyInfoDataObjectGen2)
+                return ShellyDeviceHelperGen2.GetDeviceBase(sdi as ShellyInfoDataObjectGen2, ipV4);
 
             return null;
 

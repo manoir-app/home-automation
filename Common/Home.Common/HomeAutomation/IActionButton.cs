@@ -10,6 +10,6 @@ namespace Home.Common.HomeAutomation
     {
         IEnumerable<DeviceActionnable> GetActionables();
 
-        DeviceActionnable Configure(string name, DeviceActionnableActionType type, string parameter);
+        DeviceActionnable Configure(string name, string instanceId, DeviceActionnableActionType type, string parameter);
     }
 }

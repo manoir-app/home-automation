@@ -64,7 +64,7 @@ namespace Home.Agents.Sarah.Devices.Hue
                                 foreach (var device in devices)
                                 {
                                     Console.WriteLine($"Executing {ope.Role}/{ope.ElementName} {ope.Value} on {device.DeviceName}");
-                                    if (ExecuteCommand(device, ope.Role, ope.ElementName, ope.Value))
+                                    if (ExecuteCommand(device, ope.Role, ope.ElementName, ope.InstanceId, ope.Value))
                                     {
                                         if (!resp.SucceededOperations.Contains(ope)
                                                 && !resp.FailedOperations.Contains(ope))
@@ -137,7 +137,7 @@ namespace Home.Agents.Sarah.Devices.Hue
             return null;
         }
 
-        private static bool ExecuteCommand(HueDeviceBase device, string role, string elementName, string value)
+        private static bool ExecuteCommand(HueDeviceBase device, string role, string elementName, string instanceId, string value)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace Home.Agents.Sarah.Devices.Hue
                         }
                         if (elementName == null)
                             return false;
-                        DeviceManager.OnDeviceStateChanged("Hue", device.DeviceName, Device.HomeAutomationRoleSwitch, sw.ChangeSwitchValue(elementName, value));
+                        DeviceManager.OnDeviceStateChanged("Hue", device.DeviceName, Device.HomeAutomationRoleSwitch, sw.ChangeSwitchValue(elementName, instanceId,value));
                         break;
                     case Device.HomeAutomationRoleDimmer:
                         if (!(device is IIntensityGradientDevice))
@@ -173,7 +173,7 @@ namespace Home.Agents.Sarah.Devices.Hue
                         decimal decimalvalue = 0;
                         if (!decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimalvalue))
                             return false;
-                        DeviceManager.OnDeviceStateChanged("Hue", device.DeviceName, Device.HomeAutomationRoleDimmer, dim.ChangeIntensity(elementName, decimalvalue));
+                        DeviceManager.OnDeviceStateChanged("Hue", device.DeviceName, Device.HomeAutomationRoleDimmer, dim.ChangeIntensity(elementName, instanceId, decimalvalue));
                         break;
                 }
 

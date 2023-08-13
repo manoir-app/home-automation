@@ -9,6 +9,6 @@ namespace Home.Common.HomeAutomation
     {
         IEnumerable<DeviceData> GetSwitches();
 
-        DeviceData ChangeSwitchValue(string switchName, string switchNewValue);
+        DeviceData ChangeSwitchValue(string switchName, string instanceId, string switchNewValue);
     }
 }

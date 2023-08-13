@@ -164,6 +164,7 @@ namespace Home.Common.Model
 
 
         public bool IsMainData { get; set; }
+        public string InstanceId { get; set; }
         public string Name { get; set; }
         public string StandardDataType { get; set; }
         public string Value { get; set; }
