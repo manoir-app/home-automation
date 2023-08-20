@@ -457,7 +457,7 @@ namespace Home.Graph.Common
         {
             string rootTopic = "entities";
             if(!string.IsNullOrEmpty(entity.EntityKind)
-                && entity.EntityKind.StartsWith("manoirapp:" + Device.DeviceKindHomeAutomation))
+                && entity.EntityKind.StartsWith("manoirapp:" + Device.DeviceKindHomeAutomation, StringComparison.InvariantCultureIgnoreCase))
             {
                 rootTopic = "home-automation";
             }
