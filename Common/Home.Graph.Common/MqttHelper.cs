@@ -455,18 +455,25 @@ namespace Home.Graph.Common
 
         public static void PublishEntity(Entity entity)
         {
+            string rootTopic = "entities";
+            if(!string.IsNullOrEmpty(entity.EntityKind)
+                && entity.EntityKind.StartsWith("manoirapp:" + Device.DeviceKindHomeAutomation))
+            {
+                rootTopic = "home-automation";
+            }
+
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/entities/{EscapeName(entity.Id)}/name")
+                .WithTopic($"manoir/mesh/{rootTopic}/{EscapeName(entity.Id)}/name")
                 .WithPayload(entity.Name)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/entities/{EscapeName(entity.Id)}/kind")
+                .WithTopic($"manoir/mesh/{rootTopic}/{EscapeName(entity.Id)}/kind")
                 .WithPayload(entity.EntityKind)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
             _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                .WithTopic($"manoir/mesh/entities/{EscapeName(entity.Id)}/currentImage")
+                .WithTopic($"manoir/mesh/{rootTopic}/{EscapeName(entity.Id)}/currentImage")
                 .WithPayload(entity.CurrentImageUrl == null ? entity.DefaultImageUrl : entity.CurrentImageUrl)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithRetainFlag().Build()).Wait();
@@ -474,11 +481,11 @@ namespace Home.Graph.Common
 
             foreach (var t in entity.Datas.Keys)
             {
-                AddEntityData(t, entity.Datas[t], EscapeName(entity.Id));
+                AddEntityData(t, entity.Datas[t], EscapeName(entity.Id), rootTopic);
             }
         }
 
-        private static void AddEntityData(string key, EntityData t, string path)
+        private static void AddEntityData(string key, EntityData t, string path, string rootTopic)
         {
             if (!t.IsComplex())
             {
@@ -486,28 +493,28 @@ namespace Home.Graph.Common
                 {
                     case "system.decimal":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/{rootTopic}/{path}/{EscapeName(key)}")
                         .WithPayload(t.DecimalSimpleValue.GetValueOrDefault().ToString("0.00", CultureInfo.InvariantCulture))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.int64":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/{rootTopic}/{path}/{EscapeName(key)}")
                         .WithPayload(t.IntSimpleValue.GetValueOrDefault().ToString("0", CultureInfo.InvariantCulture))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.datetimeoffset":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/{rootTopic}/{path}/{EscapeName(key)}")
                         .WithPayload(t.DateSimpleValue.GetValueOrDefault().ToUniversalTime().ToString("yyyyMMdd-HHmmssZ", CultureInfo.InvariantCulture))
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
                         break;
                     case "system.string":
                         _client.EnqueueAsync(new MqttApplicationMessageBuilder()
-                        .WithTopic($"manoir/mesh/entities/{path}/{EscapeName(key)}")
+                        .WithTopic($"manoir/mesh/{rootTopic}/{path}/{EscapeName(key)}")
                         .WithPayload(t.SimpleValue)
                         .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                         .WithRetainFlag().Build()).Wait();
@@ -520,7 +527,7 @@ namespace Home.Graph.Common
                 path = path + "/" + EscapeName(key);
                 foreach (var z in t.ComplexValue.Keys)
                 {
-                    AddEntityData(z, t.ComplexValue[z], path);
+                    AddEntityData(z, t.ComplexValue[z], path, rootTopic);
                 }
             }
         }

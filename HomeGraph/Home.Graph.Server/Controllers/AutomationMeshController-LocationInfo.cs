@@ -60,6 +60,10 @@ namespace Home.Graph.Server.Controllers
 
                 if (res.IsAcknowledged && res.ModifiedCount > 0)
                     MessagingHelper.PushToLocalAgent(new WeatherChangeMessage(weather));
+
+                var mesh = collection.Find(x => x.Id == "local").FirstOrDefault();
+                if (mesh != null)
+                    MqttHelper.PublishEntity(new Entity(mesh.LocationInfo));
             }
             else
             {

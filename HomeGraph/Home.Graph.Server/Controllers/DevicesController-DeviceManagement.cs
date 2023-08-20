@@ -185,7 +185,13 @@ namespace Home.Graph.Server.Controllers
 
             var t = ctl.UpdateOne(x => x.Id.Equals(deviceId), upd);
 
-            return t.MatchedCount == 1;
+            bool isOk = t.MatchedCount == 1;
+
+            var dev = ctl.Find(x => x.Id.Equals(deviceId)).FirstOrDefault();
+            if (dev != null)
+                MqttHelper.PublishEntity(new Entity(dev));
+
+            return isOk;
         }
 
         [Route("all/{deviceId}/status/data"), HttpPost]

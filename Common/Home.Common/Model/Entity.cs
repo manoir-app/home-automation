@@ -114,6 +114,22 @@ namespace Home.Common.Model
 
     public class EntityData
     {
+        public const string CategoryDiagnostic = "diag";
+        public const string CategoryDefault = "";
+        public const string CategoryConfig = "config";
+
+
+        public const string ClassBattery = "battery";
+        public const string ClassCurrentPower = "power";
+        public const string ClassTotalPower = "power_total";
+        public const string ClassHumidity = "humidity";
+        public const string ClassTemperature = "temperature";
+        public const string ClassSwitch = "switch";
+        public const string ClassBrightness = "brightness";
+        public const string ClassColor = "color";
+        public const string ClassLightTemperature = "light_temperature";
+        public const string ClassPositionPct = "position_percentage";
+
         public EntityData()
         {
 
@@ -160,6 +176,9 @@ namespace Home.Common.Model
         public decimal? DecimalSimpleValue { get; set; }
         public DateTimeOffset? DateSimpleValue { get; set; }
         public Dictionary<string, EntityData> ComplexValue { get; set; }
+
+        public string Category { get; set; } = CategoryDefault;
+        public string DataClass { get; set; }
 
         public override string ToString()
         {
