@@ -11,8 +11,8 @@ namespace Home.Common.Model
         public const string EntityKindSun = "manoirapp:sun";
         public const string EntityKindWeather = "manoirapp:weather";
 
-        public const string EntityKindHomeAutomationDevice = "manoirapp:" + Device.DeviceKindHomeAutomation;
-        public const string EntityKindMobileDevice = "manoirapp:" + Device.DeviceKindMobileDevice;
+        public const string EntityKindHomeAutomationDevice = "manoirapp:device/" + Device.DeviceKindHomeAutomation;
+        public const string EntityKindMobileDevice = "manoirapp:device/" + Device.DeviceKindMobileDevice;
 
 
         public Entity()
