@@ -230,6 +230,12 @@ namespace Home.Graph.Server.Controllers
                 {
                     IsUpsert = true
                 });
+
+                dev = ctl.Find(x => x.Id.Equals(deviceId)).FirstOrDefault();
+                if (dev != null)
+                    MqttHelper.PublishEntity(new Entity(dev));
+
+
                 return t.IsAcknowledged;
             }
             else
