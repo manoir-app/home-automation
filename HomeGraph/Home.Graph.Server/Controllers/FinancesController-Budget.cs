@@ -54,7 +54,7 @@ namespace Home.Graph.Server.Controllers
 
             var items = MongoDbHelper.GetClient<BankRecord>();
             var count = items.CountDocuments(x => x.BudgetCategoryId == lst.Id);
-            if (string.IsNullOrEmpty(categoryId) && count > 0)
+            if (string.IsNullOrEmpty(categoryIdRemplacement) && count > 0)
             {
                 return false;
             }
