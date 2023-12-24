@@ -16,7 +16,7 @@
 		<PackageReference Include="Markdig" Version="0.30.2" />
 		<PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.2.0" />
-		<PackageReference Include="MongoDB.Driver" Version="2.11.1" />
+		<PackageReference Include="MongoDB.Driver" Version="2.23.1" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.1.4.563" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Include="KubernetesClient" Version="3.0.7" />
