@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Version>1.1.2</Version>
 		<PackageId>ManoirApp.Home.Common.Graph</PackageId>
@@ -19,9 +19,9 @@
 		<PackageReference Include="MongoDB.Driver" Version="2.23.1" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.1.4.563" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-		<PackageReference Include="KubernetesClient" Version="3.0.7" />
+		<PackageReference Include="KubernetesClient" Version="7.2.19" />
 		<PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="7.0.0" />
 		<PackageReference Include="NATS.Client" Version="0.11.0" />
 		<PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.1.0" />
 		<PackageReference Include="TimeZoneConverter" Version="3.5.0" />

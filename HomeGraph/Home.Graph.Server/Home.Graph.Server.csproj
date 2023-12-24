@@ -221,7 +221,7 @@
 
   <ItemGroup>
     <PackageReference Include="InfluxDB.Client" Version="4.11.0" />
-	<PackageReference Include="JournalApp.Common" Version="1.1.0" />
+    <PackageReference Include="Manoir.Journal.Common" Version="23.805.9" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.14.0" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.1.2">

@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="JournalApp.Common" Version="1.1.0" />
+    <PackageReference Include="Manoir.Journal.Common" Version="23.805.9" />
     <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
 	
     <PackageReference Include="MQTTnet" Version="4.1.4.563" />
