@@ -93,6 +93,7 @@ namespace Home.Common.Model
 
     public enum ProductPackagingType
     {
+        Unit = -1,
         Box,
         Bottle
     }
@@ -102,7 +103,7 @@ namespace Home.Common.Model
         public string Id { get; set; }
         public string Label { get; set; }
 
-        public int ProductPackagingType { get; set; }
+        public ProductPackagingType ProductPackagingType { get; set; }
 
         public ProductOrigin OriginKind { get; set; }
         public string OriginId { get; set; }

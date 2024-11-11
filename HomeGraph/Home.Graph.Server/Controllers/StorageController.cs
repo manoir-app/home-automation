@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Home.Graph.Server.Hubs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Home.Graph.Server.Controllers
 {
@@ -8,5 +10,15 @@ namespace Home.Graph.Server.Controllers
     [ApiController]
     public partial class StorageController : ControllerBase
     {
+        private readonly IHubContext<AdminToolsHub> _adminContext;
+        private readonly IHubContext<AppAndDeviceHub> _appContext;
+        private readonly IHubContext<SystemHub> _sysContext;
+
+        public StorageController(IHubContext<AdminToolsHub> adminContext, IHubContext<AppAndDeviceHub> appContext, IHubContext<SystemHub> sysContext)
+        {
+            _adminContext = adminContext;
+            _appContext = appContext;
+            _sysContext = sysContext;
+        }
     }
 }

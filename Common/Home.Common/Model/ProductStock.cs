@@ -14,6 +14,7 @@ namespace Home.Common.Model
         public string Id { get; set; }
         public string ProductId { get; set; }
         public string StorageUnitId { get; set; }
+        public string ContainerId { get; set; }
         public ProductMetaType ProductMetaType { get; set; }
         public bool IsMainStorage { get; set; }
 
