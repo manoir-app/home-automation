@@ -3,6 +3,7 @@ using Home.Graph.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json.Serialization;
 using NodaTime.TimeZones;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Home.Graph.Server.Controllers
 
         }
 
-        [Route("product/{productId}"), HttpPost]
+        [Route("products/{productId}"), HttpPost]
         public IActionResult AddToInventory(string productId, [FromBody] InventoryAddMovement movement)
         {
             if (string.IsNullOrEmpty(productId))
@@ -38,9 +39,29 @@ namespace Home.Graph.Server.Controllers
 
             var prodColl = MongoDbHelper.GetClient<Product>();
             var item= prodColl.Find(x => x.Id == productId).FirstOrDefault();
-
             if (item == null)
                 return new NotFoundResult();
+
+
+            if (!string.IsNullOrEmpty(movement.ContainerId))
+            {
+                var cntColl = MongoDbHelper.GetClient<StorageContainer>();
+                var cnt = cntColl.Find(x => x.Id == movement.ContainerId).FirstOrDefault();
+                if(cnt==null)
+                {
+                    if(!string.IsNullOrEmpty(movement.StorageUnitId))
+                    {
+                        cnt = new StorageContainer()
+                        {
+                            CurrentStorageUnitId = movement.StorageUnitId,
+                            CurrentStorageUnitSubId = movement.StorageUnitSubId,
+                            Id = movement.ContainerId,
+                            Label = "New Container"
+                        };
+                        cntColl.InsertOne(cnt);
+                    }
+                }
+            }
 
             var invColl = MongoDbHelper.GetClient<ProductStock>();
             var stocks = invColl.Find(x => x.ProductId == productId).ToList();
@@ -62,7 +83,7 @@ namespace Home.Graph.Server.Controllers
                 st.OriginalQuantity += newQty;
                 invColl.ReplaceOne(x => x.Id == st.Id, st, new ReplaceOptions() { IsUpsert = true });
 
-                return new OkObjectResult(invColl);
+                return new OkObjectResult(st);
             }
 
 
