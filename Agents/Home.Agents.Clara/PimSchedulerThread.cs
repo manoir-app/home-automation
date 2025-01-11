@@ -452,6 +452,8 @@ namespace Home.Agents.Clara
                 return;
 
             Todos.MSTodosSync.Sync("mcarbenay");
+
+            _lastTodoRefresh = DateTime.Now;
         }
 
         private static void DoRoutines()

@@ -1,6 +1,7 @@
 ﻿using Home.Agents.Clara;
 using Home.Agents.Clara.Calendars.SchoolPlanning;
 using Home.Agents.Clara.HomeServices.Providers.HouseKeeping;
+using Home.Agents.Clara.Todos;
 using Home.Common;
 using Home.Graph.Common;
 using System;
@@ -14,13 +15,19 @@ namespace Home.Agents.Clara
 
         static void Main(string[] args)
         {
-            new FranceSchoolPlanning().GetNextScheduledItems(DateTimeOffset.Now.AddYears(1));
-
             AgentHelper.WriteStartupMessage("Clara", typeof(Program).Assembly);
 
+#if DEBUG
+            AgentHelper.SetupLocaleFromServer("clara");
+            MSTodosSync.Sync("mcarbenay");
+            return;
+
+#endif
             AgentHelper.SetupReporting("clara");
             AgentHelper.SetupLocaleFromServer("clara");
             AgentHelper.ReportStart("clara", "pim");
+
+
 
             MqttHelper.Start("agents-clara");
             MainScheduleThread.Start();

@@ -86,16 +86,12 @@ namespace Home.Graph.Server
 
             app.UseStaticFiles();
 
-#if !DEBUG
-            app.UseCors();
-#else
             app.UseCors( c=>
             {
                 c.AllowAnyHeader();
                 c.AllowAnyMethod();
                 c.AllowAnyOrigin();
             });
-#endif
 
             var filesAdmin = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "adminroot"));
             app.Map("/admin", b =>
