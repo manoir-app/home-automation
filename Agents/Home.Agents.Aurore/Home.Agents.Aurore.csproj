@@ -26,6 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Icônes pixelart incorporées comme ressources -->
+    <EmbeddedResource Include="Files\pixelart\**\*.png" />
+    <EmbeddedResource Include="Files\pixelart\**\*.jpg" />
+    <EmbeddedResource Include="Files\pixelart\**\*.jpeg" />
+    
     <None Update="build-docker.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -156,6 +161,7 @@
 
   <ItemGroup>
     <Folder Include="ImageGenerators\Composer\" />
+    <Folder Include="Tools\" />
   </ItemGroup>
 
   <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">

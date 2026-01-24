@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Home.Graph.Common;
+using Home.Graph.Server.Services.Llm;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -41,6 +42,10 @@ namespace Home.Graph.Server
             {
 
             });
+
+            // Enregistrer le service LLM comme singleton
+            services.AddSingleton<UserLlmService>();
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "multiple";
@@ -181,6 +186,7 @@ namespace Home.Graph.Server
                 endpoints.MapHub<Hubs.SystemHub>("/hubs/1.0/system");
                 endpoints.MapHub<Hubs.AppAndDeviceHub>("/hubs/1.0/appanddevices");
                 endpoints.MapHub<Hubs.AdminToolsHub>("/hubs/1.0/admin");
+                endpoints.MapHub<Hubs.LlmChatHub>("/hubs/1.0/llm/chat");
             });
         }
     }

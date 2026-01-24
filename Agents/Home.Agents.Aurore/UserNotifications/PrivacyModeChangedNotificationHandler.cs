@@ -1,4 +1,5 @@
-﻿using Home.Common;
+﻿using Home.Agents.Aurore.Integrations;
+using Home.Common;
 using Home.Common.Messages;
 using Home.Common.Model;
 using System;
@@ -69,6 +70,9 @@ namespace Home.Agents.Aurore.UserNotifications
 
             _mesh = AgentHelper.GetLocalMesh("aurore");
             _lastPresentSync = DateTime.MinValue;
+            
+            bool isPrivacyMode = _mesh.CurrentPrivacyMode.HasValue;
+            
             var usrs = AgentHelper.GetMainUsers("aurore");
             foreach (var usr in usrs)
             {
@@ -78,8 +82,8 @@ namespace Home.Agents.Aurore.UserNotifications
                 UserNotification not = new UserNotification()
                 {
                     Date = DateTimeOffset.Now,
-                    Description = _mesh.CurrentPrivacyMode.HasValue ? "Votre domicile est passé en mode privé" : "Votre domicile est de nouveau en mode normal",
-                    Title = _mesh.CurrentPrivacyMode.HasValue?"Mode privé activé":"Mode privé désactivé",
+                    Description = isPrivacyMode ? "Votre domicile est passé en mode privé" : "Votre domicile est de nouveau en mode normal",
+                    Title = isPrivacyMode ? "Mode privé activé" : "Mode privé désactivé",
                     Id = Guid.NewGuid().ToString(),
                     UserId = usr.Id,
                     Importance = UserNotificationImportance.High
@@ -101,6 +105,26 @@ namespace Home.Agents.Aurore.UserNotifications
                         Thread.Sleep(1000);
                     }
                 }
+            }
+
+            // Notification Awtrix
+            try
+            {
+                AwtrixHelper.UpdateMeshPrivacyStatus(isPrivacyMode);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour Awtrix: {ex.Message}");
+            }
+
+            // Notification Divoom
+            try
+            {
+                DivoomHelper.UpdateMeshPrivacyStatus(isPrivacyMode);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour Divoom: {ex.Message}");
             }
 
             return MessageResponse.OK;
